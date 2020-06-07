@@ -1,28 +1,93 @@
-import pandas as pd
-from scipy import stats
 import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as stats
 
-n_of_samples = 3 # Number of stock solutions
+#================== Linearity ========================
+
+# User inputs
+#n_of_samples = 3 # Number of stock solutions
+n_of_samples = 11
 mass_of_samples = [50.0, 50.1, 50.8] # Known mass of analite in each stock solution
 vol_of_samples = [50.0, 50.0, 50.0] # Volume of stock solutions
-k_concentration = [0.008, 0.009, 0.010, 0.011, 0.012] # Known concentration of each measured sample
+k_concentration = [0.03, 0.054, 0.078, 0.1020, 0.1260, 0,1500] # Known concentration of each measured sample
 n_of_analysis = len(k_concentration)    # Number of analysis for each sample
-df_k_concentration = pd.DataFrame(k_concentration) # Concentration pandas dataframe
 
-#TODO: Implement outlier cochrane test for the Analytical responses
-#TODO: Remove the outliers and replace with NaN
-analytical_response = { # Analytical responses for each concentration of each sample
-    "Sample 1": [0.590, 0.548, 0.651, 0.710, 0.773],
-    "Sample 2": [0.526, 0.544, 0.609, 0.698, 0.559],
-    "Sample 3": [0.560, 0.582, 0.692, 0.696, 0.830]
-}
+#  Measured data
+#analytical_data = [[0.188, 0.192, 0.203],[0.349, 0.346, 0.348],[0.489, 0.482,0.492],[0.637,0.641,0.641],[0.762,0.768,0.786],[0.931,0.924,0.925]] # carvedilol data
+analytical_data = [[
+11.89896,
+11.9596,
+11.89856,
+11.91408,
+12.04252,
+12.1531,
+11.94553,
+11.8682,
+11.85949,
+12.13373,
+12.6,
+]]
 
-df_analytical_response = pd.DataFrame(data=analytical_response) # Analytical pandas dataframe
-mean_analytical_response = df_analytical_response.mean(axis = 1)# MEAN pandas dataframe
-std_analytical_response = df_analytical_response.std(axis = 1) # STD pandas dataframe
+arr_data = np.array([np.array(xi) for xi in analytical_data])
+arr_data = np.array(analytical_data)
+length = max(map(len, analytical_data))
 
-df_analytical_response.insert(0, 'Concentration', df_k_concentration) # Inserting concentration into main dataframe
-df_analytical_response = (pd.concat([df_analytical_response, mean_analytical_response], axis=1)).rename(columns={0:'Mean'}) # Inserting MEAN into main dataframe
-main_df = (pd.concat([df_analytical_response, std_analytical_response], axis=1)).rename(columns={0:'STD'}) # Inserting STD into main dataframe
+y_arr = np.array([xi+[None]*(length-len(xi)) for xi in analytical_data])
+x_arr = np.array(k_concentration)
 
-#print(main_df)
+i = 0
+data_mean = []
+data_std = []
+data_var = []
+data_G_calc = []
+
+def grubbsCriticalValue(sample_size, alpha):
+    """Calculate the critical value with the formula given for example in
+    https://en.wikipedia.org/wiki/Grubbs%27_test_for_outliers#Definition
+    Args:
+        ts (list or np.array): The timeseries to compute the critical value.
+        alpha (float): The significance level.
+    Returns:
+        float: The critical value for this test.
+    """
+    t_dist = stats.t.ppf(1 - alpha / (2 * sample_size), sample_size - 2)
+    numerator = (sample_size - 1) * np.sqrt(np.square(t_dist))
+    denominator = np.sqrt(sample_size) * np.sqrt(sample_size - 2 + np.square(t_dist))
+    critical_value = numerator / denominator
+    print("Grubbs Critical Value: {} at a significance of".format(critical_value), alpha)
+    return critical_value
+
+def dataMeanCalculation(data_mean, i): # Calculate the mean for each concentration data set   
+    while i < len(y_arr):
+        data_mean.append(np.mean(y_arr[i]))    
+        i = i + 1
+    return data_mean
+
+def dataSTDCalculation(data_std, i): # Calculate the standard deviation for each concentration data set
+    while i < len(y_arr):
+        data_std.append(np.std(y_arr[i], ddof=1)) # ddof = 1 for sample; if is population use ddof = 0
+        i = i + 1
+    return data_std
+
+dataMeanCalculation(data_mean, 0)
+dataSTDCalculation(data_std, 0)
+
+def dataGCalc(data_G_calc, i): # Calculate the grubbs value for each item
+    while i < len(analytical_data[0]):      
+        G_calculated = abs((analytical_data[0][i]-data_mean[0])/data_std[0])
+        data_G_calc.append(G_calculated)
+        i = i + 1
+    return data_G_calc
+
+G_critical = grubbsCriticalValue(n_of_samples, 0.05)
+dataGCalc(data_G_calc, 0)
+
+# TODO: Create a new list with corrected values
+# TODO: Rerun grubbs test with the corrected values
+for G_calculated in data_G_calc:
+    i = i + 1        
+    if G_calculated > G_critical:
+        print("outlier is in position {}".format(i))
+    else:
+        print("ok")
+    
