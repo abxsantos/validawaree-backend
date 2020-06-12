@@ -1,29 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
-from flask import Flask, render_template, request
-import pandas as pd
-
-app = Flask(__name__)
-
-# Read the csv file
-def read_csv(uploaded_csv):
-  print(uploaded_csv)
-  print("The CSV was read")
-
-# This is a test for uploading and reading a CSV file
-# Render home page
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    return render_template('index.html')
-
-# Render uploaded page
-@app.route('/data', methods=['GET', 'POST'])
-def upload_data():
-    if request.method == 'POST':
-        file = request.form['upload-file']
-        read_csv(pd.read_excel(file))
-        return render_template('data.html')
 
 #================== Linearity ========================
 
@@ -153,5 +130,3 @@ def analysisLinRegression(): # Considering: y = m*x + b
     print("The Correlation coefficient is: {}".format(rvalue))
     print("The Two-sided p-value is: {}".format(pvalue))
     print("The Standard error of estimated gradient is: {}".format(stderr))
-
-analysisLinRegression()
