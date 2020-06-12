@@ -26,7 +26,7 @@ class Linearity:
         
         self.number_of_replicas = number_of_replicas
         
-    def concentracao(self):
+    def concentration(self):
         print(self.analytical_data)
         print(self.volume_of_samples)
         print(self.mass_of_samples)
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     number_of_replicas = 3
     
     teste = Linearity(analytical_data, volume_of_samples, mass_of_samples, number_of_replicas)
-    teste.grubbsCriticalValue(0, 0.5)
-    print(teste.dataMeanCalculation())
-    print(teste.dataSTDCalculation())
-    print(teste.dataGCalc())
+    print(teste.grubbsCriticalValue(0, 0.5))
+    #print(teste.dataMeanCalculation())
+    #print(teste.dataSTDCalculation())
+    #print(teste.dataGCalc())
