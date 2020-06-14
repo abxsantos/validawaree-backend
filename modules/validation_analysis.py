@@ -1,8 +1,8 @@
 import numpy as np
 import scipy.stats as stats
 import statsmodels.api as sm
-from sklearn.linear_model import LinearRegression
 import statsmodels.stats.api as sms
+from sklearn.linear_model import LinearRegression
 from statsmodels.stats.stattools import durbin_watson
 
 # TODO: refactor this spaghetti!
@@ -46,7 +46,7 @@ class Linearity:
         for entries in self.analytical_data:
             mean = np.nanmean(entries)
             data_mean.append(mean)
-        return (data_mean)
+        return data_mean
 
     # Calculate the STandard Deviation for each concentration data set
     def data_std_calculation(self):
@@ -54,7 +54,7 @@ class Linearity:
         for entries in self.analytical_data:
             std = np.nanstd(entries, ddof=1)
             data_std.append(std)
-        return (data_std)
+        return data_std
 
     # Flatten the concentration and analytical data lists as x and y axis
     def flatten_axis_data(self):
@@ -127,8 +127,17 @@ class Linearity:
         serial correlation."""
         durbin_watson_value = durbin_watson(residues)
 
-        return slope, intercept, stderr, slope_pvalue, intercept_pvalue, r_squared, \
-               breusch_pagan_pvalue, residues, durbin_watson_value
+        # print(slope)
+        # print(intercept)
+        # print(stderr)
+        # print(slope_pvalue)
+        # print(intercept_pvalue)
+        # print(r_squared)
+        # print(breusch_pagan_pvalue)
+        # print(residues)
+        # print(durbin_watson_value)
+        #
+        return slope, intercept, stderr, slope_pvalue, intercept_pvalue, r_squared, breusch_pagan_pvalue, residues.tolist(), durbin_watson_value
 
     # ANOVA test
     def anova_analysis(self):
@@ -256,14 +265,5 @@ if __name__ == '__main__':
     alpha = 0.05
 
     test = Linearity(analytical_data, volume_of_samples, mass_of_samples, number_of_replicas, dilution_factor, alpha)
-    #print(test.grubbs_critical_value_calculation())
-    #print(test.concentration_calculation())
-    # slope, intercept, rvalue, pvalue, stderr = test.linear_regression_coefficients()
-    # print("The Slope is: {}".format(slope))
-    # print("The Intercept is: {}".format(intercept))
-    # print("The Correlation coefficient is: {}".format(rvalue))
-    # print("The Two-sided p-value is: {}".format(pvalue))
-    # print("The Standard error of estimated gradient is: {}".format(stderr))
-    test.ordinary_least_squares_linear_regression()
-    #test.anova_analysis()
+
 
