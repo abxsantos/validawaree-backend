@@ -1,9 +1,14 @@
 import numpy as np
+import pandas as pd
 import scipy.stats as stats
 import statsmodels.api as sm
 import statsmodels.stats.api as sms
-from sklearn.linear_model import LinearRegression
+import modules.dixon_outlier
 from statsmodels.stats.stattools import durbin_watson
+from sklearn.linear_model import HuberRegressor
+
+#import matplotlib.pyplot as plt
+
 
 # TODO: refactor this spaghetti!
 
@@ -25,7 +30,6 @@ class Linearity:
         # Organizing lists of concentrations
         for mass in self.mass_of_samples:
             initial_concentration = mass / self.volume_of_samples
-            # print("The initial concentration is: {}".format(initial_concentration))
             concentration_set = []
             for factor in self.dilution_factor:
                 concentration = initial_concentration / factor
@@ -43,28 +47,23 @@ class Linearity:
     # Calculate the mean for each concentration data set
     def data_mean_calculation(self):
         data_mean = []
-        for entries in self.analytical_data:
-            mean = np.nanmean(entries)
-            data_mean.append(mean)
+        for entries in self.analytical_data: data_mean.append(np.nanmean(entries))
         return data_mean
 
     # Calculate the STandard Deviation for each concentration data set
     def data_std_calculation(self):
         data_std = []
-        for entries in self.analytical_data:
-            std = np.nanstd(entries, ddof=1)
-            data_std.append(std)
+        for entries in self.analytical_data: data_std.append(np.nanstd(entries, ddof=1))
         return data_std
 
     # Flatten the concentration and analytical data lists as x and y axis
     def flatten_axis_data(self):
-        concentration_data = self.concentration_calculation()
-        self.analytical_data
 
-        # Usefull snippet to flatten a list of arrays once
+        concentration_data = self.concentration_calculation()
+        # Useful snippet to flatten a list of arrays once
+
         def flatten(lst):
             return [x for y in lst for x in y]
-
         concentration_data_x_axis = flatten(concentration_data)
         analytical_data_y_axis = flatten(self.analytical_data)
 
@@ -77,33 +76,12 @@ class Linearity:
         X = sm.add_constant(x)
         model = sm.OLS(y, X)
         fitted_result = model.fit()
-
-        #summary = results.summary(alpha=self.alpha, title="Ordinary Least Square Results")
-        #print(summary)
+        # summary = results.summary(alpha=self.alpha, title="Ordinary Least Square Results")
 
         # Retrieve some parameters
         slope_pvalue = fitted_result.pvalues[1]
         intercept_pvalue = fitted_result.pvalues[0]
         r_squared = fitted_result.rsquared
-
-        # Check the hypothesis
-        # H0: a = 0
-        # H1: a != 0
-        # Consider P>|t| as your p-value
-
-        # p-value < 0.05 the slope is != 0
-        # if slope_pvalue < self.alpha:
-        #     print("The slope is significative at 0.05. Can be considered != 0\nIt's p-value is: {}\n".format(slope_pvalue))
-        #     # p-value > 0.05 the intercept = 0
-        #     if intercept_pvalue > self.alpha:
-        #         print("The intercept is NOT significative at 0.05. Can be considered = 0\nIt's p-value is: {}\n".format(intercept_pvalue))
-        #         # Minimum value of R² defined by ANVISA
-        #         if r_squared >= 0.990:
-        #             print("The R² is: {}".format(r_squared))
-        #     else:
-        #         print("The intercept is significative at 0.05. Can be considered != 0\nIt's p-value is: {}\n".format(intercept_pvalue))
-        # else:
-        #     print("The slope is NOT significative at 0.05. Can be considered = 0\nIt's p-value is: {}\n".format(slope_pvalue))
 
         # TODO: retrieve only if the conditions above are accepted?
         # Retrieve the other parameters.
@@ -127,17 +105,68 @@ class Linearity:
         serial correlation."""
         durbin_watson_value = durbin_watson(residues)
 
-        # print(slope)
-        # print(intercept)
-        # print(stderr)
-        # print(slope_pvalue)
-        # print(intercept_pvalue)
-        # print(r_squared)
-        # print(breusch_pagan_pvalue)
-        # print(residues)
-        # print(durbin_watson_value)
+        return slope, intercept, stderr, slope_pvalue, intercept_pvalue, r_squared, \
+               breusch_pagan_pvalue, residues.tolist(), durbin_watson_value
+
+    # Regression model to disconsider outliers
+    def huber_regressor_linear_regression(self):
+
+        x, y = np.array(self.flatten_axis_data())
+
+        # Create linear regression object
+        # Train the model using the training sets
+        huber = HuberRegressor(fit_intercept=False).fit(x[:, np.newaxis], y)
+        print("Huber coefficients:", huber.coef_, huber.intercept_)
+
+        # Make predictions using the testing set
+        y_pred_huber = huber.predict(x[:, np.newaxis])
+        # Plot outputs
+        # plt.scatter(x[:, np.newaxis], y, color='black')
+        # plt.plot(x[:, np.newaxis], y_pred_huber, color='blue', linewidth=3)
+        # plt.plot(x[:, np.newaxis], y_pred_ols, color='red', linewidth=3)
         #
-        return slope, intercept, stderr, slope_pvalue, intercept_pvalue, r_squared, breusch_pagan_pvalue, residues.tolist(), durbin_watson_value
+        # plt.xticks(())
+        # plt.yticks(())
+        # plt.show()
+
+        params = np.append(huber.coef_, huber.intercept_)
+        newX = pd.DataFrame({"Constant": np.ones(len(x[:, np.newaxis]))}).join(pd.DataFrame(x[:, np.newaxis]))
+        MSE = (sum((y - y_pred_huber) ** 2)) / (len(newX) - len(newX.columns))
+
+        var_b = MSE * (np.linalg.inv(np.dot(newX.T, newX)).diagonal())
+        sd_b = np.sqrt(var_b)
+        ts_b = params / sd_b
+
+        p_values = [2 * (1 - stats.t.cdf(np.abs(i), (len(newX) - 1))) for i in ts_b]
+
+        sd_b = np.round(sd_b, 3)
+        ts_b = np.round(ts_b, 3)
+        p_values = np.round(p_values, 3)
+        params = np.round(params, 4)
+
+        myDF3 = pd.DataFrame()
+        myDF3["Coefficients"], myDF3["Standard Errors"], myDF3["t values"], myDF3["Probabilities"] = [params, sd_b,
+                                                                                                      ts_b, p_values]
+        return params, sd_b, ts_b, p_values
+
+    # Check the hypothesis for the slope and intercept
+    def check_hypothesis(self, slope_pvalue, intercept_pvalue, r_squared):
+        # H0: a = 0
+        # H1: a != 0
+        # Consider P>|t| as your p-value
+        #p-value < 0.05 the slope is != 0
+        if slope_pvalue < self.alpha:
+            print("The slope is significative at 0.05. Can be considered != 0\nIt's p-value is: {}\n".format(slope_pvalue))
+            # p-value > 0.05 the intercept = 0
+            if intercept_pvalue > self.alpha:
+                print("The intercept is NOT significative at 0.05. Can be considered = 0\nIt's p-value is: {}\n".format(intercept_pvalue))
+                # Minimum value of R² defined by ANVISA
+                if r_squared >= 0.990:
+                    print("The R² is: {}".format(r_squared))
+            else:
+                print("The intercept is significative at 0.05. Can be considered != 0\nIt's p-value is: {}\n".format(intercept_pvalue))
+        else:
+            print("The slope is NOT significative at 0.05. Can be considered = 0\nIt's p-value is: {}\n".format(slope_pvalue))
 
     # ANOVA test
     def anova_analysis(self):
@@ -149,20 +178,18 @@ class Linearity:
             for data in self.analytical_data:
                 data_set.append(data[index])
             anova_set['sample{}'.format(index + 1)] = data_set
-            index = index + 1
+            index += 1
 
         f_anova, p_anova = stats.f_oneway(*anova_set.values())
 
-        # TODO: Try calculating ANOVA without using sklearn, or refitting the data
         x, y = self.flatten_axis_data()
         x = np.array(x)[:, np.newaxis]
         y = np.array(y)[:, np.newaxis]
-        reg = LinearRegression()
 
         degrees_of_freedom_regression = 1
-        ## degrees of freedom population dep. variable variance
+        # Degrees of freedom population dep. variable variance
         degrees_of_freedom = x.shape[0] - 1
-        ## degrees of freedom population error variance
+        # Degrees of freedom population error variance
         degrees_of_freedom_residual = x.shape[0] - 2
 
         # Total sum of squared errors (actual vs avg(actual))
@@ -181,19 +208,10 @@ class Linearity:
         sum_of_squares_regression = sum_of_squares_residual + sum_of_squares_total
 
         # Regression mean square
-        regression_mean_square =  sum_of_squares_regression
+        regression_mean_square = sum_of_squares_regression
 
         # Residual mean square
         residual_mean_square = sum_of_squares_residual / degrees_of_freedom_residual
-
-        # print(sum_of_squares_regression)
-        # print(sum_of_squares_residual)
-        # print(sum_of_squares_total)
-        # print(degrees_of_freedom_regression)
-        # print(degrees_of_freedom_residual)
-        # print(degrees_of_freedom)
-        # print(regression_mean_square)
-        # print(residual_mean_square)
 
         return degrees_of_freedom_regression, sum_of_squares_regression, regression_mean_square, \
                degrees_of_freedom_residual, sum_of_squares_residual, residual_mean_square, \
@@ -225,7 +243,7 @@ class Linearity:
         """Calculate the critical value with the formula given for example in
         https://en.wikipedia.org/wiki/Grubbs%27_test_for_outliers#Definition
         Args:
-            ts (list or np.array): The timeseries to compute the critical value.
+            ts (list or np.array): The time series to compute the critical value.
             alpha (float): The significance level.
         Returns:
             float: The critical value for this test.
@@ -234,7 +252,7 @@ class Linearity:
         numerator = (self.number_of_replicas - 1) * np.sqrt(np.square(t_dist))
         denominator = np.sqrt(self.number_of_replicas) * np.sqrt(self.number_of_replicas - 2 + np.square(t_dist))
         critical_value = numerator / denominator
-        # print("Grubbs Critical Value: {} at a significance of".format(critical_value), alpha)
+        #print("Grubbs Critical Value: {} at a significance of".format(critical_value), self.alpha)
         return critical_value
 
     # Calculate the grubbs value for each item
@@ -252,9 +270,17 @@ class Linearity:
                 index = index + 1
             data_G_calc.append(G_calculated_set)
             n = n + 1
-        return (data_G_calc)
+        return data_G_calc
+
+    def check_dixon_outliers(self):
+        outlier_data = []
+        for data in analytical_data:
+            outlier = modules.dixon_outlier(data, left=True, right=True, alpha=0.05)
+            outlier_data.append(outlier)
+        return outlier_data
 
 if __name__ == '__main__':
+
     # Example of inputs
     analytical_data = [[0.188, 0.192, 0.203], [0.349, 0.346, 0.348], [0.489, 0.482, 0.492], [0.637, 0.641, 0.641],
                        [0.762, 0.768, 0.786], [0.931, 0.924, 0.925]]
@@ -265,5 +291,6 @@ if __name__ == '__main__':
     alpha = 0.05
 
     test = Linearity(analytical_data, volume_of_samples, mass_of_samples, number_of_replicas, dilution_factor, alpha)
-
+    outlier_data = test.check_dixon_outliers()
+    print(outlier_data)
 

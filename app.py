@@ -1,20 +1,21 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response
+from flask_restful import Resource, Api
 from modules.validation_analysis import Linearity
 from modules.read_csv_file import ReadAndOrganizeCSV
 
 app = Flask(__name__)
+api = Api(app)
 
 
-# Render a home page
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    return render_template('index.html')
+class UploadData(Resource):
+
+    def get(self):
+        return make_response(render_template('index.html'))
 
 
-# Upload CSV file
-@app.route('/data', methods=['POST'])
-def upload_csv():
-    if request.method == 'POST':
+class ViewData(Resource):
+
+    def post(self):
         file = request.form['upload-file']
         # Read the file and separate its rows into lists
         read_uploaded_file = ReadAndOrganizeCSV(file)
@@ -34,27 +35,20 @@ def upload_csv():
         linearity_analysis = Linearity(analytical_data, volume_of_samples, mass_of_samples,
                                        number_of_replicas, dilution_factor, alpha)
 
-        print("The average of each replicate is: {}".format(linearity_analysis.data_mean_calculation()))
-        print("The Standard Deviation of each replicate is: {}".format(linearity_analysis.data_std_calculation()))
-
         slope, intercept, stderr, slope_pvalue, intercept_pvalue, r_squared, \
         breusch_pagan_pvalue, residues, durbin_watson_value = linearity_analysis.ordinary_least_squares_linear_regression()
-
-        print("############################################################################")
-        print("#    The Slope is: {}".format(slope))
-        print("#    The Intercept is: {}".format(intercept))
-        print("#    The Standard error of estimated gradient is: {}".format(stderr))
-        print("#    The Slope p-value is: {}".format(slope_pvalue))
-        print("#    The Intercept p-value is: {}".format(intercept_pvalue))
-        print("#    The Correlation coefficient is: {}".format(r_squared))
-        print("############################################################################")
 
         degrees_of_freedom_regression, sum_of_squares_regression, regression_mean_square, \
         degrees_of_freedom_residual, sum_of_squares_residual, residual_mean_square, \
         sum_of_squares_total, degrees_of_freedom, f_anova, p_anova = linearity_analysis.anova_analysis()
 
-        return render_template('data.html')
+        print("Submitted!")
 
+        return make_response(render_template('data.html'))
+
+
+api.add_resource(UploadData, '/')
+api.add_resource(ViewData, '/data')
 
 if __name__ == '__main__':
     app.run(debug=True)

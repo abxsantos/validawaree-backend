@@ -1,51 +1,41 @@
-import os, sys, inspect
-
-current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)
 
 from modules.validation_analysis import Linearity
 
+#############################################
+#               TO RUN THIS TEST            #
+#############################################
+#  python -m pytest tests/test_linearity.py #
+#############################################
+
 # Example of inputs
-analytical_data = [['0,188', '0,192', '0,203'], ['0,349', '0,346', '0,348'], ['0,489', '0,482', '0,492'],
-                   ['0,637', '0,641', '0,641'], ['0,762', '0,768', '0,786'], ['0,931', '0,924', '0,925']]
-volume_of_samples = '50,00'
-mass_of_samples = ['50,0', '50,1', '50,8']
+analytical_data = [[0.188, 0.192, 0.203], [0.349, 0.346, 0.348], [0.489, 0.482, 0.492], [0.637, 0.641, 0.641],
+                   [0.762, 0.768, 0.786], [0.931, 0.924, 0.925]]
+volume_of_samples = 50.00
+dilution_factor = [125.0, 62.5, 50.0, 35.71429, 31.25, 25.0]
+mass_of_samples = [50.0, 50.1, 50.8]
 number_of_replicas = 3
+alpha = 0.05
 
-linearity_analysis = Linearity(analytical_data, volume_of_samples, mass_of_samples, number_of_replicas)
-
-
-# Test with pytest
-
-# def test_grubbs_critical_value():
-#     # Test that if it can calculate the grubbs critical value from a int and float
-#     assert linearity_analysis.grubbs_critical_value_calculation(0, 0.5) == 1.1153550716512923, "Should be 1.1153550716512923"
-#
-# def test_grubbs_critical_value_0_alpha():
-#     # Test that if it can calculate the grubbs critical value from a int and float
-#     assert math.isnan(linearity_analysis.grubbs_critical_value_calculation(0, 0)) == True, "Should be True, because is a nan"
+linearity_analysis = Linearity(analytical_data, volume_of_samples, mass_of_samples,
+                               number_of_replicas, dilution_factor, alpha)
 
 def test_mean_result():
-    (linearity_analysis.data_mean_calculation()) == [0.19433333333333333, 0.3476666666666666, 0.4876666666666667,
-                                                     0.6396666666666667, 0.7719999999999999, 0.9266666666666667]
-
+    assert (linearity_analysis.data_mean_calculation()) == [0.19433333333333333, 0.3476666666666666, 0.4876666666666667, 0.6396666666666667, 0.7719999999999999, 0.9266666666666667]
 
 def test_standard_deviation_result():
-    (linearity_analysis.data_std_calculation()) == [0.0077674534651540365, 0.0015275252316519481, 0.005131601439446889,
-                                                    0.0023094010767585054, 0.012489995996796807, 0.0037859388972001857]
+    assert (linearity_analysis.data_std_calculation()) == [0.0077674534651540365, 0.0015275252316519481, 0.005131601439446889, 0.0023094010767585054, 0.012489995996796807, 0.0037859388972001857]
 
+def test_concentration_calculation():
+    assert (linearity_analysis.concentration_calculation()) == [[0.008, 0.008016, 0.008128], [0.016, 0.016032, 0.016256], [0.02, 0.02004, 0.02032], [0.027999996640000406, 0.028055996633280407, 0.02844799658624041], [0.032, 0.032064, 0.032512], [0.04, 0.04008, 0.04064]]
 
-# def test_grubbs_calculated_value_result():
-#     linearity_analysis.data_grubbs_calculated() == [[0.8153680433034604, 0.30039875279601097, 1.1157667960994748], [0.8728715609439816, 1.0910894511799498, 0.2182178902360045], [0.25982792098464513, 1.1042686641847796, 0.8444407432001129], [1.1547005383792674, 0.5773502691896096, 0.5773502691896096], [0.8006407690254268, 0.3202563076101654, 1.120897076635619], [1.1445861782233013, 0.7043607250605088, 0.4402254531628217]]
+def test_flatten_axis_data():
+    assert (linearity_analysis.flatten_axis_data()) == ([0.008, 0.008016, 0.008128, 0.016, 0.016032, 0.016256, 0.02, 0.02004, 0.02032, 0.027999996640000406, 0.028055996633280407, 0.02844799658624041, 0.032, 0.032064, 0.032512, 0.04, 0.04008, 0.04064], [0.188, 0.192, 0.203, 0.349, 0.346, 0.348, 0.489, 0.482, 0.492, 0.637, 0.641, 0.641, 0.762, 0.768, 0.786, 0.931, 0.924, 0.925])
 
-# TODO: Make better tests!
+def test_ordinary_least_squares_linear_regression():
+    assert (linearity_analysis.ordinary_least_squares_linear_regression()) == (-2.3991789493457705e-05, 23.25038677191697, 0.4470350165979073, 2.813769707716701e-19, 0.9984023695562387, 0.994119943600169, 0.9343053999849873, [0.0020208976141576906, 0.0056488914258070455, 0.014044848107352348, -0.02298219656117806, -0.026726208937879414, -0.029934295574788772, 0.024016256351154064, 0.016086240880277436, 0.01957613258414065, -0.013986759702891538, -0.011288781205876397, -0.020402931726769657, 0.018011615088150412, 0.022523590334747712, 0.03010741706092901, 0.00100852091281467, -0.00785151002893858, -0.01987172662121217], 1.2726397502466964)
 
+def test_anova_analysis():
+    assert (linearity_analysis.anova_analysis()) == (1, 1.4795462222222224, 1.4795462222222224, 16, 0.3697542222222222, 0.023109638888888888, 1.1097920000000001, 17, 0.0012369221951155753, 0.9987639443389845)
 
-if __name__ == "__main__":
-    # test_grubbs_critical_value()
-    # test_grubbs_critical_value_0_alpha()
-    test_mean_result()
-    test_standard_deviation_result()
-    # test_grubbs_calculated_value_result()
-    print("Everything passed")
+def test_grubbs_critical_value_calculation():
+    assert (linearity_analysis.grubbs_critical_value_calculation()) == 1.1543048513440384
