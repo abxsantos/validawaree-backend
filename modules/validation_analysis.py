@@ -3,7 +3,7 @@ import pandas as pd
 import scipy.stats as stats
 import statsmodels.api as sm
 import statsmodels.stats.api as sms
-import modules.dixon_outlier
+from modules.dixon_outlier import dixon_test
 from statsmodels.stats.stattools import durbin_watson
 from sklearn.linear_model import HuberRegressor
 
@@ -274,8 +274,8 @@ class Linearity:
 
     def check_dixon_outliers(self):
         outlier_data = []
-        for data in analytical_data:
-            outlier = modules.dixon_outlier(data, left=True, right=True, alpha=0.05)
+        for data in self.analytical_data:
+            outlier = dixon_test(data, left=True, right=True, alpha=0.05)
             outlier_data.append(outlier)
         return outlier_data
 
@@ -291,6 +291,5 @@ if __name__ == '__main__':
     alpha = 0.05
 
     test = Linearity(analytical_data, volume_of_samples, mass_of_samples, number_of_replicas, dilution_factor, alpha)
-    outlier_data = test.check_dixon_outliers()
-    print(outlier_data)
+    test.check_dixon_outliers()
 
