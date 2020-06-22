@@ -16,3 +16,13 @@ class AnalyticalValueNegative(Exception):
 class ConcentrationValueNegative(Exception):
     def __init__(self):
         super().__init__("Negative value for concentration value is not valid!")
+
+
+class AverageValueNotNumber(Exception):
+    def __init__(self):
+        super().__init__("One of the average values is not a number!")
+
+
+class AverageValueNegative(Exception):
+    def __init__(self):
+        super().__init__("Negative value for average value is not valid!")
