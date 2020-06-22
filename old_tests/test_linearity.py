@@ -1,11 +1,27 @@
 
 from modules.validation_analysis import Linearity
 
-#############################################
-#               TO RUN THIS TEST            #
-#############################################
-#  python -m pytest tests/test_linearity.py #
-#############################################
+################
+#  Test cases  #
+################
+
+# ordinary_least_squares_linear_regression: should return slope_pvalue, intercept_pvalue, r_squared, slope, intercept, stderr
+
+# check_hypothesis: should return bool slope_is_significative, intercept_is_significative, r2_accepted
+
+# breusch_pagan:  should return bool isHomokedastic and breusch_pagan_pvalue
+# breusch_pagan: isHomokedastic = false, should use huber regression and remake the other old_tests
+
+
+# anova_analysis: should return degrees_of_freedom_regression, sum_of_squares_regression, regression_mean_square, \
+#                degrees_of_freedom_residual, sum_of_squares_residual, residual_mean_square, \
+#                sum_of_squares_total, degrees_of_freedom, f_anova, p_anova
+
+
+# check_dixon_outliers: should return a array of outliers and the non_outlier_analytical_data.
+# If there's an outlier, redo the old_tests with the new non_outlier_analytical_data
+
+# durbin_watson: should return a 0 < value < 4
 
 # Example of inputs
 analytical_data = [[0.188, 0.192, 0.203], [0.349, 0.346, 0.348], [0.489, 0.482, 0.492], [0.637, 0.641, 0.641],
