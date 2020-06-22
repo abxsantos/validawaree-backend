@@ -19,11 +19,13 @@ class ReadAndOrganizeCSV:
         self.mass = self.organize_mass_of_samples()
         self.volume = self.organize_volume_of_samples()
 
-    def organize_analytical_data(self, x):
+    def organize_analytical_data(self, x, y):
         """summary
 
         :param x: lista de dados
         :type x: int
+        :param y: lista
+        :type y: list
         :returns: A list of organized data
         :rtype: list
         """
