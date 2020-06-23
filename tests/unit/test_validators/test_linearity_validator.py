@@ -1,38 +1,61 @@
+import pytest
+import numpy
+
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
     AnalyticalValueNegative, ConcentrationValueNegative, AverageValueNotNumber, AverageValueNegative
-from src.analytical_validation.validators.linearity_validator import LinearityValidator, AnovaValidator
+from analytical_validation.validators.anova_analysis import AnovaValidator
+from src.analytical_validation.validators.linearity_validator import LinearityValidator
 
-import pytest
 
+# TODO: Find validated data to use in the tests.
 
 class TestLinearityValidator(object):
-    def test_constructor(self):
-        pass
+    def test_constructor_must_return_true_when_float_analytical_data_values(self):
+        """Given analytical data
+        The LinearityValidator
+        Should create a list of floats
+        """
+        # Arrange
+        analytical_data = [0.100, 0.200, 0.150]
+        concentration_data = [0.1, 0.2, 0.3]
+        # Act
+        constructor = LinearityValidator(analytical_data, concentration_data)
+        assert all(isinstance(value, float) for value in constructor.analytical_data)
+
+    def test_constructor_must_return_true_when_float_concentration_values(self):
+        """Given concentration data
+        The LinearityValidator
+        Should create a list of floats
+        """
+        # Arrange
+        analytical_data = [0.100, 0.200, 0.150]
+        concentration_data = [0.1, 0.2, 0.3]
+        # Act
+        constructor = LinearityValidator(analytical_data, concentration_data)
+        assert all(isinstance(value, float) for value in constructor.concentration_data)
+
 
     def test_validate(self):
         pass
 
     def test_ordinary_least_squares_linear_regression_must_return_float_when_concentration_float(self):
-        """Given concentration values != float
+        """Given concentration values = float
         The ordinary_least_squares_linear_regression
-        Should raise exception"""
-        # Arrange
-
-        # Act
-
-        # Assert
-        pass
-
-    def test_ordinary_least_squares_linear_regression_must_return_float_when_analytical_values_float(self):
-        """Given analytical values != float
-        The ordinary_least_squares_linear_regression
-        Should raise exception"""
+        Should pass"""
         # Arrange
         analytical_data = [0.100, 0.200, 0.150]
-        concentration_data = ["STRING", 0.2, 0.3]
+        concentration_data = [0.1, 0.2, 0.3]
         # Act
+        model = LinearityValidator(analytical_data, concentration_data)
+        model.ordinary_least_squares_linear_regression()
         # Assert
-        pass
+        assert isinstance(model.intercept_pvalue, numpy.float64)
+        assert isinstance(model.slope_pvalue, numpy.float64)
+        assert isinstance(model.r_squared, numpy.float64)
+        assert isinstance(model.intercept, numpy.float64)
+        assert isinstance(model.slope, numpy.float64)
+        assert isinstance(model.stderr, numpy.float64)
+
 
     def test_ordinary_least_squares_linear_regression_must_raise_exception_when_concentration_not_float(self):
         """Given concentration values != float
@@ -41,11 +64,9 @@ class TestLinearityValidator(object):
         # Arrange
         analytical_data = [0.100, 0.200, 0.150]
         concentration_data = ["STRING", 0.2, 0.3]
-        averages_data = []
-        std_dev_data = []
         # Act
         with pytest.raises(ConcentrationValueNotNumber) as excinfo:
-            LinearityValidator(analytical_data, concentration_data, averages_data, std_dev_data).ordinary_least_squares_linear_regression()
+            LinearityValidator(analytical_data, concentration_data).ordinary_least_squares_linear_regression()
         # Assert
         assert "One of the concentration values is not a number!" in str(excinfo.value)
 
@@ -57,11 +78,9 @@ class TestLinearityValidator(object):
         # Arrange
         analytical_data = ["STRING", 0.200, 0.150]
         concentration_data = [0.2, 0.2, 0.3]
-        averages_data = []
-        std_dev_data = []
         # Act
         with pytest.raises(AnalyticalValueNotNumber) as excinfo:
-            LinearityValidator(analytical_data, concentration_data, averages_data, std_dev_data).ordinary_least_squares_linear_regression()
+            LinearityValidator(analytical_data, concentration_data).ordinary_least_squares_linear_regression()
         # Assert
         assert "One of the analytical values is not a number!" in str(excinfo.value)
 
@@ -73,11 +92,9 @@ class TestLinearityValidator(object):
         # Arrange
         analytical_data = [0.100, 0.200, 0.150]
         concentration_data = [-0.2, 0.2, 0.3]
-        averages_data = []
-        std_dev_data = []
         # Act
         with pytest.raises(ConcentrationValueNegative) as excinfo:
-            LinearityValidator(analytical_data, concentration_data, averages_data, std_dev_data).ordinary_least_squares_linear_regression()
+            LinearityValidator(analytical_data, concentration_data).ordinary_least_squares_linear_regression()
         # Assert
         assert "Negative value for concentration value is not valid!" in str(excinfo.value)
 
@@ -89,11 +106,9 @@ class TestLinearityValidator(object):
         # Arrange
         analytical_data = [-0.100, 0.200, 0.150]
         concentration_data = [0.2, 0.2, 0.3]
-        averages_data = []
-        std_dev_data = []
         # Act
         with pytest.raises(AnalyticalValueNegative) as excinfo:
-            LinearityValidator(analytical_data, concentration_data, averages_data, std_dev_data).ordinary_least_squares_linear_regression()
+            LinearityValidator(analytical_data, concentration_data).ordinary_least_squares_linear_regression()
         # Assert
         assert "Negative value for analytical signal is not valid!" in str(excinfo.value)
 
@@ -105,11 +120,9 @@ class TestLinearityValidator(object):
         # Arrange
         analytical_data = [0.100, 0.200, 0.150]
         concentration_data = [0.2, 0.2, 0.3]
-        averages_data = []
-        std_dev_data = []
         # Act
         with pytest.raises(Exception) as excinfo:
-            LinearityValidator(analytical_data, concentration_data, averages_data, std_dev_data).check_homokedasticity()
+            LinearityValidator(analytical_data, concentration_data).check_homokedasticity()
         # Assert
         assert "There is not a regression model to check the homokedasticity." in str(excinfo.value)
 
@@ -118,11 +131,9 @@ class TestLinearityValidator(object):
         When check_homokedasticity is called
         Then must return false"""
         # Arrange
-        averages_data = []
-        std_dev_data = []
         analytical_data = [0.100, 0.600, 0.03, 0.300]
         concentration_data = [0.2, 0.8, 1.2, 0.3]
-        model = LinearityValidator(analytical_data, concentration_data, averages_data, std_dev_data)
+        model = LinearityValidator(analytical_data, concentration_data)
         model.ordinary_least_squares_linear_regression()
         # Act
         model.check_homokedasticity()
@@ -134,21 +145,70 @@ class TestLinearityValidator(object):
         When check_homokedasticity is called
         Then must return true"""
         # Arrange
-        averages_data = []
-        std_dev_data = []
         analytical_data = [0.188, 0.192, 0.203]
         concentration_data = [0.008, 0.008016, 0.008128]
-        model = LinearityValidator(analytical_data, concentration_data, averages_data, std_dev_data)
+        model = LinearityValidator(analytical_data, concentration_data)
         model.ordinary_least_squares_linear_regression()
         # Act
         model.check_homokedasticity()
         # Assert
         assert model.is_homokedastic is True
 
+    def test_check_hypothesis_must_call_ordinary_least_squares_linear_regression_when_parameters_are_none(self):
+        """Given data, but not method parameters
+        When check_hypothesis is called
+        Then must call ordinary_least_squares_linear_regression for parameters"""
+        # Arrange
+        analytical_data = [0.188, 0.192, 0.203, 0.288, 0.292, 0.303, 0.388, 0.392, 0.403]
+        concentration_data = [0.008, 0.008016, 0.008128, 0.009, 0.009016, 0.009128, 0.010, 0.010016, 0.010128]
+        # Act
+        model = LinearityValidator(analytical_data, concentration_data)
+        model.check_hypothesis()
+        # Assert
+        assert model.has_required_parameters
+
+    def test_check_hypothesis_must_return_true_when_slope_pvalue_is_smaller_than_alpha(self):
+        """Given homokedastic data
+        When check_hypothesis is called
+        Then slope_is_significant must assert true"""
+        # Arrange
+        analytical_data = [0.188, 0.192, 0.203, 0.288, 0.292, 0.303, 0.388, 0.392, 0.403]
+        concentration_data = [0.008, 0.008016, 0.008128, 0.009, 0.009016, 0.009128, 0.010, 0.010016, 0.010128]
+        # Act
+        model = LinearityValidator(analytical_data, concentration_data)
+        model.check_hypothesis()
+        # Assert
+        assert model.significant_slope
+
+    def test_check_hypothesis_must_return_true_when_intercept_pvalue_is_greater_than_alpha(self):
+        """Given homokedastic data
+        When check_hypothesis is called
+        Then intercept_not_significant must assert true"""
+        # Arrange
+        analytical_data = [0.188, 0.192, 0.203, 0.288, 0.292, 0.303, 0.388, 0.392, 0.403]
+        concentration_data = [0.008, 0.008016, 0.008128, 0.012, 0.012016, 0.012128, 0.015, 0.015016, 0.015128]
+        # Act
+        model = LinearityValidator(analytical_data, concentration_data)
+        model.check_hypothesis()
+        # Assert
+        assert model.insignificant_intercept
+
+    def test_check_hypothesis_must_return_true_when_r_squared_is_greater_than_0990(self):
+        """Given homokedastic data
+        When check_hypothesis is called
+        Then r_squared > 0.990 must assert true"""
+        # Arrange
+        analytical_data = [0.188, 0.192, 0.203, 0.288, 0.292, 0.303, 0.388, 0.392, 0.403]
+        concentration_data = [0.008, 0.008016, 0.008128, 0.009, 0.009016, 0.009128, 0.010, 0.010016, 0.010128]
+        # Act
+        model = LinearityValidator(analytical_data, concentration_data)
+        model.check_hypothesis()
+        # Assert
+        assert model.valid_r_squared
+
 
 
 class TestAnovaValidator(object):
-
 
     def test_constructor_must_raise_exception_when_average_is_not_float(self):
         """Given non float average
@@ -201,7 +261,6 @@ class TestAnovaValidator(object):
             AnovaValidator(analytical_data, averages_data)
         # Assert
         assert "Negative value for analytical signal is not valid!" in str(excinfo.value)
-
 
     def test_anova_analysis_must_return_int_degrees_of_freedom_btwn_treatments(self):
         """Given data, averages
@@ -330,4 +389,3 @@ class TestAnovaValidator(object):
         anova_validation = AnovaValidator(analytical_data, averages_data)
         anova_validation.anova_f_ratio()
         assert anova_validation.p_anova == 0.00010183683714905551
-
