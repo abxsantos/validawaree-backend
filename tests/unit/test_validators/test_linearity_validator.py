@@ -1,13 +1,10 @@
-import pytest
 import numpy
+import pytest
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
-    AnalyticalValueNegative, ConcentrationValueNegative, AverageValueNotNumber, AverageValueNegative
-from analytical_validation.validators.anova_analysis import AnovaValidator
+    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, AlreadyCleanedOutliers, DataNotConsistent
 from src.analytical_validation.validators.linearity_validator import LinearityValidator
 
-
-# TODO: Find validated data to use in the tests.
 
 class TestLinearityValidator(object):
     def test_constructor_must_return_true_when_float_analytical_data_values(self):
@@ -34,9 +31,59 @@ class TestLinearityValidator(object):
         constructor = LinearityValidator(analytical_data, concentration_data)
         assert all(isinstance(value, float) for value in constructor.concentration_data)
 
+    def test_constructor_must_raise_exception_when_concentration_not_float(self):
+        """Given concentration values != float
+        The ordinary_least_squares_linear_regression
+        Should raise exception"""
+        analytical_data = [0.100, 0.200, 0.150]
+        concentration_data = ["STRING", 0.2, 0.3]
+        # Act
+        with pytest.raises(ConcentrationValueNotNumber) as excinfo:
+            LinearityValidator(analytical_data, concentration_data)
+        # Assert
+        assert "One of the concentration values is not a number!" in str(excinfo.value)
 
-    def test_validate(self):
-        pass
+    def test_constructor_must_raise_exception_when_concentration_negative(self):
+        """Given negative concentration values
+        The ordinary_least_squares_linear_regression
+        Should raise exception"""
+
+        # Arrange
+        analytical_data = [0.100, 0.200, 0.150]
+        concentration_data = [-0.2, 0.2, 0.3]
+        # Act
+        with pytest.raises(ConcentrationValueNegative) as excinfo:
+            LinearityValidator(analytical_data, concentration_data)
+        # Assert
+        assert "Negative value for concentration value is not valid!" in str(excinfo.value)
+
+    def test_constructor_must_raise_exception_when_analytical_data_not_float(self):
+        """Given analytical values != float
+        The ordinary_least_squares_linear_regression
+        Should raise exception"""
+
+        # Arrange
+        analytical_data = ["STRING", 0.200, 0.150]
+        concentration_data = [0.2, 0.2, 0.3]
+        # Act
+        with pytest.raises(AnalyticalValueNotNumber) as excinfo:
+            LinearityValidator(analytical_data, concentration_data)
+        # Assert
+        assert "One of the analytical values is not a number!" in str(excinfo.value)
+
+    def test_constructor_must_raise_exception_when_analytical_data_negative(self):
+        """Given negative values
+        When I call ordinary_least_squares_linear_regression
+        Then it must raise exception"""
+
+        # Arrange
+        analytical_data = [-0.100, 0.200, 0.150]
+        concentration_data = [0.2, 0.2, 0.3]
+        # Act
+        with pytest.raises(AnalyticalValueNegative) as excinfo:
+            LinearityValidator(analytical_data, concentration_data)
+        # Assert
+        assert "Negative value for analytical signal is not valid!" in str(excinfo.value)
 
     def test_ordinary_least_squares_linear_regression_must_return_float_when_concentration_float(self):
         """Given concentration values = float
@@ -55,7 +102,6 @@ class TestLinearityValidator(object):
         assert isinstance(model.intercept, numpy.float64)
         assert isinstance(model.slope, numpy.float64)
         assert isinstance(model.stderr, numpy.float64)
-
 
     def test_ordinary_least_squares_linear_regression_must_raise_exception_when_concentration_not_float(self):
         """Given concentration values != float
@@ -131,28 +177,118 @@ class TestLinearityValidator(object):
         When check_homokedasticity is called
         Then must return false"""
         # Arrange
-        analytical_data = [0.100, 0.600, 0.03, 0.300]
-        concentration_data = [0.2, 0.8, 1.2, 0.3]
+        analytical_data = [1.0, 1.0, 1.0, 6.0, 2.0, 4.0, 12.0, 6.0, 8.0, 30.0, 20.0, 10.0]
+        concentration_data = [1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0]
         model = LinearityValidator(analytical_data, concentration_data)
         model.ordinary_least_squares_linear_regression()
         # Act
         model.check_homokedasticity()
         # Assert
-        assert model.is_homokedastic is False
+        assert model.is_homokedastic == False
 
     def test_check_homokedasticity_must_return_true_when_data_is_homokedastic(self):
         """Given homokedastic data
         When check_homokedasticity is called
         Then must return true"""
         # Arrange
-        analytical_data = [0.188, 0.192, 0.203]
-        concentration_data = [0.008, 0.008016, 0.008128]
+        analytical_data = [0.188, 0.192, 0.203, 0.349, 0.346, 0.348, 0.489, 0.482, 0.492, 0.637, 0.641, 0.641, 0.762,
+                           0.768, 0.786, 0.931, 0.924,
+                           0.925]
+        concentration_data = [0.008, 0.008016, 0.008128, 0.016, 0.016032, 0.016256, 0.02, 0.02004, 0.02032,
+                              0.027999996640000406, 0.028055996633280407, 0.02844799658624041, 0.032, 0.032064,
+                              0.032512, 0.04, 0.04008, 0.04064]
+
         model = LinearityValidator(analytical_data, concentration_data)
         model.ordinary_least_squares_linear_regression()
         # Act
         model.check_homokedasticity()
         # Assert
         assert model.is_homokedastic is True
+
+
+    def test_check_homokedasticity_must_raise_exception_when_analytical_data_is_negative(self):
+        # Arrange
+        analytical_data = [-0.188, 0.192, 0.203]
+        concentration_data = [0.008, 0.008016, 0.008128]
+        with pytest.raises(AnalyticalValueNegative) as excinfo:
+            model = LinearityValidator(analytical_data, concentration_data)
+            model.ordinary_least_squares_linear_regression()
+        # Act
+            model.check_homokedasticity()
+        # Assert
+        assert "Negative value for analytical signal is not valid!" in str(excinfo.value)
+
+    def test_check_homokedasticity_must_raise_exception_when_analytical_values_not_float(self):
+        """Given analytical values != float
+        The ordinary_least_squares_linear_regression
+        Should raise exception"""
+        # Arrange
+        analytical_data = ["STRING", 0.200, 0.150]
+        concentration_data = [0.2, 0.2, 0.3]
+        with pytest.raises(AnalyticalValueNotNumber) as excinfo:
+            model = LinearityValidator(analytical_data, concentration_data)
+            model.ordinary_least_squares_linear_regression()
+        # Act
+            model.check_homokedasticity()
+        # Assert
+        assert "One of the analytical values is not a number!" in str(excinfo.value)
+
+    def test_check_homokedasticity_must_raise_exception_when_concentration_data_is_negative(self):
+        # Arrange
+        analytical_data = [0.188, 0.192, 0.203]
+        concentration_data = [-0.008, 0.008016, 0.008128]
+        with pytest.raises(ConcentrationValueNegative) as excinfo:
+            model = LinearityValidator(analytical_data, concentration_data)
+            model.ordinary_least_squares_linear_regression()
+        # Act
+            model.check_homokedasticity()
+        # Assert
+        assert "Negative value for concentration value is not valid!" in str(excinfo.value)
+
+    def test_check_homokedasticity_must_raise_exception_when_concentration_values_not_float(self):
+        """Given analytical values != float
+        The ordinary_least_squares_linear_regression
+        Should raise exception"""
+        # Arrange
+        analytical_data = [0.100, 0.200, 0.150]
+        concentration_data = ["STR", 0.2, 0.3]
+        with pytest.raises(ConcentrationValueNotNumber) as excinfo:
+            model = LinearityValidator(analytical_data, concentration_data)
+            model.ordinary_least_squares_linear_regression()
+        # Act
+            model.check_homokedasticity()
+        # Assert
+        assert "One of the concentration values is not a number!" in str(excinfo.value)
+
+    def test_check_homokedasticity_must_raise_exception_when_analytical_data_is_not_list(self):
+        """Given analytical data not as lis
+        When check homokedassticity is called
+        Then must raise an exception"""
+        # Arrange
+        analytical_data = "STRING"
+        concentration_data = [0.1, 0.2, 0.3]
+        with pytest.raises(DataNotList) as excinfo:
+            model = LinearityValidator(analytical_data, concentration_data)
+            model.ordinary_least_squares_linear_regression()
+        # Act
+            model.check_homokedasticity()
+        # Assert
+        assert "One of the input datas is not a list." in str(excinfo.value)
+
+    def test_check_homokedasticity_must_raise_exception_when_concentration_data_is_not_list(self):
+        """Given concentration data not as list
+        When check homokedassticity is called
+        Then must raise an exception"""
+        # Arrange
+        analytical_data = [0.100, 0.200, 0.150]
+        concentration_data = "STRING"
+        with pytest.raises(DataNotList) as excinfo:
+            model = LinearityValidator(analytical_data, concentration_data)
+            model.ordinary_least_squares_linear_regression()
+        # Act
+            model.check_homokedasticity()
+        # Assert
+        assert "One of the input datas is not a list." in str(excinfo.value)
 
     def test_check_hypothesis_must_call_ordinary_least_squares_linear_regression_when_parameters_are_none(self):
         """Given data, but not method parameters
@@ -185,8 +321,13 @@ class TestLinearityValidator(object):
         When check_hypothesis is called
         Then intercept_not_significant must assert true"""
         # Arrange
-        analytical_data = [0.188, 0.192, 0.203, 0.288, 0.292, 0.303, 0.388, 0.392, 0.403]
-        concentration_data = [0.008, 0.008016, 0.008128, 0.012, 0.012016, 0.012128, 0.015, 0.015016, 0.015128]
+        analytical_data = [0.188, 0.192, 0.203, 0.349, 0.346, 0.348, 0.489, 0.482, 0.492, 0.637, 0.641, 0.641, 0.762,
+                           0.768, 0.786, 0.931, 0.924,
+                           0.925]  # [0.188, 0.192, 0.203, 0.288, 0.292, 0.303, 0.388, 0.392, 0.403]
+        concentration_data = [0.008, 0.008016, 0.008128, 0.016, 0.016032, 0.016256, 0.02, 0.02004, 0.02032,
+                              0.027999996640000406, 0.028055996633280407, 0.02844799658624041, 0.032, 0.032064,
+                              0.032512, 0.04, 0.04008, 0.04064]
+
         # Act
         model = LinearityValidator(analytical_data, concentration_data)
         model.check_hypothesis()
@@ -208,184 +349,99 @@ class TestLinearityValidator(object):
 
 
 
-class TestAnovaValidator(object):
-
-    def test_constructor_must_raise_exception_when_average_is_not_float(self):
-        """Given non float average
-        When anova_analysis is called
-        Then must raise exception"""
+    def test_check_outliers_must_pass_when_removed_outliers_is_true(self):
+        """Given data,
+        when check_outliers is called a second time
+        should pass
+        """
         # Arrange
-        averages_data = ["0.175", 0.270]
-        analytical_data = [[0.100, 0.200, 0.150], [0.250, 0.280, 0.300]]
-        # Act
-        with pytest.raises(AverageValueNotNumber) as excinfo:
-            AnovaValidator(analytical_data, averages_data)
+        analytical_data = [0.100, 0.200, 0.300]
+        concentration_data = [1, 2, 3]
+        with pytest.raises(AlreadyCleanedOutliers):
+            model = LinearityValidator(analytical_data, concentration_data)
+            model.check_outliers()
+            # Act
+            model.check_outliers()
         # Assert
-        assert "One of the average values is not a number!" in str(excinfo.value)
+        assert AlreadyCleanedOutliers()
 
-    def test_constructor_must_raise_exception_when_average_is_negative(self):
-        """Given negative float average
-        When anova_analysis is called
-        Then must raise exception"""
+    def test_check_outliers_must_pass_when_given_a_list_without_outliers(self):
+        """Given data with no outliers
+        when check_outliers is called
+        should pass
+        """
         # Arrange
-        averages_data = [-0.175, 0.270]
-        analytical_data = [[0.100, 0.200, 0.150], [0.250, 0.280, 0.300]]
+        analytical_data = [0.100, 0.100, 0.100]
+        concentration_data = [1, 2, 3]
+        model = LinearityValidator(analytical_data, concentration_data)
         # Act
-        with pytest.raises(AverageValueNegative) as excinfo:
-            AnovaValidator(analytical_data, averages_data)
+        model.check_outliers()
         # Assert
-        assert "Negative value for average value is not valid!" in str(excinfo.value)
+        assert model.has_outliers is False
 
-    def test_constructor_must_raise_exception_when_analytical_data_is_not_float(self):
-        """When given non float analytical data parameters
-        The anova analysis
-        should raise exception."""
+    def test_check_outliers_must_create_an_empty_list_of_outliers_when_no_outliers_found(self):
+        """Given data with no outliers
+        when check_outlier is called
+        Should create a empty list"""
         # Arrange
-        averages_data = [0.175, 0.270]
-        analytical_data = [["0.100", 0.200, 0.150], [0.250, 0.280, 0.300]]
+        analytical_data = [0.100, 0.200, 0.150, 0.200, 0.150]
+        concentration_data = [1, 2, 3, 4, 5]
+        model = LinearityValidator(analytical_data, concentration_data)
+        model.check_outliers()
         # Act
-        with pytest.raises(AnalyticalValueNotNumber) as excinfo:
-            AnovaValidator(analytical_data, averages_data)
+        model.check_outliers()
         # Assert
-        assert "One of the analytical values is not a number!" in str(excinfo.value)
+        assert model.outliers == []
 
-    def test_constructor_must_raise_exception_when_negative_analytical_values(self):
-        """Given negative values
-        When I call ordinary_least_squares_linear_regression
-        Then it must raise exception"""
+    def test_check_outliers_must_create_a_list_of_outliers_when_outliers_found(self):
+        """Given data with no outliers
+        when check_outlier is called
+        Should create a empty list"""
         # Arrange
-        averages_data = [0.175, 0.270]
-        analytical_data = [[-0.100, 0.200, 0.150], [0.250, -0.280, 0.300]]
+        analytical_data = [0.100, 2.0, 0.150, 0.200, 0.150]
+        concentration_data = [1, 2, 3, 4, 5]
+        model = LinearityValidator(analytical_data, concentration_data)
         # Act
-        with pytest.raises(AnalyticalValueNegative) as excinfo:
-            AnovaValidator(analytical_data, averages_data)
+        model.check_outliers()
         # Assert
-        assert "Negative value for analytical signal is not valid!" in str(excinfo.value)
+        assert model.outliers == [2.0]
 
-    def test_anova_analysis_must_return_int_degrees_of_freedom_btwn_treatments(self):
-        """Given data, averages
-        When anova_analysis is called
-        Then must pass"""
+    def test_check_outliers_must_create_a_list_of_cleaned_data_when_given_data_with_outliers(self):
         # Arrange
-        averages_data = [0.15, 0.2767]
-        analytical_data = [[0.100, 0.200, 0.150, 0.100, 0.200, 0.150], [0.250, 0.280, 0.300, 0.250, 0.280, 0.300]]
+        analytical_data = [0.100, 2.0, 0.150, 0.100, 0.150]
+        concentration_data = [1, 2, 3, 4, 5]
+        model = LinearityValidator(analytical_data, concentration_data)
         # Act
-        anova_validation = AnovaValidator(analytical_data, averages_data)
-        anova_validation.anova_degrees_of_freedom()
+        model.check_outliers()
         # Assert
-        assert anova_validation.degrees_of_freedom_btwn_treatments == 1
+        assert model.cleaned_data == [0.100, 0.150, 0.100, 0.150]
+    # TODO check how many times you can check for outliers inside data set
 
-    def test_anova_analysis_must_return_int_error_degrees_of_freedom(self):
-        """Given data, averages
-        When anova_analysis is called
-        Then must pass"""
+    def test_check_outliers_must_create_a_list_of_cleaned_concentration_when_given_data_with_outliers(self):
+        """Given a data with outliers
+        When check_outliers is called
+        Should also remove the corresponding
+        concentration point"""
         # Arrange
-        averages_data = [0.15, 0.2767]
-        analytical_data = [[0.100, 0.200, 0.150, 0.100, 0.200, 0.150], [0.250, 0.280, 0.300, 0.250, 0.280, 0.300]]
+        analytical_data = [0.100, 2.0, 0.150, 0.100, 0.150]
+        concentration_data = [1, 2, 3, 4, 5]
+        model = LinearityValidator(analytical_data, concentration_data)
         # Act
-        anova_validation = AnovaValidator(analytical_data, averages_data)
-        anova_validation.anova_degrees_of_freedom()
+        model.check_outliers()
         # Assert
-        assert anova_validation.residual_degrees_of_freedom == 10
+        assert model.cleaned_concentration == [1, 3, 4, 5]
 
-    def test_anova_analysis_must_return_int_total_degrees_of_freedom(self):
-        """Given data, averages
-        When anova_analysis is called
-        Then must pass"""
+    def test_check_outliers_must_raise_exception_when_more_than_nminus1_point_removed_from_set(self):
+        """Given data with outliers n-2 outliers
+    '   where n is the number of points in a set
+        When check_outliers is called
+        Should raise a execptiom"""
         # Arrange
-        averages_data = [0.15, 0.2767]
-        analytical_data = [[0.100, 0.200, 0.150, 0.100, 0.200, 0.150], [0.250, 0.280, 0.300, 0.250, 0.280, 0.300]]
+        analytical_data = [0.100, 2.0, 0.100, 50.0, 20.0]
+        concentration_data = [1, 2, 3, 4, 5]
+        with pytest.raises(DataNotConsistent):
+            model = LinearityValidator(analytical_data, concentration_data)
         # Act
-        anova_validation = AnovaValidator(analytical_data, averages_data)
-        anova_validation.anova_degrees_of_freedom()
+            model.check_outliers()
         # Assert
-        assert anova_validation.total_degrees_of_freedom == 11
-
-    def test_anova_analysis_must_return_float_squares_btwn_treatments(self):
-        """Given data, averages
-        When anova_analysis is called
-        Then must pass"""
-        # Arrange
-        averages_data = [0.15, 0.2767]
-        analytical_data = [[0.100, 0.200, 0.150, 0.100, 0.200, 0.150], [0.250, 0.280, 0.300, 0.250, 0.280, 0.300]]
-        # Act
-        anova_validation = AnovaValidator(analytical_data, averages_data)
-        anova_validation.anova_sum_of_squares()
-        # Assert
-        assert anova_validation.sum_of_squares_btwn_treatments == 0.04815867333333334
-
-    def test_anova_analysis_must_return_float_sum_of_squares_residual(self):
-        """Given data, averages
-        When anova_analysis is called
-        Then must pass"""
-        # Arrange
-        averages_data = [0.15, 0.2767]
-        analytical_data = [[0.100, 0.200, 0.150, 0.100, 0.200, 0.150], [0.250, 0.280, 0.300, 0.250, 0.280, 0.300]]
-        # Act
-        anova_validation = AnovaValidator(analytical_data, averages_data)
-        anova_validation.anova_sum_of_squares()
-        # Assert
-        assert anova_validation.sum_of_squares_residual == 0.01253334
-
-    def test_anova_analysis_must_return_float_sum_of_squares_total(self):
-        """Given data, averages
-        When anova_analysis is called
-        Then must pass"""
-        # Arrange
-        averages_data = [0.15, 0.2767]
-        analytical_data = [[0.100, 0.200, 0.150, 0.100, 0.200, 0.150], [0.250, 0.280, 0.300, 0.250, 0.280, 0.300]]
-        # Act
-        anova_validation = AnovaValidator(analytical_data, averages_data)
-        anova_validation.anova_sum_of_squares()
-        # Assert
-        assert anova_validation.sum_of_squares_total == 0.060692013333333336
-
-    def test_anova_analysis_must_return_float_mean_squares_btwn_treatments(self):
-        """Given data, averages
-        When anova_analysis is called
-        Then must pass"""
-        # Arrange
-        averages_data = [0.15, 0.2767]
-        analytical_data = [[0.100, 0.200, 0.150, 0.100, 0.200, 0.150], [0.250, 0.280, 0.300, 0.250, 0.280, 0.300]]
-        anova_validation = AnovaValidator(analytical_data, averages_data)
-        anova_validation.anova_degrees_of_freedom()
-        anova_validation.anova_sum_of_squares()
-        # Act
-        anova_validation.anova_mean_squares()
-        # Assert
-        assert anova_validation.mean_squares_btwn_treatments == 0.04815867333333334
-
-    def test_anova_analysis_must_return_float_mean_squares_of_residues(self):
-        """Given data, averages
-        When anova_analysis is called
-        Then must pass"""
-        # Arrange
-        averages_data = [0.15, 0.2767]
-        analytical_data = [[0.100, 0.200, 0.150, 0.100, 0.200, 0.150], [0.250, 0.280, 0.300, 0.250, 0.280, 0.300]]
-        anova_validation = AnovaValidator(analytical_data, averages_data)
-        anova_validation.anova_degrees_of_freedom()
-        anova_validation.anova_sum_of_squares()
-        # Act
-        anova_validation.anova_mean_squares()
-        # Assert
-        assert anova_validation.mean_squares_of_residues == 0.001253334
-
-    def test_anova_f_ratio_must_return_f_anova_as_float(self):
-        """Give data, averages
-        when anova_f_ratio is called
-        Then must return a tuple of float"""
-        averages_data = [0.15, 0.2767]
-        analytical_data = [[0.100, 0.200, 0.150, 0.100, 0.200, 0.150], [0.250, 0.280, 0.300, 0.250, 0.280, 0.300]]
-        anova_validation = AnovaValidator(analytical_data, averages_data)
-        anova_validation.anova_f_ratio()
-        assert anova_validation.f_anova == 38.40425531914891
-
-    def test_anova_f_ratio_must_return_p_anova_as_float(self):
-        """Give data, averages
-        when anova_f_ratio is called
-        Then must return a tuple of float"""
-        averages_data = [0.15, 0.2767]
-        analytical_data = [[0.100, 0.200, 0.150, 0.100, 0.200, 0.150], [0.250, 0.280, 0.300, 0.250, 0.280, 0.300]]
-        anova_validation = AnovaValidator(analytical_data, averages_data)
-        anova_validation.anova_f_ratio()
-        assert anova_validation.p_anova == 0.00010183683714905551
+        assert DataNotConsistent()
