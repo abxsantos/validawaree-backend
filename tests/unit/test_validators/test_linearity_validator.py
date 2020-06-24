@@ -2,7 +2,8 @@ import numpy
 import pytest
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
-    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, AlreadyCleanedOutliers, DataNotConsistent
+    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, AlreadyCleanedOutliers, DataNotConsistent, \
+    ResiduesNone, DataWasNotFitted
 from src.analytical_validation.validators.linearity_validator import LinearityValidator
 
 
@@ -435,7 +436,7 @@ class TestLinearityValidator(object):
         """Given data with outliers n-2 outliers
     '   where n is the number of points in a set
         When check_outliers is called
-        Should raise a execptiom"""
+        Should raise a execption"""
         # Arrange
         analytical_data = [0.100, 2.0, 0.100, 50.0, 20.0]
         concentration_data = [1, 2, 3, 4, 5]
@@ -445,3 +446,47 @@ class TestLinearityValidator(object):
             model.check_outliers()
         # Assert
         assert DataNotConsistent()
+
+    def test_check_residual_autocorrelation_must_raise_exception_when_data_not_fitted(self):
+        """Given data,
+        if no regression was calculated
+        Should raise an exception"""
+        analytical_data = [0.100, 0.150, 0.100]
+        concentration_data = [0.01, 0.01, 0.01]
+        with pytest.raises(DataWasNotFitted):
+            model = LinearityValidator(analytical_data, concentration_data)
+        # Act
+            model.check_residual_autocorrelation()
+        # Assert
+        assert DataWasNotFitted()
+
+    def test_check_residual_autocorrelation_must_raise_exception_when_residues_None(self):
+        """Given data,
+        if the residues is none
+        When check_residual_autocorrelation is called
+        Should raise an exception"""
+        # Arrange
+        analytical_data = [0.100, 0.150, 0.100]
+        concentration_data = [0.01, 0.01, 0.01]
+        with pytest.raises(DataWasNotFitted):
+            model = LinearityValidator(analytical_data, concentration_data)
+        # Act
+            model.check_residual_autocorrelation()
+        # Assert
+        assert DataWasNotFitted()
+
+    def test_check_residual_autocorrelation_must_pass_when_durbin_watson_value_is_between_0_and_4(self):
+        """Given data,
+        When check_residual is called
+        after fitting the model
+        Should pass creating
+        0 < durbin_watson_value < 4"""
+        # Arrange
+        analytical_data = [0.188, 0.192, 0.203, 0.288, 0.292, 0.303, 0.388, 0.392, 0.403]
+        concentration_data = [0.008, 0.008016, 0.008128, 0.009, 0.009016, 0.009128, 0.010, 0.010016, 0.010128]
+        model = LinearityValidator(analytical_data, concentration_data)
+        model.ordinary_least_squares_linear_regression()
+        # Act
+        model.check_residual_autocorrelation()
+        # Assert
+        assert model.durbin_watson_value # TODO insert value

@@ -30,7 +30,7 @@ class AverageValueNegative(Exception):
 
 class DataNotList(Exception):
     def __init__(self):
-        super().__init__("One of the input datas is not a list.")
+        super().__init__("One of the input data is not a list.")
 
 
 class AlreadyCleanedOutliers(Exception):
@@ -76,3 +76,12 @@ class AlphaNotValid(Exception):
 class DirectionNotBoolean(Exception):
     def __init__(self):
         super().__init__("The left and right input values should be booleans (True or False).")
+
+
+class ResiduesNone(Exception):
+    def __init__(self):
+        super().__init__("There are no residues!")
+
+class DataWasNotFitted(Exception):
+    def __init__(self):
+        super().__init__("There is no regression model!")

@@ -1,8 +1,10 @@
 import statsmodels.api as statsmodels
 import statsmodels.stats.api as statsmodelsapi
+from statsmodels.stats.stattools import durbin_watson
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
-    AnalyticalValueNegative, ConcentrationValueNegative, AverageValueNotNumber, AverageValueNegative, DataNotList
+    AnalyticalValueNegative, ConcentrationValueNegative, AverageValueNotNumber, AverageValueNegative, DataNotList, \
+    ResiduesNone, DataWasNotFitted
 
 
 class LinearityValidator(object):
@@ -39,7 +41,6 @@ class LinearityValidator(object):
         self.analytical_data = analytical_data
         self.concentration_data = concentration_data
         self.alpha = alpha
-
         # Ordinary least squares linear regression coefficients
         self.slope_pvalue = None
         self.intercept_pvalue = None
@@ -48,15 +49,16 @@ class LinearityValidator(object):
         self.slope = None
         self.intercept = None
         self.stderr = None
-
+        # Homokedasticity parameters
         self.is_homokedastic = False
-
+        # Anova parameters
         self.has_required_parameters = False
         self.significant_slope = False
         self.insignificant_intercept = False
         self.valid_r_squared = False
-
+        # Durbin Watson parameters
         self.valid_regression_model = False
+        self.durbin_watson_value = None
         if isinstance(analytical_data, list) is False:
             raise DataNotList()
         if isinstance(concentration_data, list) is False:
@@ -165,7 +167,7 @@ class LinearityValidator(object):
             if self.significant_slope and self.insignificant_intercept and self.valid_r_squared:
                 self.valid_regression_model = True
         except:
-            raise Exception("Something went worng.")
+            raise Exception("Something went wrong.")
 
     def check_outliers(self):
         """Check for outliers in the data set
@@ -176,5 +178,20 @@ class LinearityValidator(object):
     def check_residual_autocorrelation(self):
         """Check the residual autocorrelation in a
         regression analysis using the Durbin-Watson test.
+
+        The closer the Durbin-Watson value is to 0, the
+        more evidence for positive serial correlation.
+        The closer to 4, the more evidence for negative
+        serial correlation.
         """
-        pass
+        if self.fitted_result is None:
+            raise DataWasNotFitted()
+        if self.fitted_result.resid is None:
+            raise ResiduesNone()
+        try:
+            self.durbin_watson_value = durbin_watson(self.fitted_result.resid)
+        except:
+            raise Exception("Something went wrong with the Durbin-Watson test calculation!")
+
+
+
