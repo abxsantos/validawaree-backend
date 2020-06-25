@@ -68,7 +68,6 @@ class LinearityValidator(object):
         concentration_data = statsmodels.add_constant(self.concentration_data)
         model = statsmodels.OLS(self.analytical_data, concentration_data)
         self.fitted_result = model.fit()
-        # self.fitted_result = statsmodels.OLS(self.analytical_data, concentration_data).fit().return_result
 
     @property
     def intercept(self):
@@ -77,6 +76,7 @@ class LinearityValidator(object):
         :return: The intercept value.
         :rtype: numpy.float64
         """
+        # TODO: create tests
         return self.fitted_result.params[0]
 
     @property
@@ -86,6 +86,7 @@ class LinearityValidator(object):
         :return: The slope value.
         :rtype: numpy.float64
         """
+        # TODO: create tests
         return self.fitted_result.params[1]
 
     @property
@@ -100,6 +101,7 @@ class LinearityValidator(object):
         :return: The homokedastic data information.
         :rtype: bool
         """
+        # TODO: improve testes - see valid_r_squared
         return self.breusch_pagan_pvalue > self.alpha
 
     @property
@@ -111,6 +113,7 @@ class LinearityValidator(object):
         :return: The avaliation of slope siginificance.
         :rtype: bool
         """
+        # TODO: improve testes - see valid_r_squared
         return self.fitted_result.pvalues[1] < self.alpha
 
     @property
@@ -122,6 +125,7 @@ class LinearityValidator(object):
         :return: The avaliation of intercept insiginificance.
         :rtype: bool
         """
+        # TODO: improve testes - see valid_r_squared
         return self.fitted_result.pvalues[0] > self.alpha
 
     @property
@@ -145,6 +149,7 @@ class LinearityValidator(object):
         :return: The validity of regression model.
         :rtype: bool
         """
+        # TODO: create test
         return self.significant_slope and self.insignificant_intercept and self.valid_r_squared
 
     def run_breusch_pagan_test(self):
@@ -158,24 +163,6 @@ class LinearityValidator(object):
         # labels = ["LM Statistic", "LM-Test p-value", "F-Statistic", "F-Test p-value"]
         self.breusch_pagan_pvalue = float(breusch_pagan_test[1])
         # TODO: Deal with heteroskedastic, removing outliers or using Weighted Least Squares Regression
-
-    def check_hypothesis(self):
-        """Check the null hypothesis for significance of intercept, slope and r squared
-
-        # H0: a = 0
-
-        # H1: a != 0
-
-        # Slope p-value < alpha the slope is != 0
-
-        # Intercept p-value > alpha the intercept = 0
-
-        # R² >= 0.990
-        """
-
-        if self.fitted_result is None:
-            self.ordinary_least_squares_linear_regression()
-        return self.significant_slope and self.insignificant_intercept and self.valid_r_squared
 
     def check_outliers(self):
         """Check for outliers in the data set
@@ -193,11 +180,10 @@ class LinearityValidator(object):
         """
         if self.fitted_result is None:
             raise DataWasNotFitted()
-        if self.fitted_result.resid is None:
-            raise ResiduesNone()
-        try:
-            # TODO: create test using mock
-            # TODO: check if property is needed
-            self.durbin_watson_value = stattools.durbin_watson(self.fitted_result.resid)
-        except:
-            raise Exception("Something went wrong with the Durbin-Watson test calculation!")
+        # TODO: check if property is needed
+        value = stattools.durbin_watson(self.fitted_result.resid)
+        if 0 <= value <=4:
+            self.durbin_watson_value = value
+        else:
+            # TODO: Create specific exception
+            raise Exception()

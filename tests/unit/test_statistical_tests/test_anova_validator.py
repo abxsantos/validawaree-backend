@@ -59,6 +59,11 @@ class TestAnovaValidator(object):
         # Assert
         assert "Negative value for analytical signal is not valid!" in str(excinfo.value)
 
+    # TODO: make a mock test for flat_analytical_data = numpy.hstack(self.analytical_data)
+    def test_anova_analysis_must_pass_float_when_given_float_data(self):
+        # TODO: make a mock test for flat_analytical_data = numpy.hstack(self.analytical_data)
+        pass
+
     def test_anova_analysis_must_return_int_degrees_of_freedom_btwn_treatments(self):
         """Given data, averages
         When anova_analysis is called
