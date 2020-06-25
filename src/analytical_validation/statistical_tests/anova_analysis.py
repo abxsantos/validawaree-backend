@@ -34,7 +34,7 @@ class AnovaValidator(object):
     of one of samples has statistically different mean can be accepted.
 
     Example:
-        >>> anova = AnovaValidator(samples_data=[[...],[...]], samples_averages=[...])
+        >>> anova = AnovaValidator(samples_data=[[1,2,3],[4,5,6]], samples_averages=[2,5])
         >>> anova.anova_degrees_of_freedom()
         >>> anova_sum_of_squares()
     """
