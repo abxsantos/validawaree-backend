@@ -82,6 +82,13 @@ class ResiduesNone(Exception):
     def __init__(self):
         super().__init__("There are no residues!")
 
+
 class DataWasNotFitted(Exception):
     def __init__(self):
         super().__init__("There is no regression model!")
+
+
+class DurbinWatsonValueError(Exception):
+    def __init__(self):
+        super().__init__("The Durbin Watson value is out of bounds. Should be less than 4 and more than 0.")
+

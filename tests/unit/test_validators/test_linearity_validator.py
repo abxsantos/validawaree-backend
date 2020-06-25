@@ -7,19 +7,31 @@ from analytical_validation.exceptions import AnalyticalValueNotNumber, Concentra
 from src.analytical_validation.validators.linearity_validator import LinearityValidator
 
 
+# TODO: use mocker.Mock instead
 class FittedResultModel(object):
     def __init__(self):
         self.exog = 10.0
 
 
+# TODO: use mocker.Mock instead
 class FittedResult(object):
     def __init__(self):
         self.params = (1.0, 2.0)
         self.pvalues = (4.0, 5.0)
         self.rsquared = 6.0
         self.resid = 7.0
-        self.significant_slope = True
+        # self.significant_slope = True
+        # self.insignificant_intercept = True
+        # self.valid_r_squared = True
+        # self.valid_regression_model = True
         self.model = FittedResultModel()
+
+
+# @pytest.fixture(scope='function')
+# def fitted_result_obj(mocker):
+#     mock = mocker.Mock()
+#     mock.return_value = "Something"
+#     return mock
 
 
 @pytest.fixture(scope='function')
@@ -42,6 +54,20 @@ def durbin_watson_mock(mocker):
     durbin_watson_mock = mocker.patch('analytical_validation.validators.linearity_validator.stattools.durbin_watson')
     durbin_watson_mock.return_value = 1
     return durbin_watson_mock
+
+
+@pytest.fixture(scope='function')
+def add_constant_mock(mocker):
+    add_constant_mock = mocker.patch(
+        'analytical_validation.validators.linearity_validator.statsmodels.add_constant')  # Quando chamar, este modulo sera usado ao inves do original
+    return add_constant_mock
+
+
+@pytest.fixture(scope='function')
+def ordinary_least_squares_regression_mock(mocker):
+    ordinary_least_squares_regression_mock = mocker.patch(
+        'analytical_validation.validators.linearity_validator.statsmodels.OLS')  # Quando chamar, este modulo sera usado ao inves do original
+    return ordinary_least_squares_regression_mock
 
 
 class TestLinearityValidator(object):
@@ -133,22 +159,19 @@ class TestLinearityValidator(object):
         # Assert
         assert "Negative value for analytical signal is not valid!" in str(excinfo.value)
 
-    def test_ordinary_least_squares_linear_regression_must_pass_float_when_given_correct_data(self, mocker,
+    def test_ordinary_least_squares_linear_regression_must_pass_float_when_given_correct_data(self,
+                                                                                              ordinary_least_squares_regression_mock,
+                                                                                              add_constant_mock,
                                                                                               linearity_validator_obj):
         """Given concentration values = float
         The ordinary_least_squares_linear_regression
         Then must set properties"""
-        add_constant_mock = mocker.patch(
-            'analytical_validation.validators.linearity_validator.statsmodels.add_constant')  # Quando chamar, este modulo sera usado ao inves do original
-        ols_mock = mocker.patch(
-            'analytical_validation.validators.linearity_validator.statsmodels.OLS')  # Quando chamar, este modulo sera usado ao inves do original
         # Act
         linearity_validator_obj.ordinary_least_squares_linear_regression()
         # Assert
-        # assert linearity_validator_obj.fitted_result == statsmodels.OLS().fit()
-        assert linearity_validator_obj.fitted_result == ols_mock.return_value.fit.return_value  # Garante que a regressao e resultado do resultado do metodo statsmodels.OLS(), aplicado .fit().
-        assert ols_mock.called  # Garante que o metodo ols esta sendo chamado
-        assert ols_mock.call_args_list == [
+        assert linearity_validator_obj.fitted_result == ordinary_least_squares_regression_mock.return_value.fit.return_value  # Garante que a regressao e resultado do resultado do metodo statsmodels.OLS(), aplicado .fit().
+        assert ordinary_least_squares_regression_mock.called  # Garante que o metodo ols esta sendo chamado
+        assert ordinary_least_squares_regression_mock.call_args_list == [
             call(linearity_validator_obj.analytical_data, add_constant_mock.return_value)
             # Garante que os arquivos de entrada definidos no call foram utilizados
         ]
@@ -156,72 +179,69 @@ class TestLinearityValidator(object):
         assert add_constant_mock.call_args_list == [
             call(linearity_validator_obj.concentration_data)
         ]
-        # TODO: revisit this - use mock
 
     def test_slope_property_exists_when_fitted_result_not_none(self, linearity_validator_obj):
         # Arrange
         linearity_validator_obj.fitted_result = FittedResult()
         # Act & assert
-        assert linearity_validator_obj.slope == 2.0
+        assert linearity_validator_obj.slope is not None
 
     def test_intercept_property_exists_when_fitted_result_not_none(self, linearity_validator_obj):
         # Arrange
         linearity_validator_obj.fitted_result = FittedResult()
         # Act & assert
-        assert linearity_validator_obj.intercept == 1.0
+        assert linearity_validator_obj.intercept is not None
 
-    def test_is_homokedastic_must_return_true_when_breusch_pagan_pvalue_is_greater_than_alpha(self):
+    @pytest.mark.parametrize('param_alpha, param_breusch_pagan_pvalue, expected_result', [
+        (1, -10, False), (0.05, 0.049, False), (0.10, 0.11, True), (0.05, 10, True)
+    ])
+    def test_is_homokedastic_must_return_false_when_breusch_pagan_pvalue_is_smaller_than_alpha_otherwise_true(self,
+                                                                                                              param_alpha,
+                                                                                                              param_breusch_pagan_pvalue,
+                                                                                                              expected_result):
         # Arrange
         analytical_data = [0.100, 0.200, 0.150]
         concentration_data = [0.1, 0.2, 0.3]
-        linearity_validator = LinearityValidator(analytical_data, concentration_data, 1)
-        linearity_validator.breusch_pagan_pvalue = 10
+        linearity_validator = LinearityValidator(analytical_data, concentration_data, param_alpha)
+        linearity_validator.breusch_pagan_pvalue = param_breusch_pagan_pvalue
         # Act & Assert
-        assert linearity_validator.is_homokedastic is True
+        assert linearity_validator.is_homokedastic is expected_result
 
-    def test_is_homokedastic_must_return_false_when_breusch_pagan_pvalue_is_smaller_than_alpha(self):
-        # Arrange
-        analytical_data = [0.100, 0.200, 0.150]
-        concentration_data = [0.1, 0.2, 0.3]
-        linearity_validator = LinearityValidator(analytical_data, concentration_data, 1)
-        linearity_validator.breusch_pagan_pvalue = -10
-        # Act & Assert
-        assert linearity_validator.is_homokedastic is False
-
-    def test_significant_slope_must_return_true_when_slope_pvalue_is_smaller_than_alpha(self):
+    @pytest.mark.parametrize('param_significant_slope, param_alpha, expected_result', [
+        (0.051, 0.05, False), (10, 0.1, False), (0.049, 0.05, True), (0.001, 0.10, True)
+    ])
+    def test_significant_slope_must_return_true_when_slope_pvalue_is_smaller_than_alpha(self,
+                                                                                        param_significant_slope,
+                                                                                        param_alpha, expected_result):
         """Given homokedastic data
         When check_hypothesis is called
         Then slope_is_significant must assert true"""
-        # Arrange
-        analytical_data = [0.188, 0.192, 0.203, 0.288, 0.292, 0.303, 0.388, 0.392, 0.403]
-        concentration_data = [0.008, 0.008016, 0.008128, 0.009, 0.009016, 0.009128, 0.010, 0.010016, 0.010128]
-        # Act
-        model = LinearityValidator(analytical_data, concentration_data)
-        model.ordinary_least_squares_linear_regression()
-        # Assert
-        assert model.significant_slope
+        linearity_validator_obj.fitted_result = FittedResult()
+        linearity_validator_obj.fitted_result.pvalues = ("mock value", param_significant_slope)
+        # Act & Assert
+        assert (linearity_validator_obj.fitted_result.pvalues[1] < param_alpha) is expected_result
 
-    def test_insignificant_intercept_must_return_true_when_intercept_pvalue_is_greater_than_alpha(self):
+    @pytest.mark.parametrize('param_insignificant_intercept, param_alpha, expected_result', [
+        (0.051, 0.05, True), (10, 0.1, True), (0.049, 0.05, False), (0.001, 0.10, False)
+    ])
+    def test_insignificant_intercept_must_return_true_when_intercept_pvalue_is_greater_than_alpha(self,
+                                                                                                  param_alpha,
+                                                                                                  param_insignificant_intercept,
+                                                                                                  expected_result):
         """Given homokedastic data
         When check_hypothesis is called
         Then intercept_not_significant must assert true"""
         # Arrange
-        analytical_data = [0.188, 0.192, 0.203, 0.349, 0.346, 0.348, 0.489, 0.482, 0.492, 0.637, 0.641, 0.641, 0.762,
-                           0.768, 0.786, 0.931, 0.924,
-                           0.925]
-        concentration_data = [0.008, 0.008016, 0.008128, 0.016, 0.016032, 0.016256, 0.02, 0.02004, 0.02032,
-                              0.027999996640000406, 0.028055996633280407, 0.02844799658624041, 0.032, 0.032064,
-                              0.032512, 0.04, 0.04008, 0.04064]
-        # Act
-        model = LinearityValidator(analytical_data, concentration_data)
-        model.ordinary_least_squares_linear_regression()
-        # Assert
-        assert model.insignificant_intercept
+        linearity_validator_obj.fitted_result = FittedResult()
+        linearity_validator_obj.fitted_result.pvalues = (param_insignificant_intercept, "mock value")
+        # Act & Assert
+        assert (linearity_validator_obj.fitted_result.pvalues[0] > param_alpha) is expected_result
 
     @pytest.mark.parametrize('r_squared, expected_result', [
         (1, True), (0.99, True), (0.98, False)
     ])
-    def test_valid_r_squared_must_return_true_when_r_squared_is_greater_than_0990(self, linearity_validator_obj,
+    def test_valid_r_squared_must_return_true_when_r_squared_is_greater_than_0990(self,
+                                                                                  linearity_validator_obj,
                                                                                   r_squared, expected_result):
         """Given homokedastic data
         When check_hypothesis is called
@@ -233,20 +253,32 @@ class TestLinearityValidator(object):
         assert linearity_validator_obj.valid_r_squared is expected_result
 
     # TODO: create tests for property valid_regression_model
+    @pytest.mark.parametrize(
+        'param_significant_slope, param_insignificant_intercept, param_valid_r_squared, expected_result', [
+            (True, True, True, True), (True, False, False, False), (True, True, False, False),
+            (False, False, False, False)
+        ])
+    def test_valid_regression_model(self, linearity_validator_obj, param_significant_slope,
+                                    param_insignificant_intercept, param_valid_r_squared, expected_result):
+        # Arrange
+        linearity_validator_obj.fitted_result = FittedResult()
+        # Act & assert
+        linearity_validator_obj.significant_slope = param_significant_slope
+        linearity_validator_obj.insignificant_intercept = param_insignificant_intercept
+        linearity_validator_obj.valid_r_squared = param_valid_r_squared
+        # Act & Assert
+        assert linearity_validator_obj.valid_regression_model is expected_result
 
     def test_run_breusch_pagan_test_must_raise_exception_when_model_is_none(self):
         """Not given a model parameter
         The check_homokedasticity
         Should raise exception"""
-
         # Arrange
         analytical_data = [0.100, 0.200, 0.150]
         concentration_data = [0.2, 0.2, 0.3]
-        # Act
-        with pytest.raises(Exception) as excinfo:
+        # Act & Assert
+        with pytest.raises(DataWasNotFitted):
             LinearityValidator(analytical_data, concentration_data).run_breusch_pagan_test()
-        # Assert
-        assert "There is not a regression model to check the homokedasticity." in str(excinfo.value)
 
     def test_run_breusch_pagan_test(self, linearity_validator_obj, het_breuschpagan_mock):
         """Given heterokedastic data
@@ -329,7 +361,6 @@ class TestLinearityValidator(object):
     #     model.check_outliers()
     #     # Assert
     #     assert model.cleaned_data == [0.100, 0.150, 0.100, 0.150]
-    # # TODO check how many times you can check for outliers inside data set
     #
     # def test_check_outliers_must_create_a_list_of_cleaned_concentration_when_given_data_with_outliers(self):
     #     """Given a data with outliers
@@ -363,7 +394,8 @@ class TestLinearityValidator(object):
     @pytest.mark.parametrize('durbin_watson_pvalue', [
         0, 1, 2, 2.5, 3, 4
     ])
-    def test_check_residual_autocorrelation(self, linearity_validator_obj, durbin_watson_mock, durbin_watson_pvalue):
+    def test_check_residual_autocorrelation(self, linearity_validator_obj, durbin_watson_mock,
+                                            durbin_watson_pvalue):
         """Given data
         When residual_autocorrelation is called
         Then must create durbin_watson_value"""

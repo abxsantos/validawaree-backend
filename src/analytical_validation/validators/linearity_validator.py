@@ -4,7 +4,7 @@ import statsmodels.stats.stattools as stattools
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
     AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, \
-    ResiduesNone, DataWasNotFitted
+    DataWasNotFitted, DurbinWatsonValueError
 
 
 class LinearityValidator(object):
@@ -76,7 +76,6 @@ class LinearityValidator(object):
         :return: The intercept value.
         :rtype: numpy.float64
         """
-        # TODO: create tests
         return self.fitted_result.params[0]
 
     @property
@@ -86,7 +85,6 @@ class LinearityValidator(object):
         :return: The slope value.
         :rtype: numpy.float64
         """
-        # TODO: create tests
         return self.fitted_result.params[1]
 
     @property
@@ -101,7 +99,6 @@ class LinearityValidator(object):
         :return: The homokedastic data information.
         :rtype: bool
         """
-        # TODO: improve testes - see valid_r_squared
         return self.breusch_pagan_pvalue > self.alpha
 
     @property
@@ -113,7 +110,6 @@ class LinearityValidator(object):
         :return: The avaliation of slope siginificance.
         :rtype: bool
         """
-        # TODO: improve testes - see valid_r_squared
         return self.fitted_result.pvalues[1] < self.alpha
 
     @property
@@ -125,7 +121,6 @@ class LinearityValidator(object):
         :return: The avaliation of intercept insiginificance.
         :rtype: bool
         """
-        # TODO: improve testes - see valid_r_squared
         return self.fitted_result.pvalues[0] > self.alpha
 
     @property
@@ -155,8 +150,7 @@ class LinearityValidator(object):
     def run_breusch_pagan_test(self):
         """Run the Breusch-Pagan test."""
         if self.fitted_result is None:
-            # TODO: create specific exception
-            raise Exception("There is not a regression model to check the homokedasticity.")
+            raise DataWasNotFitted()
         # Calculate the residues based on fitted model of linear regression
         breusch_pagan_test = statsmodelsapi.het_breuschpagan(self.fitted_result.resid,
                                                              self.fitted_result.model.exog)
@@ -182,8 +176,7 @@ class LinearityValidator(object):
             raise DataWasNotFitted()
         # TODO: check if property is needed
         value = stattools.durbin_watson(self.fitted_result.resid)
-        if 0 <= value <=4:
+        if 0 <= value <= 4:
             self.durbin_watson_value = value
         else:
-            # TODO: Create specific exception
-            raise Exception()
+            raise DurbinWatsonValueError()
