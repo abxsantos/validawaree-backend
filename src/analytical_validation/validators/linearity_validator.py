@@ -14,10 +14,14 @@ class LinearityValidator(object):
         >>> l = LinearityValidator(samples=[])
         >>> l.validate()
         False
+        >>> l.plot_values()
+        [(1, 20), (4, 44)]
 
         >>> l = LinearityValidator(samples=[1, 2, 3])
         >>> l.validate()
         True
+        >>> l.plot_values()
+        [(1, 20), (4, 44)]
     """
 
     def __init__(self, analytical_data, concentration_data, alpha=0.05):
@@ -61,7 +65,8 @@ class LinearityValidator(object):
         :return: True if data is linear; otherwise, False.
         :rtype: bool
         """
-        pass
+        self.ordinary_least_squares_linear_regression()
+        return self.intercept
 
     def ordinary_least_squares_linear_regression(self):
         """Fit the data using the ordinary least squares method of Linear Regression."""
