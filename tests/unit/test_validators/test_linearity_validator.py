@@ -397,7 +397,7 @@ class TestLinearityValidator(object):
     #     assert DataNotConsistent()
 
     @pytest.mark.parametrize('durbin_watson_pvalue', [
-        0, 1, 2, 2.5, 3, 4
+        0.1, 1, 2, 2.5, 3, 3.9
     ])
     def test_check_residual_autocorrelation(self, linearity_validator_obj, durbin_watson_mock,
                                             durbin_watson_pvalue):

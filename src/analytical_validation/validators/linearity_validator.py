@@ -1,6 +1,7 @@
 import statsmodels.api as statsmodels
 import statsmodels.stats.api as statsmodelsapi
 import statsmodels.stats.stattools as stattools
+from scipy import stats
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
     AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, \
@@ -47,6 +48,8 @@ class LinearityValidator(object):
         self.has_required_parameters = False
         # Durbin Watson parameters
         self.durbin_watson_value = None
+        self.is_normal_distribution = False
+
         if isinstance(analytical_data, list) is False:
             raise DataNotList()
         if isinstance(concentration_data, list) is False:
@@ -91,6 +94,25 @@ class LinearityValidator(object):
         :rtype: numpy.float64
         """
         return self.fitted_result.params[1]
+
+    @property
+    def r_squared(self):
+        """The correlation coefficient value.
+
+        :return: Correlation coefficient value.
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.rsquared
+
+    # TODO: create test
+    @property
+    def r_squared_adj(self):
+        """The adjusted correlation coefficient.
+
+        :return: Adjusted correlation coefficient value.
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.rsquared_adj
 
     @property
     def is_homokedastic(self):
@@ -149,8 +171,124 @@ class LinearityValidator(object):
         :return: The validity of regression model.
         :rtype: bool
         """
-        # TODO: create test
         return self.significant_slope and self.insignificant_intercept and self.valid_r_squared
+
+    # ANOVA table values
+    # TODO: create test
+    @property
+    def sum_of_squares_model(self):
+        """Sum of squares of model
+        :return: The sum of squares of each observed value and the predicted result
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.ess
+
+    # TODO: create test
+    @property
+    def sum_of_squares_resid(self):
+        """Sum of squares of residues
+        :return: The sum of squares of predicted result and the mean
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.ssr
+
+    # TODO: create test
+    @property
+    def sum_of_squares_total(self):
+        """Total sum of squares
+        :return: The total sum of squares
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.ess + self.fitted_result.ssr
+
+    # TODO: create test
+    @property
+    def degrees_of_freedom_model(self):
+        """Degrees of freedom of the model
+        :return: The Degrees of freedom of the model
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.df_model
+
+    # TODO: create test
+    @property
+    def degrees_of_freedom_resid(self):
+        """Degrees of freedom of the residues
+        :return: The Degrees of freedom of the residues
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.df_resid
+
+    # TODO: create test
+    @property
+    def degrees_of_freedom_total(self):
+        """Total degrees of freedom
+        :return: Total Degrees of freedom.
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.df_model + self.fitted_result.df_resid
+
+    # TODO: create test
+    @property
+    def mean_squared_error_model(self):
+        """Mean squared error of the model
+        :return: Mean squared error of the model
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.mse_model
+
+    # TODO: create test
+    @property
+    def mean_squared_error_resid(self):
+        """Mean squared error of the residues
+        :return: Mean squared error of residues
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.mse_resid
+
+    # TODO: create test
+    @property
+    def f_value(self):
+        """F value of model and residual means
+        :return: F value
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.fvalue
+
+    # TODO: create test
+    @property
+    def f_pvalue(self):
+        """F value of model and residual means
+        :return: F value
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.f_pvalue
+
+    # TODO: create test
+    @property
+    def valid_f_pvalue(self):
+        """ Validate the F p-value of regression
+        :return: Regression validity based on anova
+        :rtype: numpy.float64
+        """
+        return self.fitted_result.f_pvalue < self.alpha
+
+    def check_outliers(self):
+        """Check for outliers in the data set
+        using the Dixon Q value test.
+        :return: The data set list without outliers and a list of outliers.
+        :rtype: list"""
+        # TODO: Implement dixon qtest outlier
+        pass
+
+    # TODO: create test
+    def check_normality_of_data(self):
+        """check for normality in data set using the Shapiro-Wilk test.
+        :return: True if data has a normal distribution, False otherwise.
+        :rtype: bool"""
+        # TODO: check if property is needed
+        if stats.shapiro(self.analytical_data) > self.alpha:
+            return self.is_normal_distribution is True
 
     def run_breusch_pagan_test(self):
         """Run the Breusch-Pagan test."""
@@ -162,11 +300,6 @@ class LinearityValidator(object):
         # labels = ["LM Statistic", "LM-Test p-value", "F-Statistic", "F-Test p-value"]
         self.breusch_pagan_pvalue = float(breusch_pagan_test[1])
         # TODO: Deal with heteroskedastic, removing outliers or using Weighted Least Squares Regression
-
-    def check_outliers(self):
-        """Check for outliers in the data set
-        using the Dixon Q value test."""
-        pass
 
     def check_residual_autocorrelation(self):
         """Check the residual autocorrelation in a
@@ -181,7 +314,7 @@ class LinearityValidator(object):
             raise DataWasNotFitted()
         # TODO: check if property is needed
         value = stattools.durbin_watson(self.fitted_result.resid)
-        if 0 <= value <= 4:
+        if 0 < value < 4:
             self.durbin_watson_value = value
         else:
             raise DurbinWatsonValueError()

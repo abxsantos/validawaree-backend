@@ -1,21 +1,24 @@
 import pytest
 
-from analytical_validation.exceptions import DataNotListOfLists, DataNotNumber, DataIsEmpty, \
+from analytical_validation.exceptions import DataNotNumber, DataIsEmpty, \
     DataNotList, AlphaNotValid, DirectionNotBoolean
 from analytical_validation.statistical_tests.dixon_qtest import dixon_qtest
 
 
 class TestDixonQTest(object):
 
+    # TODO: Review these tests, parametrize, mock and refactor in general!
+
     def test_qtest_must_raise_exception_when_alpha_not_valid(self):
         """Given a alpha value
         When q_test is called
         Should raise an exceptio"""
         # Arrange
-        data = [1,1,1]
+        data = [1, 1, 1]
         alpha = 10
         # Assert
-        assert AlphaNotValid()
+        with pytest.raises(AlphaNotValid):
+            dixon_qtest(data, alpha=alpha)
 
     def test_qtest_must_raise_exception_when_left_not_bool(self):
         """Given non bool left value
@@ -24,11 +27,9 @@ class TestDixonQTest(object):
         # Arrange
         data = [0.100, 0.150, 0.200]
         left = "NOT BOOL"
-        # Act
+        # Act & Assert
         with pytest.raises(DirectionNotBoolean):
             dixon_qtest(data, left=left)
-        # Assert
-        assert DirectionNotBoolean()
 
     def test_qtest_must_raise_exception_when_right_not_bool(self):
         """Given non bool left value
@@ -41,7 +42,6 @@ class TestDixonQTest(object):
         with pytest.raises(DirectionNotBoolean):
             dixon_qtest(data, right=right)
         # Assert
-        assert DirectionNotBoolean()
 
     def test_qtest_must_raise_exception_when_data_not_list(self):
         """Given data that's not
@@ -54,7 +54,6 @@ class TestDixonQTest(object):
         with pytest.raises(DataNotList):
             dixon_qtest(data)
         # Assert
-        assert DataNotListOfLists()
 
     def test_qtest_must_raise_exception_when_data_is_empty(self):
         """Given data that's not
@@ -67,7 +66,6 @@ class TestDixonQTest(object):
         with pytest.raises(DataIsEmpty):
             dixon_qtest(data)
         # Assert
-        assert DataIsEmpty()
 
     def test_qtest_must_raise_exception_when_analytical_data_not_number(self):
         """Given data with not float value
@@ -79,7 +77,6 @@ class TestDixonQTest(object):
         with pytest.raises(DataNotNumber):
             dixon_qtest(data)
         # Assert
-        assert DataNotNumber()
 
     def test_qtest_must_return_list_of_numbers_when_data_contains_outliers(self):
         """Given data with outliers

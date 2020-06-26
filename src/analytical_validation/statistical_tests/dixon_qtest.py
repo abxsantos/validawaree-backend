@@ -18,30 +18,23 @@ def dixon_qtest(data, left=True, right=True, alpha=0.05):
     :param left: Q-test of minimum value in the ordered list if True.
     :type left: bool
     :param right: Q-test of maximum value in the ordered list if True.
+    :type left: bool
     :param alpha: Significance (default value = 0.05)
     :type alpha: float
     :raises AnalyticalValueNotNumber: When a value in analytical data isn't a float.
     :raises AnalyticalValueNegative: When a value in analytical data is negative.
     :raises AlphaValueNotValid: When the alpha value is not a float.
     """
-    if isinstance(left, bool) is False:
-        raise DirectionNotBoolean()
-    if isinstance(right, bool) is False:
+    if isinstance(left, bool) is False or isinstance(right, bool) is False:
         raise DirectionNotBoolean()
     valid_alpha = {0.01, 0.05, 0.10}
     if alpha not in valid_alpha:
         raise AlphaNotValid()
-    if 0 < alpha < 1 is False:
-        return AlphaNotValid()
     if isinstance(data, list) is False:
         raise DataNotList()
     if not data:
         raise DataIsEmpty()
-    if len(data) <= 3:
-        cleaned_data = data
-        outliers = []
-        return outliers, cleaned_data
-    if len(data) >= 28:
+    if len(data) <= 3 or len(data) >= 28:
         cleaned_data = data
         outliers = []
         return outliers, cleaned_data
