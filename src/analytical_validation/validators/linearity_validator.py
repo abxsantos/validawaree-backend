@@ -1,7 +1,7 @@
 import statsmodels.api as statsmodels
 import statsmodels.stats.api as statsmodelsapi
 import statsmodels.stats.stattools as stattools
-from scipy import stats
+import scipy.stats
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
     AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, \
@@ -48,7 +48,7 @@ class LinearityValidator(object):
         self.has_required_parameters = False
         # Durbin Watson parameters
         self.durbin_watson_value = None
-        self.is_normal_distribution = False
+        self.shapiro_pvalue = None
 
         if isinstance(analytical_data, list) is False:
             raise DataNotList()
@@ -104,7 +104,6 @@ class LinearityValidator(object):
         """
         return self.fitted_result.rsquared
 
-    # TODO: create test
     @property
     def r_squared_adj(self):
         """The adjusted correlation coefficient.
@@ -174,7 +173,6 @@ class LinearityValidator(object):
         return self.significant_slope and self.insignificant_intercept and self.valid_r_squared
 
     # ANOVA table values
-    # TODO: create test
     @property
     def sum_of_squares_model(self):
         """Sum of squares of model
@@ -183,7 +181,6 @@ class LinearityValidator(object):
         """
         return self.fitted_result.ess
 
-    # TODO: create test
     @property
     def sum_of_squares_resid(self):
         """Sum of squares of residues
@@ -192,7 +189,6 @@ class LinearityValidator(object):
         """
         return self.fitted_result.ssr
 
-    # TODO: create test
     @property
     def sum_of_squares_total(self):
         """Total sum of squares
@@ -201,7 +197,6 @@ class LinearityValidator(object):
         """
         return self.fitted_result.ess + self.fitted_result.ssr
 
-    # TODO: create test
     @property
     def degrees_of_freedom_model(self):
         """Degrees of freedom of the model
@@ -210,16 +205,14 @@ class LinearityValidator(object):
         """
         return self.fitted_result.df_model
 
-    # TODO: create test
     @property
-    def degrees_of_freedom_resid(self):
+    def degrees_of_freedom_residues(self):
         """Degrees of freedom of the residues
         :return: The Degrees of freedom of the residues
         :rtype: numpy.float64
         """
         return self.fitted_result.df_resid
 
-    # TODO: create test
     @property
     def degrees_of_freedom_total(self):
         """Total degrees of freedom
@@ -228,7 +221,6 @@ class LinearityValidator(object):
         """
         return self.fitted_result.df_model + self.fitted_result.df_resid
 
-    # TODO: create test
     @property
     def mean_squared_error_model(self):
         """Mean squared error of the model
@@ -237,36 +229,32 @@ class LinearityValidator(object):
         """
         return self.fitted_result.mse_model
 
-    # TODO: create test
     @property
-    def mean_squared_error_resid(self):
+    def mean_squared_error_residues(self):
         """Mean squared error of the residues
         :return: Mean squared error of residues
         :rtype: numpy.float64
         """
         return self.fitted_result.mse_resid
 
-    # TODO: create test
     @property
-    def f_value(self):
+    def anova_f_value(self):
         """F value of model and residual means
         :return: F value
         :rtype: numpy.float64
         """
         return self.fitted_result.fvalue
 
-    # TODO: create test
     @property
-    def f_pvalue(self):
+    def anova_f_pvalue(self):
         """F value of model and residual means
         :return: F value
         :rtype: numpy.float64
         """
         return self.fitted_result.f_pvalue
 
-    # TODO: create test
     @property
-    def valid_f_pvalue(self):
+    def valid_anova_f_pvalue(self):
         """ Validate the F p-value of regression
         :return: Regression validity based on anova
         :rtype: numpy.float64
@@ -282,13 +270,16 @@ class LinearityValidator(object):
         pass
 
     # TODO: create test
-    def check_normality_of_data(self):
+    @property
+    def is_normal_distribution(self):
         """check for normality in data set using the Shapiro-Wilk test.
         :return: True if data has a normal distribution, False otherwise.
         :rtype: bool"""
         # TODO: check if property is needed
-        if stats.shapiro(self.analytical_data) > self.alpha:
-            return self.is_normal_distribution is True
+        return self.shapiro_pvalue > self.alpha
+
+    def run_shapiro_wilk_test(self):
+        self.shapiro_pvalue = scipy.stats.shapiro(self.analytical_data)
 
     def run_breusch_pagan_test(self):
         """Run the Breusch-Pagan test."""

@@ -1,4 +1,4 @@
-from unittest.mock import call, PropertyMock
+from unittest.mock import call, PropertyMock, MagicMock
 
 import pytest
 
@@ -32,6 +32,10 @@ def fitted_result_obj(mocker):
     mock = mocker.Mock(create=True)
     mock.params = (mocker.Mock(), mocker.Mock())
     mock.pvalues = (mocker.Mock(), mocker.Mock())
+    mock.ess = MagicMock()
+    mock.ssr = MagicMock()
+    mock.df_model = MagicMock()
+    mock.df_resid = MagicMock()
     return mock
 
 
@@ -50,6 +54,13 @@ def het_breuschpagan_mock(mocker):
                                          'statsmodelsapi.het_breuschpagan')
     het_breuschpagan_mock.return_value = (33, 42)
     return het_breuschpagan_mock
+
+
+@pytest.fixture(scope='function')
+def shapiro_mock(mocker, linearity_validator_obj):
+    shapiro_mock = mocker.patch('analytical_validation.validators.linearity_validator.scipy.stats')
+    shapiro_mock.shapiro(linearity_validator_obj.analytical_data).return_value = (0, 1)
+    return shapiro_mock
 
 
 @pytest.fixture(scope='function')
@@ -193,6 +204,93 @@ class TestLinearityValidator(object):
         assert linearity_validator_obj.intercept is not None
         assert linearity_validator_obj.intercept == fitted_result_obj.params[0]
 
+    def test_r_squared_adjusted_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                            fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.r_squared_adj is not None
+        assert linearity_validator_obj.r_squared_adj == fitted_result_obj.rsquared_adj
+
+    def test_r_squared_property_exists_when_fitted_result_not_none(self, linearity_validator_obj, fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.r_squared is not None
+        assert linearity_validator_obj.r_squared == fitted_result_obj.rsquared
+
+    def test_sum_of_squares_model_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                              fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.sum_of_squares_model is not None
+        assert linearity_validator_obj.sum_of_squares_model == fitted_result_obj.ess
+
+    def test_sum_of_squares_total_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                              fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.sum_of_squares_total is not None
+        assert linearity_validator_obj.sum_of_squares_total == fitted_result_obj.ess + fitted_result_obj.ssr
+
+    def test_sum_of_squares_resid_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                              fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.sum_of_squares_resid is not None
+        assert linearity_validator_obj.sum_of_squares_resid == fitted_result_obj.ssr
+
+    def test_degrees_of_freedom_model_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                                  fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.degrees_of_freedom_model is not None
+        assert linearity_validator_obj.degrees_of_freedom_model == fitted_result_obj.df_model
+
+    def test_degrees_of_freedom_residues_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                                     fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.degrees_of_freedom_residues is not None
+        assert linearity_validator_obj.degrees_of_freedom_residues == fitted_result_obj.df_resid
+
+    def test_degrees_of_freedom_total_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                                  fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.degrees_of_freedom_total is not None
+        assert linearity_validator_obj.degrees_of_freedom_total == fitted_result_obj.df_model + fitted_result_obj.df_resid
+
+    def test_mean_squared_error_model_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                                  fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.mean_squared_error_model is not None
+        assert linearity_validator_obj.mean_squared_error_model == fitted_result_obj.mse_model
+
+    def test_mean_squared_error_residues_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                                     fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.mean_squared_error_residues is not None
+        assert linearity_validator_obj.mean_squared_error_residues == fitted_result_obj.mse_resid
+
+    def test_anova_f_value_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                       fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.anova_f_value is not None
+        assert linearity_validator_obj.anova_f_value == fitted_result_obj.fvalue
+
+    def test_anova_f_pvalue_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
+                                                                        fitted_result_obj):
+        # Act & assert
+        assert linearity_validator_obj.anova_f_pvalue is not None
+        assert linearity_validator_obj.anova_f_pvalue == fitted_result_obj.f_pvalue
+
+    @pytest.mark.parametrize('param_anova_f_pvalue, param_alpha, expected_result', [
+        (0.051, 0.05, False), (10, 0.1, False), (0.049, 0.05, True), (0.001, 0.10, True)
+    ])
+    def test_valid_anova_f_pvalue_must_return_true_when_r_squared_is_greater_than_0990(self, param_alpha,
+                                                                                       linearity_validator_obj,
+                                                                                       param_anova_f_pvalue,
+                                                                                       expected_result):
+        """Given data with an aceptable regression model
+        When valid_anova_f_pvalue is called
+        Then anova_f_pvalue < alpha must assert true"""
+        # Arrange
+        linearity_validator_obj.alpha = param_alpha
+        linearity_validator_obj.fitted_result.f_pvalue = param_anova_f_pvalue
+        # Act & Assert
+        assert linearity_validator_obj.valid_anova_f_pvalue is expected_result
+
     @pytest.mark.parametrize('param_alpha, param_breusch_pagan_pvalue, expected_result', [
         (1, -10, False), (0.05, 0.049, False), (0.10, 0.11, True), (0.05, 10, True)
     ])
@@ -223,11 +321,11 @@ class TestLinearityValidator(object):
         # Act & Assert
         assert linearity_validator_obj.significant_slope is expected_result
 
-    # TODO: fix this test (see above)
     @pytest.mark.parametrize('param_insignificant_intercept, param_alpha, expected_result', [
         (0.051, 0.05, True), (10, 0.1, True), (0.049, 0.05, False), (0.001, 0.10, False)
     ])
     def test_insignificant_intercept_must_return_true_when_intercept_pvalue_is_greater_than_alpha(self,
+                                                                                                  linearity_validator_obj,
                                                                                                   param_alpha,
                                                                                                   param_insignificant_intercept,
                                                                                                   expected_result):
@@ -235,24 +333,22 @@ class TestLinearityValidator(object):
         When check_hypothesis is called
         Then intercept_not_significant must assert true"""
         # Arrange
-        linearity_validator_obj.fitted_result = FittedResult()
+        linearity_validator_obj.alpha = param_alpha
         linearity_validator_obj.fitted_result.pvalues = (param_insignificant_intercept, "mock value")
         # Act & Assert
-        assert (linearity_validator_obj.fitted_result.pvalues[0] > param_alpha) is expected_result
+        assert linearity_validator_obj.insignificant_intercept is expected_result
 
-    # TODO: fix this test (see above)
-    @pytest.mark.parametrize('r_squared, expected_result', [
+    @pytest.mark.parametrize('param_r_squared, expected_result', [
         (1, True), (0.99, True), (0.98, False)
     ])
     def test_valid_r_squared_must_return_true_when_r_squared_is_greater_than_0990(self,
                                                                                   linearity_validator_obj,
-                                                                                  r_squared, expected_result):
+                                                                                  param_r_squared, expected_result):
         """Given homokedastic data
         When check_hypothesis is called
         Then r_squared > 0.990 must assert true"""
         # Arrange
-        linearity_validator_obj.fitted_result = FittedResult()
-        linearity_validator_obj.fitted_result.rsquared = r_squared
+        linearity_validator_obj.fitted_result.rsquared = param_r_squared
         # Act & Assert
         assert linearity_validator_obj.valid_r_squared is expected_result
 
@@ -275,6 +371,17 @@ class TestLinearityValidator(object):
         linearity_validator = LinearityValidator(analytical_data, concentration_data)
         # Act & Assert
         assert linearity_validator.valid_regression_model is expected_result
+
+    @pytest.mark.parametrize('param_shapiro_pvalue, param_alpha, expected_result', [
+        (10, 0.05, True), (0.01, 0.1, False), (0.0501, 0.05, True), (0.099, 0.1, False)
+    ])
+    def test_is_normal_distribution(self, param_shapiro_pvalue, param_alpha, expected_result):
+        analytical_data = [0.100, 0.200, 0.150]
+        concentration_data = [0.2, 0.2, 0.3]
+        validator = LinearityValidator(analytical_data, concentration_data, param_alpha)
+        validator.shapiro_pvalue = param_shapiro_pvalue
+        # Assert
+        assert validator.is_normal_distribution is expected_result
 
     def test_run_breusch_pagan_test_must_raise_exception_when_model_is_none(self):
         """Not given a model parameter
