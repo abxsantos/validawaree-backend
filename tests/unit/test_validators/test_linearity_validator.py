@@ -41,8 +41,8 @@ def fitted_result_obj(mocker):
 
 @pytest.fixture(scope='function')
 def linearity_validator_obj(fitted_result_obj):
-    analytical_data = [0.100, 0.200, 0.150]
-    concentration_data = [0.1, 0.2, 0.3]
+    analytical_data = [[0.100, 0.200, 0.150]]
+    concentration_data = [[0.1, 0.2, 0.3]]
     linearity_validator = LinearityValidator(analytical_data, concentration_data)
     linearity_validator.fitted_result = fitted_result_obj
     return linearity_validator
@@ -93,7 +93,7 @@ class TestLinearityValidator(object):
         """
         # Arrange
         analytical_data = {0.100: 'abc', 0.200: 'def', 0.150: 'fgh'}
-        concentration_data = [0.1, 0.2, 0.3]
+        concentration_data = [[0.1, 0.2, 0.3]]
         # Act & Assert
         with pytest.raises(DataNotList):
             LinearityValidator(analytical_data, concentration_data)
@@ -104,7 +104,7 @@ class TestLinearityValidator(object):
         Then must raise exception
         """
         # Arrange
-        analytical_data = [0.100, 0.200, 0.150]
+        analytical_data = [[0.100, 0.200, 0.150]]
         concentration_data = {0.1: 'abc', 0.2: 'def', 0.3: 'fgh'}
         # Act & Assert
         with pytest.raises(DataNotList):
@@ -123,8 +123,8 @@ class TestLinearityValidator(object):
         """Given concentration values != float
         The ordinary_least_squares_linear_regression
         Should raise exception"""
-        analytical_data = [0.100, 0.200, 0.150]
-        concentration_data = ["STRING", 0.2, 0.3]
+        analytical_data = [[0.100, 0.200, 0.150]]
+        concentration_data = [["STRING", 0.2, 0.3]]
         # Act
         with pytest.raises(ConcentrationValueNotNumber) as excinfo:
             LinearityValidator(analytical_data, concentration_data)
@@ -137,8 +137,8 @@ class TestLinearityValidator(object):
         Should raise exception"""
 
         # Arrange
-        analytical_data = [0.100, 0.200, 0.150]
-        concentration_data = [-0.2, 0.2, 0.3]
+        analytical_data = [[0.100, 0.200, 0.150]]
+        concentration_data = [[-0.2, 0.2, 0.3]]
         # Act
         with pytest.raises(ConcentrationValueNegative) as excinfo:
             LinearityValidator(analytical_data, concentration_data)
@@ -151,8 +151,8 @@ class TestLinearityValidator(object):
         Should raise exception"""
 
         # Arrange
-        analytical_data = ["STRING", 0.200, 0.150]
-        concentration_data = [0.2, 0.2, 0.3]
+        analytical_data = [["STRING", 0.200, 0.150]]
+        concentration_data = [[0.2, 0.2, 0.3]]
         # Act
         with pytest.raises(AnalyticalValueNotNumber) as excinfo:
             LinearityValidator(analytical_data, concentration_data)
@@ -165,8 +165,8 @@ class TestLinearityValidator(object):
         Then it must raise exception"""
 
         # Arrange
-        analytical_data = [-0.100, 0.200, 0.150]
-        concentration_data = [0.2, 0.2, 0.3]
+        analytical_data = [[-0.100, 0.200, 0.150]]
+        concentration_data = [[0.2, 0.2, 0.3]]
         # Act
         with pytest.raises(AnalyticalValueNegative) as excinfo:
             LinearityValidator(analytical_data, concentration_data)
@@ -299,8 +299,8 @@ class TestLinearityValidator(object):
                                                                                                               param_breusch_pagan_pvalue,
                                                                                                               expected_result):
         # Arrange
-        analytical_data = [0.100, 0.200, 0.150]
-        concentration_data = [0.1, 0.2, 0.3]
+        analytical_data = [[0.100, 0.200, 0.150]]
+        concentration_data = [[0.1, 0.2, 0.3]]
         linearity_validator = LinearityValidator(analytical_data, concentration_data, param_alpha)
         linearity_validator.breusch_pagan_pvalue = param_breusch_pagan_pvalue
         # Act & Assert
@@ -366,24 +366,27 @@ class TestLinearityValidator(object):
                      new_callable=PropertyMock, return_value=param_insignificant_intercept)
         mocker.patch('unit.test_validators.test_linearity_validator.LinearityValidator.valid_r_squared',
                      new_callable=PropertyMock, return_value=param_valid_r_squared)
-        analytical_data = [0.100, 0.200, 0.150]
-        concentration_data = [0.2, 0.2, 0.3]
+        analytical_data = [[0.100, 0.200, 0.150]]
+        concentration_data = [[0.2, 0.2, 0.3]]
         linearity_validator = LinearityValidator(analytical_data, concentration_data)
         # Act & Assert
         assert linearity_validator.valid_regression_model is expected_result
 
     def test_check_outliers_when_given_list_of_list_data(self):
-        outliers, cleaned_data, cleaned_concentration_data = LinearityValidator.check_outliers(self)
-        assert outliers == [101]
-        assert cleaned_data == [1,1,2,3,2,4]
-        assert cleaned_concentration_data == [1,2,4,5,6,7]
+        analytical_data = [[1.0, 1.0, 101.0, 1.0, 1.0, 1.0, 1.0], [2.0, 3.0, 2.0, 2.0, 2.0, 2.0, 2.0]]
+        concentration_data = [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0], [8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0]]
+        linearity_validator = LinearityValidator(analytical_data, concentration_data)
+        outliers, cleaned_data, cleaned_concentration_data = linearity_validator.check_outliers()
+        assert outliers == [[101.0], [3.0]]
+        assert cleaned_data == [[1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [2.0, 2.0, 2.0, 2.0, 2.0, 2.0]]
+        assert cleaned_concentration_data == [[1.0, 2.0, 4.0, 5.0, 6.0, 7.0], [8.0, 10.0, 11.0, 12.0, 13.0, 14.0]]
 
     @pytest.mark.parametrize('param_shapiro_pvalue, param_alpha, expected_result', [
         (10, 0.05, True), (0.01, 0.1, False), (0.0501, 0.05, True), (0.099, 0.1, False)
     ])
     def test_is_normal_distribution(self, param_shapiro_pvalue, param_alpha, expected_result):
-        analytical_data = [0.100, 0.200, 0.150]
-        concentration_data = [0.2, 0.2, 0.3]
+        analytical_data = [[0.100, 0.200, 0.150]]
+        concentration_data = [[0.2, 0.2, 0.3]]
         validator = LinearityValidator(analytical_data, concentration_data, param_alpha)
         validator.shapiro_pvalue = param_shapiro_pvalue
         # Assert
@@ -394,8 +397,8 @@ class TestLinearityValidator(object):
         The check_homokedasticity
         Should raise exception"""
         # Arrange
-        analytical_data = [0.100, 0.200, 0.150]
-        concentration_data = [0.2, 0.2, 0.3]
+        analytical_data = [[0.100, 0.200, 0.150]]
+        concentration_data = [[0.2, 0.2, 0.3]]
         # Act & Assert
         with pytest.raises(DataWasNotFitted):
             LinearityValidator(analytical_data, concentration_data).run_breusch_pagan_test()

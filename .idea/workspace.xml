@@ -21,7 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ee186675-425f-4066-bc2f-9390061b8a9d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/analytical_validation/statistical_tests/dixon_qtest.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analytical_validation/statistical_tests/dixon_qtest.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/analytical_validation/validators/linearity_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analytical_validation/validators/linearity_validator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/unit/test_validators/test_linearity_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/unit/test_validators/test_linearity_validator.py" afterDir="false" />
     </list>
@@ -284,56 +283,56 @@
     <state x="2214" y="336" width="424" height="491" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592189178270" />
     <state x="263" y="258" width="374" height="358" key="FileChooserDialogImpl/64.27.1302.741@64.27.1302.741" timestamp="1593191002083" />
     <state x="270" y="258" width="374" height="337" key="FileChooserDialogImpl/72.27.1294.741@72.27.1294.741" timestamp="1592320794366" />
-    <state width="1256" height="261" key="GridCell.Tab.0.bottom" timestamp="1593200927591">
+    <state width="1256" height="238" key="GridCell.Tab.0.bottom" timestamp="1593205091499">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state width="1826" height="276" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592195574438" />
-    <state width="1256" height="261" key="GridCell.Tab.0.bottom/64.27.1302.741@64.27.1302.741" timestamp="1593200927591" />
+    <state width="1256" height="238" key="GridCell.Tab.0.bottom/64.27.1302.741@64.27.1302.741" timestamp="1593205091499" />
     <state width="1271" height="172" key="GridCell.Tab.0.bottom/72.27.1294.741@72.27.1294.741" timestamp="1592321893341" />
-    <state width="1256" height="261" key="GridCell.Tab.0.center" timestamp="1593200927590">
+    <state width="1256" height="238" key="GridCell.Tab.0.center" timestamp="1593205091498">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state width="1826" height="276" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592195574438" />
-    <state width="1256" height="261" key="GridCell.Tab.0.center/64.27.1302.741@64.27.1302.741" timestamp="1593200927590" />
+    <state width="1256" height="238" key="GridCell.Tab.0.center/64.27.1302.741@64.27.1302.741" timestamp="1593205091498" />
     <state width="1271" height="172" key="GridCell.Tab.0.center/72.27.1294.741@72.27.1294.741" timestamp="1592321893340" />
-    <state width="1256" height="261" key="GridCell.Tab.0.left" timestamp="1593200927590">
+    <state width="1256" height="238" key="GridCell.Tab.0.left" timestamp="1593205091497">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state width="1826" height="276" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592195574438" />
-    <state width="1256" height="261" key="GridCell.Tab.0.left/64.27.1302.741@64.27.1302.741" timestamp="1593200927590" />
+    <state width="1256" height="238" key="GridCell.Tab.0.left/64.27.1302.741@64.27.1302.741" timestamp="1593205091497" />
     <state width="1271" height="172" key="GridCell.Tab.0.left/72.27.1294.741@72.27.1294.741" timestamp="1592321893340" />
-    <state width="1256" height="261" key="GridCell.Tab.0.right" timestamp="1593200927590">
+    <state width="1256" height="238" key="GridCell.Tab.0.right" timestamp="1593205091498">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state width="1826" height="276" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592195574438" />
-    <state width="1256" height="261" key="GridCell.Tab.0.right/64.27.1302.741@64.27.1302.741" timestamp="1593200927590" />
+    <state width="1256" height="238" key="GridCell.Tab.0.right/64.27.1302.741@64.27.1302.741" timestamp="1593205091498" />
     <state width="1271" height="172" key="GridCell.Tab.0.right/72.27.1294.741@72.27.1294.741" timestamp="1592321893340" />
-    <state width="1256" height="261" key="GridCell.Tab.1.bottom" timestamp="1593200927592">
+    <state width="1256" height="261" key="GridCell.Tab.1.bottom" timestamp="1593204090568">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
-    <state width="1256" height="261" key="GridCell.Tab.1.bottom/64.27.1302.741@64.27.1302.741" timestamp="1593200927592" />
-    <state width="1256" height="261" key="GridCell.Tab.1.center" timestamp="1593200927591">
+    <state width="1256" height="261" key="GridCell.Tab.1.bottom/64.27.1302.741@64.27.1302.741" timestamp="1593204090568" />
+    <state width="1256" height="261" key="GridCell.Tab.1.center" timestamp="1593204090567">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
-    <state width="1256" height="261" key="GridCell.Tab.1.center/64.27.1302.741@64.27.1302.741" timestamp="1593200927591" />
-    <state width="1256" height="261" key="GridCell.Tab.1.left" timestamp="1593200927591">
+    <state width="1256" height="261" key="GridCell.Tab.1.center/64.27.1302.741@64.27.1302.741" timestamp="1593204090567" />
+    <state width="1256" height="261" key="GridCell.Tab.1.left" timestamp="1593204090567">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
-    <state width="1256" height="261" key="GridCell.Tab.1.left/64.27.1302.741@64.27.1302.741" timestamp="1593200927591" />
-    <state width="1256" height="261" key="GridCell.Tab.1.right" timestamp="1593200927591">
+    <state width="1256" height="261" key="GridCell.Tab.1.left/64.27.1302.741@64.27.1302.741" timestamp="1593204090567" />
+    <state width="1256" height="261" key="GridCell.Tab.1.right" timestamp="1593204090568">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
-    <state width="1256" height="261" key="GridCell.Tab.1.right/64.27.1302.741@64.27.1302.741" timestamp="1593200927591" />
+    <state width="1256" height="261" key="GridCell.Tab.1.right/64.27.1302.741@64.27.1302.741" timestamp="1593204090568" />
     <state x="460" y="31" width="900" height="737" key="SettingsEditor" timestamp="1592795042384">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state x="2555" y="119" width="1022" height="737" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592191371139" />
     <state x="460" y="31" key="SettingsEditor/64.27.1302.741@64.27.1302.741" timestamp="1592795042384" />
     <state x="466" y="31" width="900" height="737" key="SettingsEditor/72.27.1294.741@72.27.1294.741" timestamp="1592321813272" />
-    <state width="651" height="370" key="XDebugger.FullValuePopup" timestamp="1593000697486">
+    <state width="651" height="370" key="XDebugger.FullValuePopup" timestamp="1593202840950">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
-    <state width="651" height="370" key="XDebugger.FullValuePopup/64.27.1302.741@64.27.1302.741" timestamp="1593000697486" />
+    <state width="651" height="370" key="XDebugger.FullValuePopup/64.27.1302.741@64.27.1302.741" timestamp="1593202840950" />
     <state x="280" y="191" width="1006" height="487" key="dock-window-1" timestamp="1592960890128">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
@@ -358,17 +357,18 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/analytical_validation/validators/linearity_validator.py</url>
-          <line>290</line>
-          <option name="timeStamp" value="27" />
+          <line>294</line>
+          <option name="timeStamp" value="37" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="tests">
-        <watch expression="cleaned_concentration_data" language="Python" />
-        <watch expression="test_concentration" language="Python" />
-        <watch expression="outliers" language="Python" />
-        <watch expression="outlier_index" language="Python" />
+        <watch expression="self.cleaned_concentration_data" />
+        <watch expression="self.original_concentration_data" />
+        <watch expression="self.outliers" />
+        <watch expression="self.cleaned_data" />
+        <watch expression="self.original_analytical_data" />
       </configuration>
     </watches-manager>
   </component>

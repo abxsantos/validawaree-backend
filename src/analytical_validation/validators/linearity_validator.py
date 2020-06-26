@@ -1,7 +1,7 @@
+import scipy.stats
 import statsmodels.api as statsmodels
 import statsmodels.stats.api as statsmodelsapi
 import statsmodels.stats.stattools as stattools
-import scipy.stats
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
     AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, \
@@ -40,13 +40,17 @@ class LinearityValidator(object):
         :raises AnalyticalValueNegative: When a value in analytical data is negative.
         :raises ConcentrationValueNegative: When a value in concentration data is negative.
         """
-        self.analytical_data = analytical_data
-        self.concentration_data = concentration_data
+        self.original_analytical_data = analytical_data
+        self.original_concentration_data = concentration_data
         self.alpha = alpha
         # Ordinary least squares linear regression coefficients
         self.fitted_result = None
         # Anova parameters
         self.has_required_parameters = False
+        # Outliers
+        self.outliers = None
+        self.cleaned_data = None
+        self.cleaned_concentration_data = None
         # Durbin Watson parameters
         self.durbin_watson_value = None
         self.shapiro_pvalue = None
@@ -55,6 +59,8 @@ class LinearityValidator(object):
             raise DataNotList()
         if isinstance(concentration_data, list) is False:
             raise DataNotList()
+        self.analytical_data = [x for y in analytical_data for x in y]
+        self.concentration_data = [x for y in concentration_data for x in y]
         if not all(isinstance(value, float) for value in self.analytical_data):
             raise AnalyticalValueNotNumber()
         if not all(isinstance(value, float) for value in self.concentration_data):
@@ -268,37 +274,32 @@ class LinearityValidator(object):
         :return: The data set list without outliers and a list of outliers.
         :rtype: list"""
         # TODO: Implement dixon qtest outlier
-        original_data = [[1,1,101,1,1,1,1],[2,3,2,2,2,2,2]]
-        test_data = [[1,1,101,1,1,1,1],[2,3,2,2,2,2,2]]
-        test_concentration = [[1,2,3,4,5,6,7],[8,9,10,11,12,13,14]]
         """para cada lista dentro da parent list,
         rodar o teste de ouliers.
         cada teste de outliers retornará uma lista contendo os dados limpos.
         agrupar estas listas em uma lista flat."""
 
-        outliers = []
-        cleaned_data = []
-        cleaned_concentration_data = []
+        data = self.original_analytical_data
+        concentration = self.original_concentration_data
+        self.outliers = []
+        self.cleaned_data = []
+        self.cleaned_concentration_data = []
 
-        for data_set in test_data:
+        for data_set in data:
             outliers_set, cleaned_data_set = dixon_qtest(data_set)
-            outliers.append(outliers_set)
-            cleaned_data.append(cleaned_data_set)
-        outlier_index = None
+            self.outliers.append(outliers_set)
+            self.cleaned_data.append(cleaned_data_set)
         try:
             set_index = 0
-            while set_index < len(original_data):
-                outlier_index = original_data[set_index].index(outliers[set_index][0])
-                test_concentration[set_index].pop(outlier_index)
+            while set_index < len(data):
+                outlier_index = self.original_analytical_data[set_index].index(self.outliers[set_index][0])
+                concentration[set_index].pop(outlier_index)
                 set_index = set_index + 1
-                cleaned_concentration_data = test_concentration
+                self.cleaned_concentration_data = concentration
         except:
             pass
 
-        return outliers, cleaned_data, cleaned_concentration_data
-
-
-
+        return self.outliers, self.cleaned_data, self.cleaned_concentration_data
 
     # TODO: create test
     @property
