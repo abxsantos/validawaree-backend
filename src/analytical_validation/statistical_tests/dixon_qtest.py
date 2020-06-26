@@ -34,7 +34,7 @@ def dixon_qtest(data, left=True, right=True, alpha=0.05):
         raise DataNotList()
     if not data:
         raise DataIsEmpty()
-    if len(data) <= 3 or len(data) >= 28:
+    if len(data) < 3 or len(data) > 28:
         cleaned_data = data
         outliers = []
         return outliers, cleaned_data

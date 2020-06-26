@@ -6,6 +6,7 @@ import scipy.stats
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
     AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, \
     DataWasNotFitted, DurbinWatsonValueError
+from analytical_validation.statistical_tests.dixon_qtest import dixon_qtest
 
 
 class LinearityValidator(object):
@@ -267,7 +268,37 @@ class LinearityValidator(object):
         :return: The data set list without outliers and a list of outliers.
         :rtype: list"""
         # TODO: Implement dixon qtest outlier
-        pass
+        original_data = [[1,1,101,1,1,1,1],[2,3,2,2,2,2,2]]
+        test_data = [[1,1,101,1,1,1,1],[2,3,2,2,2,2,2]]
+        test_concentration = [[1,2,3,4,5,6,7],[8,9,10,11,12,13,14]]
+        """para cada lista dentro da parent list,
+        rodar o teste de ouliers.
+        cada teste de outliers retornará uma lista contendo os dados limpos.
+        agrupar estas listas em uma lista flat."""
+
+        outliers = []
+        cleaned_data = []
+        cleaned_concentration_data = []
+
+        for data_set in test_data:
+            outliers_set, cleaned_data_set = dixon_qtest(data_set)
+            outliers.append(outliers_set)
+            cleaned_data.append(cleaned_data_set)
+        outlier_index = None
+        try:
+            set_index = 0
+            while set_index < len(original_data):
+                outlier_index = original_data[set_index].index(outliers[set_index][0])
+                test_concentration[set_index].pop(outlier_index)
+                set_index = set_index + 1
+                cleaned_concentration_data = test_concentration
+        except:
+            pass
+
+        return outliers, cleaned_data, cleaned_concentration_data
+
+
+
 
     # TODO: create test
     @property

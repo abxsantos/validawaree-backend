@@ -372,6 +372,12 @@ class TestLinearityValidator(object):
         # Act & Assert
         assert linearity_validator.valid_regression_model is expected_result
 
+    def test_check_outliers_when_given_list_of_list_data(self):
+        outliers, cleaned_data, cleaned_concentration_data = LinearityValidator.check_outliers(self)
+        assert outliers == [101]
+        assert cleaned_data == [1,1,2,3,2,4]
+        assert cleaned_concentration_data == [1,2,4,5,6,7]
+
     @pytest.mark.parametrize('param_shapiro_pvalue, param_alpha, expected_result', [
         (10, 0.05, True), (0.01, 0.1, False), (0.0501, 0.05, True), (0.099, 0.1, False)
     ])
@@ -406,102 +412,6 @@ class TestLinearityValidator(object):
         assert het_breuschpagan_mock.call_args_list == [
             call(linearity_validator_obj.fitted_result.resid, linearity_validator_obj.fitted_result.model.exog)
         ]
-
-    # def test_check_outliers_must_pass_when_removed_outliers_is_true(self):
-    #     """Given data,
-    #     when check_outliers is called a second time
-    #     should pass
-    #     """
-    #     # Arrange
-    #     analytical_data = [0.100, 0.200, 0.300]
-    #     concentration_data = [1, 2, 3]
-    #     with pytest.raises(AlreadyCleanedOutliers):
-    #         model = LinearityValidator(analytical_data, concentration_data)
-    #         model.check_outliers()
-    #         # Act
-    #         model.check_outliers()
-    #     # Assert
-    #     assert AlreadyCleanedOutliers()
-    #
-    # def test_check_outliers_must_pass_when_given_a_list_without_outliers(self):
-    #     """Given data with no outliers
-    #     when check_outliers is called
-    #     should pass
-    #     """
-    #     # Arrange
-    #     analytical_data = [0.100, 0.100, 0.100]
-    #     concentration_data = [1, 2, 3]
-    #     model = LinearityValidator(analytical_data, concentration_data)
-    #     # Act
-    #     model.check_outliers()
-    #     # Assert
-    #     assert model.has_outliers is False
-    #
-    # def test_check_outliers_must_create_an_empty_list_of_outliers_when_no_outliers_found(self):
-    #     """Given data with no outliers
-    #     when check_outlier is called
-    #     Should create a empty list"""
-    #     # Arrange
-    #     analytical_data = [0.100, 0.200, 0.150, 0.200, 0.150]
-    #     concentration_data = [1, 2, 3, 4, 5]
-    #     model = LinearityValidator(analytical_data, concentration_data)
-    #     model.check_outliers()
-    #     # Act
-    #     model.check_outliers()
-    #     # Assert
-    #     assert model.outliers == []
-    #
-    # def test_check_outliers_must_create_a_list_of_outliers_when_outliers_found(self):
-    #     """Given data with no outliers
-    #     when check_outlier is called
-    #     Should create a empty list"""
-    #     # Arrange
-    #     analytical_data = [0.100, 2.0, 0.150, 0.200, 0.150]
-    #     concentration_data = [1, 2, 3, 4, 5]
-    #     model = LinearityValidator(analytical_data, concentration_data)
-    #     # Act
-    #     model.check_outliers()
-    #     # Assert
-    #     assert model.outliers == [2.0]
-    #
-    # def test_check_outliers_must_create_a_list_of_cleaned_data_when_given_data_with_outliers(self):
-    #     # Arrange
-    #     analytical_data = [0.100, 2.0, 0.150, 0.100, 0.150]
-    #     concentration_data = [1, 2, 3, 4, 5]
-    #     model = LinearityValidator(analytical_data, concentration_data)
-    #     # Act
-    #     model.check_outliers()
-    #     # Assert
-    #     assert model.cleaned_data == [0.100, 0.150, 0.100, 0.150]
-    #
-    # def test_check_outliers_must_create_a_list_of_cleaned_concentration_when_given_data_with_outliers(self):
-    #     """Given a data with outliers
-    #     When check_outliers is called
-    #     Should also remove the corresponding
-    #     concentration point"""
-    #     # Arrange
-    #     analytical_data = [0.100, 2.0, 0.150, 0.100, 0.150]
-    #     concentration_data = [1, 2, 3, 4, 5]
-    #     model = LinearityValidator(analytical_data, concentration_data)
-    #     # Act
-    #     model.check_outliers()
-    #     # Assert
-    #     assert model.cleaned_concentration == [1, 3, 4, 5]
-    #
-    # def test_check_outliers_must_raise_exception_when_more_than_nminus1_point_removed_from_set(self):
-    #     """Given data with outliers n-2 outliers
-    # '   where n is the number of points in a set
-    #     When check_outliers is called
-    #     Should raise a execption"""
-    #     # Arrange
-    #     analytical_data = [0.100, 2.0, 0.100, 50.0, 20.0]
-    #     concentration_data = [1, 2, 3, 4, 5]
-    #     with pytest.raises(DataNotConsistent):
-    #         model = LinearityValidator(analytical_data, concentration_data)
-    #     # Act
-    #         model.check_outliers()
-    #     # Assert
-    #     assert DataNotConsistent()
 
     @pytest.mark.parametrize('durbin_watson_pvalue', [
         0.1, 1, 2, 2.5, 3, 3.9
