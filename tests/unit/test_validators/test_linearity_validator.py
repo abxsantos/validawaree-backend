@@ -1,9 +1,9 @@
-from unittest.mock import call
+from unittest.mock import call, PropertyMock
 
 import pytest
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
-    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, DataWasNotFitted
+    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, DataWasNotFitted, DurbinWatsonValueError
 from src.analytical_validation.validators.linearity_validator import LinearityValidator
 
 
@@ -27,18 +27,21 @@ class FittedResult(object):
         self.model = FittedResultModel()
 
 
-# @pytest.fixture(scope='function')
-# def fitted_result_obj(mocker):
-#     mock = mocker.Mock()
-#     mock.return_value = "Something"
-#     return mock
+@pytest.fixture(scope='function')
+def fitted_result_obj(mocker):
+    mock = mocker.Mock(create=True)
+    mock.params = (mocker.Mock(), mocker.Mock())
+    mock.pvalues = (mocker.Mock(), mocker.Mock())
+    return mock
 
 
 @pytest.fixture(scope='function')
-def linearity_validator_obj():
+def linearity_validator_obj(fitted_result_obj):
     analytical_data = [0.100, 0.200, 0.150]
     concentration_data = [0.1, 0.2, 0.3]
-    return LinearityValidator(analytical_data, concentration_data)
+    linearity_validator = LinearityValidator(analytical_data, concentration_data)
+    linearity_validator.fitted_result = fitted_result_obj
+    return linearity_validator
 
 
 @pytest.fixture(scope='function')
@@ -180,17 +183,15 @@ class TestLinearityValidator(object):
             call(linearity_validator_obj.concentration_data)
         ]
 
-    def test_slope_property_exists_when_fitted_result_not_none(self, linearity_validator_obj):
-        # Arrange
-        linearity_validator_obj.fitted_result = FittedResult()
+    def test_slope_property_exists_when_fitted_result_not_none(self, linearity_validator_obj, fitted_result_obj):
         # Act & assert
         assert linearity_validator_obj.slope is not None
+        assert linearity_validator_obj.slope == fitted_result_obj.params[1]
 
-    def test_intercept_property_exists_when_fitted_result_not_none(self, linearity_validator_obj):
-        # Arrange
-        linearity_validator_obj.fitted_result = FittedResult()
+    def test_intercept_property_exists_when_fitted_result_not_none(self, linearity_validator_obj, fitted_result_obj):
         # Act & assert
         assert linearity_validator_obj.intercept is not None
+        assert linearity_validator_obj.intercept == fitted_result_obj.params[0]
 
     @pytest.mark.parametrize('param_alpha, param_breusch_pagan_pvalue, expected_result', [
         (1, -10, False), (0.05, 0.049, False), (0.10, 0.11, True), (0.05, 10, True)
@@ -210,17 +211,19 @@ class TestLinearityValidator(object):
     @pytest.mark.parametrize('param_significant_slope, param_alpha, expected_result', [
         (0.051, 0.05, False), (10, 0.1, False), (0.049, 0.05, True), (0.001, 0.10, True)
     ])
-    def test_significant_slope_must_return_true_when_slope_pvalue_is_smaller_than_alpha(self,
+    def test_significant_slope_must_return_true_when_slope_pvalue_is_smaller_than_alpha(self, linearity_validator_obj,
                                                                                         param_significant_slope,
                                                                                         param_alpha, expected_result):
         """Given homokedastic data
         When check_hypothesis is called
         Then slope_is_significant must assert true"""
-        linearity_validator_obj.fitted_result = FittedResult()
+        # Arrange
+        linearity_validator_obj.alpha = param_alpha
         linearity_validator_obj.fitted_result.pvalues = ("mock value", param_significant_slope)
         # Act & Assert
-        assert (linearity_validator_obj.fitted_result.pvalues[1] < param_alpha) is expected_result
+        assert linearity_validator_obj.significant_slope is expected_result
 
+    # TODO: fix this test (see above)
     @pytest.mark.parametrize('param_insignificant_intercept, param_alpha, expected_result', [
         (0.051, 0.05, True), (10, 0.1, True), (0.049, 0.05, False), (0.001, 0.10, False)
     ])
@@ -237,6 +240,7 @@ class TestLinearityValidator(object):
         # Act & Assert
         assert (linearity_validator_obj.fitted_result.pvalues[0] > param_alpha) is expected_result
 
+    # TODO: fix this test (see above)
     @pytest.mark.parametrize('r_squared, expected_result', [
         (1, True), (0.99, True), (0.98, False)
     ])
@@ -252,22 +256,25 @@ class TestLinearityValidator(object):
         # Act & Assert
         assert linearity_validator_obj.valid_r_squared is expected_result
 
-    # TODO: create tests for property valid_regression_model
     @pytest.mark.parametrize(
         'param_significant_slope, param_insignificant_intercept, param_valid_r_squared, expected_result', [
             (True, True, True, True), (True, False, False, False), (True, True, False, False),
             (False, False, False, False)
         ])
-    def test_valid_regression_model(self, linearity_validator_obj, param_significant_slope,
-                                    param_insignificant_intercept, param_valid_r_squared, expected_result):
+    def test_valid_regression_model(self, mocker, param_significant_slope, param_insignificant_intercept,
+                                    param_valid_r_squared, expected_result):
         # Arrange
-        linearity_validator_obj.fitted_result = FittedResult()
-        # Act & assert
-        linearity_validator_obj.significant_slope = param_significant_slope
-        linearity_validator_obj.insignificant_intercept = param_insignificant_intercept
-        linearity_validator_obj.valid_r_squared = param_valid_r_squared
+        mocker.patch('unit.test_validators.test_linearity_validator.LinearityValidator.significant_slope',
+                     new_callable=PropertyMock, return_value=param_significant_slope)
+        mocker.patch('unit.test_validators.test_linearity_validator.LinearityValidator.insignificant_intercept',
+                     new_callable=PropertyMock, return_value=param_insignificant_intercept)
+        mocker.patch('unit.test_validators.test_linearity_validator.LinearityValidator.valid_r_squared',
+                     new_callable=PropertyMock, return_value=param_valid_r_squared)
+        analytical_data = [0.100, 0.200, 0.150]
+        concentration_data = [0.2, 0.2, 0.3]
+        linearity_validator = LinearityValidator(analytical_data, concentration_data)
         # Act & Assert
-        assert linearity_validator_obj.valid_regression_model is expected_result
+        assert linearity_validator.valid_regression_model is expected_result
 
     def test_run_breusch_pagan_test_must_raise_exception_when_model_is_none(self):
         """Not given a model parameter
@@ -284,8 +291,6 @@ class TestLinearityValidator(object):
         """Given heterokedastic data
         When check_homokedasticity is called
         Then must return false"""
-        # Arrange
-        linearity_validator_obj.fitted_result = FittedResult()
         # Act
         linearity_validator_obj.run_breusch_pagan_test()
         # Assert
@@ -401,7 +406,6 @@ class TestLinearityValidator(object):
         Then must create durbin_watson_value"""
         # Arrange
         durbin_watson_mock.return_value = durbin_watson_pvalue
-        linearity_validator_obj.fitted_result = FittedResult()
         # Act
         linearity_validator_obj.check_residual_autocorrelation()
         # Assert
@@ -421,7 +425,7 @@ class TestLinearityValidator(object):
             linearity_validator_obj.check_residual_autocorrelation()
 
     @pytest.mark.parametrize('durbin_watson_pvalue', [
-        -1, 'str', 10, 4.1
+        -1, 10, 4.1
     ])
     def test_check_residual_autocorrelation_must_pass_when_durbin_watson_value_is_between_0_and_4(self,
                                                                                                   linearity_validator_obj,
@@ -434,8 +438,7 @@ class TestLinearityValidator(object):
         0 < durbin_watson_value < 4"""
         # Arrange
         durbin_watson_mock.return_value = durbin_watson_pvalue
-        linearity_validator_obj.fitted_result = FittedResult()
-        with pytest.raises(Exception):
+        with pytest.raises(DurbinWatsonValueError):
             # Act
             linearity_validator_obj.check_residual_autocorrelation()
         # Assert
