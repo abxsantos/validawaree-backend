@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import scipy.stats
 import statsmodels.api as statsmodels
 import statsmodels.stats.api as statsmodelsapi
@@ -48,9 +50,9 @@ class LinearityValidator(object):
         # Anova parameters
         self.has_required_parameters = False
         # Outliers
-        self.outliers = None
-        self.cleaned_data = None
-        self.cleaned_concentration_data = None
+        self.outliers = []
+        self.cleaned_data = []
+        self.cleaned_concentration_data = []
         # Durbin Watson parameters
         self.durbin_watson_value = None
         self.shapiro_pvalue = None
@@ -273,32 +275,18 @@ class LinearityValidator(object):
         using the Dixon Q value test.
         :return: The data set list without outliers and a list of outliers.
         :rtype: list"""
-        # TODO: Implement dixon qtest outlier
-        """para cada lista dentro da parent list,
-        rodar o teste de ouliers.
-        cada teste de outliers retornará uma lista contendo os dados limpos.
-        agrupar estas listas em uma lista flat."""
-
-        data = self.original_analytical_data
-        concentration = self.original_concentration_data
-        self.outliers = []
-        self.cleaned_data = []
-        self.cleaned_concentration_data = []
-
+        data = deepcopy(self.original_analytical_data)
+        concentration = deepcopy(self.original_concentration_data)
         for data_set in data:
             outliers_set, cleaned_data_set = dixon_qtest(data_set)
             self.outliers.append(outliers_set)
             self.cleaned_data.append(cleaned_data_set)
-        try:
-            set_index = 0
-            while set_index < len(data):
-                outlier_index = self.original_analytical_data[set_index].index(self.outliers[set_index][0])
-                concentration[set_index].pop(outlier_index)
-                set_index = set_index + 1
-                self.cleaned_concentration_data = concentration
-        except:
-            pass
-
+        set_index = 0
+        while set_index < len(data):
+            concentration[set_index].pop(self.original_analytical_data[set_index].index(self.outliers[set_index][0]))
+            set_index += 1
+            self.cleaned_concentration_data = concentration
+        # TODO: Implement the reuse of cleaned data for the regression
         return self.outliers, self.cleaned_data, self.cleaned_concentration_data
 
     # TODO: create test

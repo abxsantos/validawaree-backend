@@ -49,6 +49,13 @@ def linearity_validator_obj(fitted_result_obj):
 
 
 @pytest.fixture(scope='function')
+def linearity_validator_outlier_obj():
+    analytical_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
+    concentration_data = [[1.0, 2.0, 3.0], [8.0, 9.0, 10.0]]
+    return LinearityValidator(analytical_data, concentration_data)
+
+
+@pytest.fixture(scope='function')
 def het_breuschpagan_mock(mocker):
     het_breuschpagan_mock = mocker.patch('analytical_validation.validators.linearity_validator.'
                                          'statsmodelsapi.het_breuschpagan')
@@ -372,14 +379,11 @@ class TestLinearityValidator(object):
         # Act & Assert
         assert linearity_validator.valid_regression_model is expected_result
 
-    def test_check_outliers_when_given_list_of_list_data(self):
-        analytical_data = [[1.0, 1.0, 101.0, 1.0, 1.0, 1.0, 1.0], [2.0, 3.0, 2.0, 2.0, 2.0, 2.0, 2.0]]
-        concentration_data = [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0], [8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0]]
-        linearity_validator = LinearityValidator(analytical_data, concentration_data)
-        outliers, cleaned_data, cleaned_concentration_data = linearity_validator.check_outliers()
-        assert outliers == [[101.0], [3.0]]
-        assert cleaned_data == [[1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [2.0, 2.0, 2.0, 2.0, 2.0, 2.0]]
-        assert cleaned_concentration_data == [[1.0, 2.0, 4.0, 5.0, 6.0, 7.0], [8.0, 10.0, 11.0, 12.0, 13.0, 14.0]]
+    def test_check_outliers_when_given_list_of_list_data(self, linearity_validator_outlier_obj):
+        outliers, cleaned_data, cleaned_concentration_data = linearity_validator_outlier_obj.check_outliers()
+        assert outliers == [[10.0], [6.0]]
+        assert cleaned_data == [[1.0, 1.0], [2.0, 2.0]]
+        assert cleaned_concentration_data == [[1.0, 2.0], [8.0, 10.0]]
 
     @pytest.mark.parametrize('param_shapiro_pvalue, param_alpha, expected_result', [
         (10, 0.05, True), (0.01, 0.1, False), (0.0501, 0.05, True), (0.099, 0.1, False)
