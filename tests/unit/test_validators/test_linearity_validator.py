@@ -3,28 +3,9 @@ from unittest.mock import call, PropertyMock, MagicMock
 import pytest
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
-    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, DataWasNotFitted, DurbinWatsonValueError
+    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, DataWasNotFitted, DurbinWatsonValueError, \
+    OulierCheckError
 from src.analytical_validation.validators.linearity_validator import LinearityValidator
-
-
-# TODO: use mocker.Mock instead
-class FittedResultModel(object):
-    def __init__(self):
-        self.exog = 10.0
-
-
-# TODO: use mocker.Mock instead
-class FittedResult(object):
-    def __init__(self):
-        self.params = (1.0, 2.0)
-        self.pvalues = (4.0, 5.0)
-        self.rsquared = 6.0
-        self.resid = 7.0
-        # self.significant_slope = True
-        # self.insignificant_intercept = True
-        # self.valid_r_squared = True
-        # self.valid_regression_model = True
-        self.model = FittedResultModel()
 
 
 @pytest.fixture(scope='function')
@@ -93,29 +74,38 @@ def ordinary_least_squares_regression_mock(mocker):
 
 class TestLinearityValidator(object):
 
-    def test_constructor_raise_exception_when_analytical_data_is_not_list(self):
+    @pytest.mark.parametrize('param_analytical_data, param_concentration_data, expected_exception', [
+        ({0.100: 'abc', 0.200: 'def', 0.150: 'fgh'}, [[0.1, 0.2, 0.3]], DataNotList),
+        ([[0.100, 0.200, 0.150]], {0.1: 'abc', 0.2: 'def', 0.3: 'fgh'}, DataNotList),
+        ([[0.100, 0.200, 0.150]], [["STRING", 0.2, 0.3]], ConcentrationValueNotNumber),
+        ([[0.100, 0.200, 0.150]], [[-0.2, 0.2, 0.3]], ConcentrationValueNegative),
+        ([["STRING", 0.200, 0.150]], [[0.2, 0.2, 0.3]], AnalyticalValueNotNumber),
+        ([[-0.100, 0.200, 0.150]], [[0.2, 0.2, 0.3]], AnalyticalValueNegative),
+
+    ])
+    def test_constructor_raise_exception_when_analytical_data_is_not_list(self, param_analytical_data,
+                                                                          param_concentration_data, expected_exception):
         """Given analytical data that is not a list
         When LinearityValidator constructor is called
-        Then must raise exception
-        """
-        # Arrange
-        analytical_data = {0.100: 'abc', 0.200: 'def', 0.150: 'fgh'}
-        concentration_data = [[0.1, 0.2, 0.3]]
-        # Act & Assert
-        with pytest.raises(DataNotList):
-            LinearityValidator(analytical_data, concentration_data)
-
-    def test_constructor_raise_exception_when_concentration_data_is_not_list(self):
+        Then must raise exception"""
         """Given concentration data that is not a list
         When LinearityValidator constructor is called
-        Then must raise exception
-        """
-        # Arrange
-        analytical_data = [[0.100, 0.200, 0.150]]
-        concentration_data = {0.1: 'abc', 0.2: 'def', 0.3: 'fgh'}
+        Then must raise exception"""
+        """Given concentration values != float
+        The ordinary_least_squares_linear_regression
+        Should raise exception"""
+        """Given negative concentration values
+        The ordinary_least_squares_linear_regression
+        Should raise exception"""
+        """Given analytical values != float
+         The ordinary_least_squares_linear_regression
+         Should raise exception"""
+        """Given negative values
+        When I call ordinary_least_squares_linear_regression
+        Then it must raise exception"""
         # Act & Assert
-        with pytest.raises(DataNotList):
-            LinearityValidator(analytical_data, concentration_data)
+        with pytest.raises(expected_exception):
+            LinearityValidator(param_analytical_data, param_concentration_data)
 
     def test_constructor_must_create_object_when_analytical_data_has_float_values(self, linearity_validator_obj):
         """Given analytical data
@@ -125,60 +115,6 @@ class TestLinearityValidator(object):
         # Assert
         assert linearity_validator_obj.analytical_data == [0.100, 0.200, 0.150]
         assert linearity_validator_obj.concentration_data == [0.1, 0.2, 0.3]
-
-    def test_constructor_must_raise_exception_when_concentration_not_float(self):
-        """Given concentration values != float
-        The ordinary_least_squares_linear_regression
-        Should raise exception"""
-        analytical_data = [[0.100, 0.200, 0.150]]
-        concentration_data = [["STRING", 0.2, 0.3]]
-        # Act
-        with pytest.raises(ConcentrationValueNotNumber) as excinfo:
-            LinearityValidator(analytical_data, concentration_data)
-        # Assert
-        assert "One of the concentration values is not a number!" in str(excinfo.value)
-
-    def test_constructor_must_raise_exception_when_concentration_negative(self):
-        """Given negative concentration values
-        The ordinary_least_squares_linear_regression
-        Should raise exception"""
-
-        # Arrange
-        analytical_data = [[0.100, 0.200, 0.150]]
-        concentration_data = [[-0.2, 0.2, 0.3]]
-        # Act
-        with pytest.raises(ConcentrationValueNegative) as excinfo:
-            LinearityValidator(analytical_data, concentration_data)
-        # Assert
-        assert "Negative value for concentration value is not valid!" in str(excinfo.value)
-
-    def test_constructor_must_raise_exception_when_analytical_data_not_float(self):
-        """Given analytical values != float
-        The ordinary_least_squares_linear_regression
-        Should raise exception"""
-
-        # Arrange
-        analytical_data = [["STRING", 0.200, 0.150]]
-        concentration_data = [[0.2, 0.2, 0.3]]
-        # Act
-        with pytest.raises(AnalyticalValueNotNumber) as excinfo:
-            LinearityValidator(analytical_data, concentration_data)
-        # Assert
-        assert "One of the analytical values is not a number!" in str(excinfo.value)
-
-    def test_constructor_must_raise_exception_when_analytical_data_negative(self):
-        """Given negative values
-        When I call ordinary_least_squares_linear_regression
-        Then it must raise exception"""
-
-        # Arrange
-        analytical_data = [[-0.100, 0.200, 0.150]]
-        concentration_data = [[0.2, 0.2, 0.3]]
-        # Act
-        with pytest.raises(AnalyticalValueNegative) as excinfo:
-            LinearityValidator(analytical_data, concentration_data)
-        # Assert
-        assert "Negative value for analytical signal is not valid!" in str(excinfo.value)
 
     def test_ordinary_least_squares_linear_regression_must_pass_float_when_given_correct_data(self,
                                                                                               ordinary_least_squares_regression_mock,
@@ -362,7 +298,7 @@ class TestLinearityValidator(object):
     @pytest.mark.parametrize(
         'param_significant_slope, param_insignificant_intercept, param_valid_r_squared, expected_result', [
             (True, True, True, True), (True, False, False, False), (True, True, False, False),
-            (False, False, False, False)
+            (False, True, True, False), (False, True, False, False),(False, False, False, False)
         ])
     def test_valid_regression_model(self, mocker, param_significant_slope, param_insignificant_intercept,
                                     param_valid_r_squared, expected_result):
@@ -384,6 +320,14 @@ class TestLinearityValidator(object):
         assert outliers == [[10.0], [6.0]]
         assert cleaned_data == [[1.0, 1.0], [2.0, 2.0]]
         assert cleaned_concentration_data == [[1.0, 2.0], [8.0, 10.0]]
+
+    def test_check_outliers_when_given_assimetrical_list_of_list_data(self, linearity_validator_outlier_obj):
+
+        analytical_data = [[0.1, 0.1, 0.1], [0.3, 0.3, 0.80]]
+        concentration_data = [[0.05, 0.05, 0.05], [0.06, 0.06]]
+        validator = LinearityValidator(analytical_data, concentration_data)
+        with pytest.raises(OulierCheckError):
+            outliers, cleaned_data, cleaned_concentration_data = validator.check_outliers()
 
     @pytest.mark.parametrize('param_shapiro_pvalue, param_alpha, expected_result', [
         (10, 0.05, True), (0.01, 0.1, False), (0.0501, 0.05, True), (0.099, 0.1, False)
@@ -443,9 +387,10 @@ class TestLinearityValidator(object):
         """Given data,
         if no regression was calculated
         Should raise an exception"""
+        # Arrange
         linearity_validator_obj.fitted_result = None
+        # Act & assert
         with pytest.raises(DataWasNotFitted):
-            # Act
             linearity_validator_obj.check_residual_autocorrelation()
 
     @pytest.mark.parametrize('durbin_watson_pvalue', [
@@ -462,8 +407,8 @@ class TestLinearityValidator(object):
         0 < durbin_watson_value < 4"""
         # Arrange
         durbin_watson_mock.return_value = durbin_watson_pvalue
+        # Act
         with pytest.raises(DurbinWatsonValueError):
-            # Act
             linearity_validator_obj.check_residual_autocorrelation()
         # Assert
         assert linearity_validator_obj.durbin_watson_value is None

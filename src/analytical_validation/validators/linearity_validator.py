@@ -7,7 +7,7 @@ import statsmodels.stats.stattools as stattools
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
     AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, \
-    DataWasNotFitted, DurbinWatsonValueError
+    DataWasNotFitted, DurbinWatsonValueError, OulierCheckError
 from analytical_validation.statistical_tests.dixon_qtest import dixon_qtest
 
 
@@ -77,8 +77,7 @@ class LinearityValidator(object):
         :return: True if data is linear; otherwise, False.
         :rtype: bool
         """
-        self.ordinary_least_squares_linear_regression()
-        return self.intercept
+        pass
 
     def ordinary_least_squares_linear_regression(self):
         """Fit the data using the ordinary least squares method of Linear Regression."""
@@ -123,20 +122,6 @@ class LinearityValidator(object):
         return self.fitted_result.rsquared_adj
 
     @property
-    def is_homokedastic(self):
-        """The homokedastic data information.
-
-        The data is homokedastic when the variance is constant; otherwise it is heterokedastic.
-        Uses the Breusch-Pagan test. In the Breusch-Pagan test to check homoskedasticity the p value of fitted
-        results basaed on regression model is needed.
-        If the (p-value) > 0.05, the method is homoskedastic, else is heteroskedastic
-
-        :return: The homokedastic data information.
-        :rtype: bool
-        """
-        return self.breusch_pagan_pvalue > self.alpha
-
-    @property
     def significant_slope(self):
         """The slope significance avaliation.
 
@@ -145,7 +130,10 @@ class LinearityValidator(object):
         :return: The avaliation of slope siginificance.
         :rtype: bool
         """
-        return self.fitted_result.pvalues[1] < self.alpha
+        if self.fitted_result.pvalues[1] < self.alpha:
+            return True
+        else:
+            return False
 
     @property
     def insignificant_intercept(self):
@@ -156,7 +144,10 @@ class LinearityValidator(object):
         :return: The avaliation of intercept insiginificance.
         :rtype: bool
         """
-        return self.fitted_result.pvalues[0] > self.alpha
+        if self.fitted_result.pvalues[0] > self.alpha:
+            return True
+        else:
+            return False
 
     @property
     def valid_r_squared(self):
@@ -167,8 +158,10 @@ class LinearityValidator(object):
         :return: The avaliation of correlation coefficient.
         :rtype: bool
         """
-        return self.fitted_result.rsquared >= 0.990
-
+        if self.fitted_result.rsquared >= 0.990:
+            return True
+        else:
+            return False
     @property
     def valid_regression_model(self):
         """The slope significance avaliation.
@@ -179,7 +172,10 @@ class LinearityValidator(object):
         :return: The validity of regression model.
         :rtype: bool
         """
-        return self.significant_slope and self.insignificant_intercept and self.valid_r_squared
+        if self.significant_slope and self.insignificant_intercept and self.valid_r_squared:
+            return True
+        else:
+            return False
 
     # ANOVA table values
     @property
@@ -275,21 +271,27 @@ class LinearityValidator(object):
         using the Dixon Q value test.
         :return: The data set list without outliers and a list of outliers.
         :rtype: list"""
+
         data = deepcopy(self.original_analytical_data)
         concentration = deepcopy(self.original_concentration_data)
         for data_set in data:
             outliers_set, cleaned_data_set = dixon_qtest(data_set)
             self.outliers.append(outliers_set)
             self.cleaned_data.append(cleaned_data_set)
-        set_index = 0
-        while set_index < len(data):
-            concentration[set_index].pop(self.original_analytical_data[set_index].index(self.outliers[set_index][0]))
-            set_index += 1
-            self.cleaned_concentration_data = concentration
-        # TODO: Implement the reuse of cleaned data for the regression
+        try:
+            set_index = 0
+            while set_index < len(data):
+                concentration[set_index].pop(self.original_analytical_data[set_index].index(self.outliers[set_index][0]))
+                set_index += 1
+                self.cleaned_concentration_data = concentration
+            # TODO: Implement the reuse of cleaned data for the regression
+        except:
+            raise OulierCheckError()
         return self.outliers, self.cleaned_data, self.cleaned_concentration_data
 
-    # TODO: create test
+    def run_shapiro_wilk_test(self):
+        self.shapiro_pvalue = scipy.stats.shapiro(self.analytical_data)[1]
+
     @property
     def is_normal_distribution(self):
         """check for normality in data set using the Shapiro-Wilk test.
@@ -297,9 +299,6 @@ class LinearityValidator(object):
         :rtype: bool"""
         # TODO: check if property is needed
         return self.shapiro_pvalue > self.alpha
-
-    def run_shapiro_wilk_test(self):
-        self.shapiro_pvalue = scipy.stats.shapiro(self.analytical_data)
 
     def run_breusch_pagan_test(self):
         """Run the Breusch-Pagan test."""
@@ -311,6 +310,20 @@ class LinearityValidator(object):
         # labels = ["LM Statistic", "LM-Test p-value", "F-Statistic", "F-Test p-value"]
         self.breusch_pagan_pvalue = float(breusch_pagan_test[1])
         # TODO: Deal with heteroskedastic, removing outliers or using Weighted Least Squares Regression
+
+    @property
+    def is_homokedastic(self):
+        """The homokedastic data information.
+
+        The data is homokedastic when the variance is constant; otherwise it is heterokedastic.
+        Uses the Breusch-Pagan test. In the Breusch-Pagan test to check homoskedasticity the p value of fitted
+        results basaed on regression model is needed.
+        If the (p-value) > 0.05, the method is homoskedastic, else is heteroskedastic
+
+        :return: The homokedastic data information.
+        :rtype: bool
+        """
+        return self.breusch_pagan_pvalue > self.alpha
 
     def check_residual_autocorrelation(self):
         """Check the residual autocorrelation in a
