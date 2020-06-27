@@ -19,7 +19,15 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ee186675-425f-4066-bc2f-9390061b8a9d" name="Default Changelist" comment="" />
+    <list default="true" id="ee186675-425f-4066-bc2f-9390061b8a9d" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/analytical_validation/data_handler/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/analytical_validation/data_handler/data_handler.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/unit/data_handler/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/unit/data_handler/test_data_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/analytical_validation/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analytical_validation/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/analytical_validation/exceptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analytical_validation/exceptions.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -44,8 +52,8 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="TERMINAL_CUSTOM_COMMANDS_GOT_IT" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/tests/integration" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/tests/unit/data_handler/test_data_handler.py" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -59,7 +67,7 @@
       <recent name="$PROJECT_DIR$/tests" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.pytest in unit">
+  <component name="RunManager" selected="Python tests.pytest in test_data_handler.py">
     <configuration name="read_csv_file" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="analytical-validation" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -123,42 +131,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Doctests in LinearityValidator" type="tests" factoryName="Doctests" temporary="true" nameIsGenerated="true">
-      <module name="analytical-validation" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/analytical_validation/validators" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/analytical_validation/validators/linearity_validator.py" />
-      <option name="CLASS_NAME" value="LinearityValidator" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_CLASS" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Doctests in linearity_validator" type="tests" factoryName="Doctests" temporary="true" nameIsGenerated="true">
-      <module name="analytical-validation" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/analytical_validation/validators" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/analytical_validation/validators/linearity_validator.py" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <method v="2" />
-    </configuration>
     <configuration name="pytest in integration" type="tests" factoryName="py.test" nameIsGenerated="true">
       <module name="analytical-validation" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -172,6 +144,22 @@
       <option name="_new_parameters" value="&quot;-k test_negative_value_analytical_data&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/integration&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in test_data_handler.py" type="tests" factoryName="py.test" nameIsGenerated="true">
+      <module name="analytical-validation" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/unit/test_data_handler/test_data_handler.py&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
@@ -214,15 +202,12 @@
       <item itemvalue="Python tests.pytest in integration" />
       <item itemvalue="Python tests.pytest in unit" />
       <item itemvalue="Python tests.pytest in test_dixon_outlier.py" />
-      <item itemvalue="Python tests.Doctests in LinearityValidator" />
-      <item itemvalue="Python tests.Doctests in linearity_validator" />
+      <item itemvalue="Python tests.pytest in test_data_handler.py" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.test_linearity_validator" />
         <item itemvalue="Python.test_dixon_outlier" />
-        <item itemvalue="Python tests.Doctests in linearity_validator" />
-        <item itemvalue="Python tests.Doctests in LinearityValidator" />
         <item itemvalue="Python.read_csv_file" />
       </list>
     </recent_temporary>
@@ -251,11 +236,41 @@
             <State />
           </value>
         </entry>
+        <entry key="2">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
         <entry key="MAIN">
           <value>
             <State />
           </value>
         </entry>
+      </map>
+    </option>
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="2" value="TOOL_WINDOW" />
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
@@ -265,65 +280,65 @@
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state x="584" y="266" width="251" height="277" key="#Notifications/64.27.1302.741@64.27.1302.741" timestamp="1592880942642" />
-    <state x="143" y="29" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1593212312397">
+    <state x="143" y="29" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1593278334560">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
-    <state x="143" y="29" key="#com.intellij.execution.impl.EditConfigurationsDialog/64.27.1302.741@64.27.1302.741" timestamp="1593212312397" />
+    <state x="143" y="29" key="#com.intellij.execution.impl.EditConfigurationsDialog/64.27.1302.741@64.27.1302.741" timestamp="1593278334560" />
     <state x="522" y="70" width="375" height="661" key="#com.intellij.openapi.keymap.impl.ui.EditKeymapsDialog" timestamp="1592860101066">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state x="522" y="70" width="375" height="661" key="#com.intellij.openapi.keymap.impl.ui.EditKeymapsDialog/64.27.1302.741@64.27.1302.741" timestamp="1592860101066" />
-    <state x="263" y="258" width="374" height="358" key="FileChooserDialogImpl" timestamp="1593212308296">
+    <state x="263" y="258" width="374" height="358" key="FileChooserDialogImpl" timestamp="1593278330826">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state x="2214" y="336" width="424" height="491" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592189178270" />
-    <state x="263" y="258" width="374" height="358" key="FileChooserDialogImpl/64.27.1302.741@64.27.1302.741" timestamp="1593212308296" />
+    <state x="263" y="258" width="374" height="358" key="FileChooserDialogImpl/64.27.1302.741@64.27.1302.741" timestamp="1593278330826" />
     <state x="270" y="258" width="374" height="337" key="FileChooserDialogImpl/72.27.1294.741@72.27.1294.741" timestamp="1592320794366" />
-    <state width="1256" height="207" key="GridCell.Tab.0.bottom" timestamp="1593229543128">
+    <state width="1256" height="261" key="GridCell.Tab.0.bottom" timestamp="1593232561791">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state width="1826" height="276" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592195574438" />
-    <state width="1256" height="207" key="GridCell.Tab.0.bottom/64.27.1302.741@64.27.1302.741" timestamp="1593229543128" />
+    <state width="1256" height="261" key="GridCell.Tab.0.bottom/64.27.1302.741@64.27.1302.741" timestamp="1593232561791" />
     <state width="1271" height="172" key="GridCell.Tab.0.bottom/72.27.1294.741@72.27.1294.741" timestamp="1592321893341" />
-    <state width="1256" height="207" key="GridCell.Tab.0.center" timestamp="1593229543127">
+    <state width="1256" height="261" key="GridCell.Tab.0.center" timestamp="1593232561791">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state width="1826" height="276" key="GridCell.Tab.0.center/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592195574438" />
-    <state width="1256" height="207" key="GridCell.Tab.0.center/64.27.1302.741@64.27.1302.741" timestamp="1593229543127" />
+    <state width="1256" height="261" key="GridCell.Tab.0.center/64.27.1302.741@64.27.1302.741" timestamp="1593232561791" />
     <state width="1271" height="172" key="GridCell.Tab.0.center/72.27.1294.741@72.27.1294.741" timestamp="1592321893340" />
-    <state width="1256" height="207" key="GridCell.Tab.0.left" timestamp="1593229543126">
+    <state width="1256" height="261" key="GridCell.Tab.0.left" timestamp="1593232561791">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state width="1826" height="276" key="GridCell.Tab.0.left/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592195574438" />
-    <state width="1256" height="207" key="GridCell.Tab.0.left/64.27.1302.741@64.27.1302.741" timestamp="1593229543126" />
+    <state width="1256" height="261" key="GridCell.Tab.0.left/64.27.1302.741@64.27.1302.741" timestamp="1593232561791" />
     <state width="1271" height="172" key="GridCell.Tab.0.left/72.27.1294.741@72.27.1294.741" timestamp="1592321893340" />
-    <state width="1256" height="207" key="GridCell.Tab.0.right" timestamp="1593229543127">
+    <state width="1256" height="261" key="GridCell.Tab.0.right" timestamp="1593232561791">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state width="1826" height="276" key="GridCell.Tab.0.right/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592195574438" />
-    <state width="1256" height="207" key="GridCell.Tab.0.right/64.27.1302.741@64.27.1302.741" timestamp="1593229543127" />
+    <state width="1256" height="261" key="GridCell.Tab.0.right/64.27.1302.741@64.27.1302.741" timestamp="1593232561791" />
     <state width="1271" height="172" key="GridCell.Tab.0.right/72.27.1294.741@72.27.1294.741" timestamp="1592321893340" />
-    <state width="1256" height="261" key="GridCell.Tab.1.bottom" timestamp="1593229534830">
+    <state width="1256" height="261" key="GridCell.Tab.1.bottom" timestamp="1593232561793">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
-    <state width="1256" height="261" key="GridCell.Tab.1.bottom/64.27.1302.741@64.27.1302.741" timestamp="1593229534830" />
-    <state width="1256" height="261" key="GridCell.Tab.1.center" timestamp="1593229534830">
+    <state width="1256" height="261" key="GridCell.Tab.1.bottom/64.27.1302.741@64.27.1302.741" timestamp="1593232561793" />
+    <state width="1256" height="261" key="GridCell.Tab.1.center" timestamp="1593232561792">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
-    <state width="1256" height="261" key="GridCell.Tab.1.center/64.27.1302.741@64.27.1302.741" timestamp="1593229534830" />
-    <state width="1256" height="261" key="GridCell.Tab.1.left" timestamp="1593229534830">
+    <state width="1256" height="261" key="GridCell.Tab.1.center/64.27.1302.741@64.27.1302.741" timestamp="1593232561792" />
+    <state width="1256" height="261" key="GridCell.Tab.1.left" timestamp="1593232561792">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
-    <state width="1256" height="261" key="GridCell.Tab.1.left/64.27.1302.741@64.27.1302.741" timestamp="1593229534830" />
-    <state width="1256" height="261" key="GridCell.Tab.1.right" timestamp="1593229534830">
+    <state width="1256" height="261" key="GridCell.Tab.1.left/64.27.1302.741@64.27.1302.741" timestamp="1593232561792" />
+    <state width="1256" height="261" key="GridCell.Tab.1.right" timestamp="1593232561793">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
-    <state width="1256" height="261" key="GridCell.Tab.1.right/64.27.1302.741@64.27.1302.741" timestamp="1593229534830" />
-    <state x="460" y="31" width="900" height="737" key="SettingsEditor" timestamp="1592795042384">
+    <state width="1256" height="261" key="GridCell.Tab.1.right/64.27.1302.741@64.27.1302.741" timestamp="1593232561793" />
+    <state x="344" y="31" width="1022" height="737" key="SettingsEditor" timestamp="1593231256970">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state x="2555" y="119" width="1022" height="737" key="SettingsEditor/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592191371139" />
-    <state x="460" y="31" key="SettingsEditor/64.27.1302.741@64.27.1302.741" timestamp="1592795042384" />
+    <state x="344" y="31" width="1022" height="737" key="SettingsEditor/64.27.1302.741@64.27.1302.741" timestamp="1593231256970" />
     <state x="466" y="31" width="900" height="737" key="SettingsEditor/72.27.1294.741@72.27.1294.741" timestamp="1592321813272" />
     <state width="651" height="370" key="XDebugger.FullValuePopup" timestamp="1593202840950">
       <screen x="64" y="27" width="1302" height="741" />

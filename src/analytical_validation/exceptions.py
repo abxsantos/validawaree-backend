@@ -47,6 +47,9 @@ class DataNotListOfLists(Exception):
     def __init__(self):
         super().__init__("The given data is not a list of lists.")
 
+class DataSetNotSymmetric(Exception):
+    def __init__(self):
+        super().__init__("The given data is not symmetric. Check if there's a value missing.")
 
 class DataNotNumber(Exception):
     def __init__(self):
