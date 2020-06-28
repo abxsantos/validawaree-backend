@@ -6,7 +6,7 @@ from analytical_validation.api import LinearityValidation
 app = Flask(__name__)
 api = Api(app)
 
-api.add_resource(LinearityValidation, '/data')
+api.add_resource(LinearityValidation, '/linearity_data')
 
 if __name__ == '__main__':
     app.run(debug=True)

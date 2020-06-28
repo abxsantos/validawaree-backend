@@ -1,3 +1,18 @@
+# from flask import Flask, request, jsonify
+#
+# app = Flask(__name__)
+#
+# new_data = {"chubilooo": '456789', "tanana": "AAAAA", "wololoo": '12.0'}
+#
+# @app.route('/linearity_data', methods=['POST'])
+# def get_query_from_react():
+#     data = request.json
+#     if data:
+#         data['value'] = '45678'
+#         print(data)
+#         return new_data
+#     return "No information was given."
+
 import json
 
 from flask_restful import Resource, reqparse
@@ -12,7 +27,7 @@ parser.add_argument('concentration_data')
 class LinearityValidation(Resource):
     def post(self):
         args = parser.parse_args()
-
+        print(args)
         analytical_data = json.loads(args['analytical_data'])
         concentration_data = json.loads(args['concentration_data'])
         try:

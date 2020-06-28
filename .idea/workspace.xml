@@ -20,13 +20,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee186675-425f-4066-bc2f-9390061b8a9d" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/analytical_validation/data_handler/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/analytical_validation/data_handler/data_handler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit/data_handler/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit/data_handler/test_data_handler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/analytical_validation/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analytical_validation/api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/analytical_validation/exceptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analytical_validation/exceptions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/analytical_validation/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analytical_validation/app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +47,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="TERMINAL_CUSTOM_COMMANDS_GOT_IT" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/tests/unit/data_handler/test_data_handler.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../react-flask-app" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
@@ -288,11 +283,11 @@
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state x="522" y="70" width="375" height="661" key="#com.intellij.openapi.keymap.impl.ui.EditKeymapsDialog/64.27.1302.741@64.27.1302.741" timestamp="1592860101066" />
-    <state x="263" y="258" width="374" height="358" key="FileChooserDialogImpl" timestamp="1593278330826">
+    <state x="263" y="258" width="374" height="358" key="FileChooserDialogImpl" timestamp="1593296115922">
       <screen x="64" y="27" width="1302" height="741" />
     </state>
     <state x="2214" y="336" width="424" height="491" key="FileChooserDialogImpl/1920.0.1920.1080/0.27.1920.1053@1920.0.1920.1080" timestamp="1592189178270" />
-    <state x="263" y="258" width="374" height="358" key="FileChooserDialogImpl/64.27.1302.741@64.27.1302.741" timestamp="1593278330826" />
+    <state x="263" y="258" width="374" height="358" key="FileChooserDialogImpl/64.27.1302.741@64.27.1302.741" timestamp="1593296115922" />
     <state x="270" y="258" width="374" height="337" key="FileChooserDialogImpl/72.27.1294.741@72.27.1294.741" timestamp="1592320794366" />
     <state width="1256" height="261" key="GridCell.Tab.0.bottom" timestamp="1593232561791">
       <screen x="64" y="27" width="1302" height="741" />
