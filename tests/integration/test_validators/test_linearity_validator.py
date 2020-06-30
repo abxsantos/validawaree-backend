@@ -1,3 +1,5 @@
+import pytest
+
 from analytical_validation.validators.linearity_validator import LinearityValidator
 
 
@@ -36,3 +38,6 @@ class TestLinearityValidator(object):
         assert linearity_validator.is_normal_distribution
         assert linearity_validator.is_homokedastic
         assert linearity_validator.durbin_watson_value is not None
+
+
+        #TODO: make integration test for only one set of concentration and analytical data. Must raise exception.
