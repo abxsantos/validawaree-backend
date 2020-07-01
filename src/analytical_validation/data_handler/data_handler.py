@@ -51,7 +51,7 @@ class DataHandler(object):
             if isinstance(value, bool):
                 raise ValueNotValid()
             if isinstance(value, str):
-                value = value.replace(',', '.').replace(' ', '').replace('\n', '').replace('"\\"', '')
+                value = value.replace(',', '.').replace(' ', '').replace('"', '').replace('\n', '').replace('"\\"', '')
             try:
                 if float(value) >= 0:
                     return float(value)

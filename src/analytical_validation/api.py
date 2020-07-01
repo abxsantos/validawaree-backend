@@ -12,11 +12,9 @@ parser.add_argument('concentration_data')
 
 class LinearityValidation(Resource):
     def post(self):
-        # TODO: maybe change to another type of parser {'analytical_data': '[["\\"0,2\\"","\\"0,1\\"","\\"0,2\\""],["\\"0,2\\"","\\"0,1\\"","\\"0,1\\""]]', 'concentration_data': '[["\\"0,1\\"","\\"0,1\\"","\\"0,1\\""],["\\"0,3\\"","\\"0,3\\"","\\"0,3\\""]]'}
         args = parser.parse_args()
         analytical_data = json.loads(args['analytical_data'])
         concentration_data = json.loads(args['concentration_data'])
-
         try:
             DataHandler.check_is_list(analytical_data)
             DataHandler.check_is_list(concentration_data)
