@@ -5,6 +5,7 @@ __pycache__/
 .idea/workspace.xml
 # C extensions
 *.so
+.idea
 
 # Distribution / packaging
 .Python

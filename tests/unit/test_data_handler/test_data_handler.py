@@ -129,6 +129,6 @@ class TestDataHandler(object):
         Must remove NoneType from both sets of lists
         """
         data_handler = DataHandler(param_analytical_data, param_concentration_data)
-        data_handler.replace_null_values()
-        assert data_handler.clean_analytical_data == expected_analytical_result
-        assert data_handler.clean_concentration_data == expected_concentration_result
+        clean_analytical_data, clean_concentration_data = data_handler.replace_null_values()
+        assert clean_analytical_data == expected_analytical_result
+        assert clean_concentration_data == expected_concentration_result

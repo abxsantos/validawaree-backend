@@ -2,6 +2,7 @@ import json
 
 from flask_restful import Resource, reqparse
 
+from analytical_validation.data_handler.data_handler import DataHandler
 from analytical_validation.validators.linearity_validator import LinearityValidator
 
 parser = reqparse.RequestParser()
@@ -11,13 +12,21 @@ parser.add_argument('concentration_data')
 
 class LinearityValidation(Resource):
     def post(self):
+        # TODO: maybe change to another type of parser {'analytical_data': '[["\\"0,2\\"","\\"0,1\\"","\\"0,2\\""],["\\"0,2\\"","\\"0,1\\"","\\"0,1\\""]]', 'concentration_data': '[["\\"0,1\\"","\\"0,1\\"","\\"0,1\\""],["\\"0,3\\"","\\"0,3\\"","\\"0,3\\""]]'}
         args = parser.parse_args()
-        print(args)
         analytical_data = json.loads(args['analytical_data'])
         concentration_data = json.loads(args['concentration_data'])
+
         try:
-            print(analytical_data)
-            print(concentration_data)
+            DataHandler.check_is_list(analytical_data)
+            DataHandler.check_is_list(concentration_data)
+            analytical_data = DataHandler.check_list_of_lists(analytical_data)
+            concentration_data = DataHandler.check_list_of_lists(concentration_data)
+            linearity_data_handler = DataHandler(analytical_data, concentration_data)
+            linearity_data_handler.check_symmetric_data()
+            linearity_data_handler.check_symmetric_data_set()
+            analytical_data, concentration_data = linearity_data_handler.replace_null_values()
+
             linearity_validator = LinearityValidator(analytical_data, concentration_data)
             linearity_validator.ordinary_least_squares_linear_regression()
             linearity_validator.run_shapiro_wilk_test()
