@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from analytical_validation.exceptions import DataNotList, DataNotListOfLists, ValueNotValid, NegativeValue, \
     DataNotSymmetric
 
@@ -16,6 +18,9 @@ class DataHandler(object):
 
         self.external_analytical_data = external_analytical_data
         self.external_concentration_data = external_concentration_data
+
+        self.clean_analytical_data = []
+        self.clean_concentration_data = []
 
     def check_is_list(data):
         """
@@ -65,12 +70,23 @@ class DataHandler(object):
                 list(map(lambda analytical_data_set: len(analytical_data_set), self.external_analytical_data))):
             raise DataNotSymmetric()
 
-    # def replace_null_values(self):
-    #     for analytical_data_set in self.external_analytical_data:
+    def replace_null_values(self):
+        clean_analytical_data = deepcopy(self.external_analytical_data)
+        clean_concentration_data = deepcopy(self.external_concentration_data)
+        none_index = []
+        for analytical_data_set in self.external_analytical_data:
+            none_index.append([index for index, value in enumerate(analytical_data_set) if value is None])
+        set_index = 0
+        while set_index < len(clean_analytical_data):
+            for i in none_index[set_index]:
+                clean_analytical_data[set_index].pop(i)
+                clean_concentration_data[set_index].pop(i)
+            set_index += 1
+        self.clean_analytical_data = clean_analytical_data
+        self.clean_concentration_data = clean_concentration_data
 
 
-
-#
+                #
 # # analytical_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
 # # concentration_data = [[1.0, 2.0, 3.0], [8.0, 9.0, 10.0]]
 #

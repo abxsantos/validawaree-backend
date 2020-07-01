@@ -119,6 +119,7 @@ class TestDataHandler(object):
         with pytest.raises(DataNotSymmetric):
             DataHandler(param_analytical_data, param_concentration_data).check_symmetric_data_set()
 
+
     def test_replace_null_values(self):
         """Given data with null/none/undefined values,
         when replace_null_values is called,
@@ -128,5 +129,5 @@ class TestDataHandler(object):
         param_concentration_data = [[7, 8, 9], [10, 11, 12]]
         data_handler = DataHandler(param_analytical_data, param_concentration_data)
         data_handler.replace_null_values()
-        assert data_handler.external_concentration_data == [[1, 2, 3], [4, 5]]
-        assert data_handler.external_analytical_data == [[7, 8, 9], [10, 11]]
+        assert data_handler.clean_analytical_data == [[1, 2, 3], [4, 5]]
+        assert data_handler.clean_concentration_data == [[7, 8, 9], [10, 11]]
