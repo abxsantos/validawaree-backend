@@ -79,91 +79,10 @@ class DataHandler(object):
         set_index = 0
         while set_index < len(clean_analytical_data):
             for i in none_index[set_index]:
+                if none_index[set_index][0] != i:
+                    i -= 1
                 clean_analytical_data[set_index].pop(i)
                 clean_concentration_data[set_index].pop(i)
             set_index += 1
         self.clean_analytical_data = clean_analytical_data
         self.clean_concentration_data = clean_concentration_data
-
-
-                #
-# # analytical_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-# # concentration_data = [[1.0, 2.0, 3.0], [8.0, 9.0, 10.0]]
-#
-# def handle_data_from_react(react_analytical_data, react_concentration_data):
-#     """Saves the day treating the data coming from frontend
-#
-#     Example
-#         >>> analytical_data = [[1.0, 2.0, 3.0], [8.0, 9.0, 10.0]]
-#         >>> concentration_data = [[1.0, 2.0, 3.0], [8.0, 9.0, 10.0]]
-#     :param analytical_data: List containing all measured analytical signal.
-#     :type analytical_data: list
-#     :param concentration_data: List containing the concentration for each analytical signal
-#     :type concentration_data: list
-#     """
-#     # check for data inconsistency
-#     #  the analytical data must be completely symmetric with concentration data
-#     #  check if it's a list
-#     if not isinstance(react_analytical_data, list) or not isinstance(react_concentration_data, list):
-#         raise DataNotList()
-#     #  check if its a list containing lists (set of data)
-#     if all(isinstance(analytical_data_set, list) for analytical_data_set in react_analytical_data) is False or all(
-#             isinstance(concentration_data_set, list) for concentration_data_set in react_concentration_data) is False:
-#         raise DataNotListOfLists()
-#     #  check if the number of set of data is symmetric
-#     if len(react_analytical_data) != len(react_concentration_data):
-#         raise DataSetNotSymmetric()
-#     #       check if the number of values in the data sets are symmetric
-#     for analytical_data_set, concentration_data_set in zip(react_analytical_data, react_concentration_data):
-#         if len(analytical_data_set) != len(concentration_data_set):
-#             raise DataSetNotSymmetric()
-#     #       check if values are numbers and convert to float
-#
-#     float_analytical_data = []
-#     for analytical_data_set in react_analytical_data:
-#         try:
-#             float_data_set = list(map((lambda value: float(check_for_negative(value))), analytical_data_set))
-#             float_analytical_data.append(float_data_set)
-#         except:
-#             raise ValueNotValid()
-#
-#     float_concentration_data = []
-#     for concentration_data_set in react_concentration_data:
-#         try:
-#             float_data_set = list(map((lambda value: float(check_for_negative(value))), concentration_data_set))
-#             float_concentration_data.append(float_data_set)
-#         except:
-#             raise ValueNotValid()
-#
-# def check_for_negative(value):
-#     if value > 0:
-#         float(value)
-#         return value
-#     else:
-#         raise NegativeValue()
-#
-#
-#     # try:
-#     #     for analytical_data_set in react_analytical_data:
-#     #         for value in analytical_data_set:
-#     #             if isinstance(value, bool):
-#     #                 raise AnalyticalValueNotNumber()
-#     #             value = float(value)
-#     #             if value < 0:
-#     #                 raise AnalyticalValueNegative()
-#     # except (TypeError, ValueError):
-#     #     raise AnalyticalValueNotNumber()
-#     # try:
-#     #     for concentration_data_set in react_concentration_data:
-#     #         for value in concentration_data_set:
-#     #             if isinstance(value, bool):
-#     #                 raise ConcentrationValueNotNumber()
-#     #             float_value = float(value)
-#     #             if float_value < 0:
-#     #                 raise ConcentrationValueNegative()
-#     #
-#     # except (TypeError, ValueError):
-#     #     raise ConcentrationValueNotNumber()
-#     #       check if there are invalid numbers (negative, null)
-#     #       clean up non real float values
-#
