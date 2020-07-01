@@ -50,7 +50,7 @@ class LinearityValidation(Resource):
                                  'mean_squared_error_residues': linearity_validator.mean_squared_error_residues,
                                  'anova_f_value': linearity_validator.anova_f_value,
                                  'anova_f_pvalue': linearity_validator.anova_f_pvalue, },
-                        # TODO: Pass cleaned data
+                       # TODO: Pass cleaned data
                        # 'cleaned_data': {'outliers': linearity_validator.outliers,
                        #                  'cleaned_analytical_data': linearity_validator.cleaned_data,
                        #                  'cleaned_concentration_data': linearity_validator.cleaned_concentration_data},

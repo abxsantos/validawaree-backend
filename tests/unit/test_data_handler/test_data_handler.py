@@ -42,10 +42,8 @@ class TestDataHandler(object):
 
     @pytest.mark.parametrize('param_data', [
         ([["STR", 0.2, 0.1], [0.1, 0.2, 0.1]]),
-
         ([["NaNananana BATMAN", 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["NULL", 0.2, 0.1], [0.1, 0.2, 0.1]]),
-
         ([["123.EE4", 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["infinity and BEYOND", 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["12.34.56", 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -70,6 +68,9 @@ class TestDataHandler(object):
         ([[",1", 0.2, 0.1], [0.1, 0.2, 0.1]], [[0.1, 0.2, 0.1], [0.1, 0.2, 0.1]])
     ])
     def test_check_list_of_lists_must_convert_number_with_comma_to_float(self, param_data, expected_result):
+        """Given a list of lists containing strings with comma separated decimals
+        When check_list_of_lists is called
+        Must pass returning the values converted to float"""
         assert DataHandler.check_list_of_lists(param_data) == expected_result
 
     @pytest.mark.parametrize('param_data, expected_result', [
@@ -87,7 +88,7 @@ class TestDataHandler(object):
     ])
     def test_check_list_of_lists_must_pass_when_value_is_conversible_to_float(self, param_data, expected_result):
         """Given a list of lists, with not float number value(s)
-        when check list_of_lists is called,
+        when check _list_of_lists is called,
         Must create a list containing floats"""
         assert DataHandler.check_list_of_lists(param_data) == expected_result
 
