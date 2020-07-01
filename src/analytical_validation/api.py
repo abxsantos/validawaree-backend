@@ -16,6 +16,8 @@ class LinearityValidation(Resource):
         analytical_data = json.loads(args['analytical_data'])
         concentration_data = json.loads(args['concentration_data'])
         try:
+            print(analytical_data)
+            print(concentration_data)
             linearity_validator = LinearityValidator(analytical_data, concentration_data)
             linearity_validator.ordinary_least_squares_linear_regression()
             linearity_validator.run_shapiro_wilk_test()
@@ -42,7 +44,7 @@ class LinearityValidation(Resource):
                         # TODO: Pass cleaned data
                        # 'cleaned_data': {'outliers': linearity_validator.outliers,
                        #                  'cleaned_analytical_data': linearity_validator.cleaned_data,
-                       #                  'cleaned_concentration_data': linearity_validator.cleaned_concentration_data, },
+                       #                  'cleaned_concentration_data': linearity_validator.cleaned_concentration_data},
                        'is_normal_distribution': linearity_validator.is_normal_distribution,
                        'is_homokedastic': linearity_validator.is_homokedastic,
                        'durbin_watson_value': linearity_validator.durbin_watson_value}, 201

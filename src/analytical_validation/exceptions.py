@@ -47,9 +47,11 @@ class DataNotListOfLists(Exception):
     def __init__(self):
         super().__init__("The given data is not a list of lists.")
 
-class DataSetNotSymmetric(Exception):
+
+class DataNotSymmetric(Exception):
     def __init__(self):
         super().__init__("The given data is not symmetric. Check if there's a value missing.")
+
 
 class DataNotNumber(Exception):
     def __init__(self):
@@ -99,3 +101,12 @@ class OulierCheckError(Exception):
     def __init__(self):
         super().__init__("Something went wrong checking outliers. Check your input format, data must be symmetric.")
 
+
+class ValueNotValid(Exception):
+    def __init__(self):
+        super().__init__("Non number values are not valid. Check and try again.")
+
+
+class NegativeValue(Exception):
+    def __init__(self):
+        super().__init__("Negative values are not valid. Check and try again.")

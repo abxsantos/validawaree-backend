@@ -1,183 +1,132 @@
 import pytest
 
-from analytical_validation.data_handler.data_handler import handle_data_from_react
-from analytical_validation.exceptions import DataNotList, DataNotListOfLists, DataSetNotSymmetric, \
-    AnalyticalValueNotNumber, ConcentrationValueNotNumber, ConcentrationValueNegative, AnalyticalValueNegative
+from analytical_validation.data_handler.data_handler import DataHandler
+from analytical_validation.exceptions import DataNotList, DataNotListOfLists, ValueNotValid, DataNotSymmetric
 
 
 class TestDataHandler(object):
-    # check for data inconsistency
+
+    #  check for data inconsistency
     #  the analytical data must be completely symmetric with concentration data
     #  check if it's a list
     #  check if its a list containing lists (set of data)
     #  check if the number of set of data is symmetric
-    #       check if the number of values in the data sets are symmetric
-    #       check if values are numbers and convert to float
-    #       check if there are invalid numbers (negative, undefined)
-    #       clean up non real float values
+    #  check if the number of values in the data sets are symmetric
+    #  check if values are numbers and convert to float
+    #  check if there are invalid numbers (negative, null)
+    #  clean up non real float values
 
-    def test_data_handler(self):
-        analytical_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        concentration_data = [[1.0, 2.0, 3.0], [8.0, 9.0, 10.0]]
-        handle_data_from_react(analytical_data, concentration_data)
-        assert handle_data_from_react.handled_analytical_data == analytical_data
-        assert handle_data_from_react.handled_concentration_data == concentration_data
-
-    @pytest.mark.parametrize('param_analytical_data', [
-        ("STR", -1, 10, 0.09, True, {}, (0, 1))
+    @pytest.mark.parametrize('param_data', [
+        "STR", {}, 1, 0.990, (0, 1)
     ])
-    def test_data_handler_must_raise_an_exception_when_data_is_not_a_list(self, param_analytical_data):
-        concentration_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
+    def test_DataHandler_must_raise_exception_when_not_list(self, param_data):
+        """
+        Given data of different types
+        when data_is_list is called
+        must raise an exception
+        """
         with pytest.raises(DataNotList):
-            handle_data_from_react(param_analytical_data, concentration_data)
+            DataHandler.check_is_list(param_data)
 
-    @pytest.mark.parametrize('param_concentration_data', [
-        ("STR", -1, 10, 0.09, True, {}, (0, 1))
+    @pytest.mark.parametrize('param_data', [
+        ["STR"], [{}], [1], [0.990], [(0, 1)]
     ])
-    def test_data_handler_must_raise_an_exception_when_concentration_data_is_not_a_list(self, param_concentration_data):
-        analytical_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        with pytest.raises(DataNotList):
-            handle_data_from_react(analytical_data, param_concentration_data)
-
-    @pytest.mark.parametrize('param_analytical_data', [
-        (["STR"], [-1], [10], [0.09], [True], [{}], [(0, 1)])
-    ])
-    def test_data_handler_must_raise_an_exception_when_concentration_data_set_is_not_a_list(self,
-                                                                                            param_analytical_data):
-        concentration_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
+    def test_DataHandler_must_raise_exception_when_not_list_of_lists(self, param_data):
+        """
+        Given data that it's not a list of lists
+        when DataHandler is called
+        must raise an exception
+        """
         with pytest.raises(DataNotListOfLists):
-            handle_data_from_react(param_analytical_data, concentration_data)
+            DataHandler.check_list_of_lists(param_data)
 
-    @pytest.mark.parametrize('param_concentration_data', [
-        (["STR"], [-1], [10], [0.09], [True], [{}], [(0, 1)])
+    @pytest.mark.parametrize('param_data', [
+        ([["STR", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+
+        ([["NaNananana BATMAN", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["NULL", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+
+        ([["123.EE4", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["infinity and BEYOND", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["12.34.56", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["#56", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["56%", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["x86E0", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["86-5", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["True", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["+1e1^5", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["56%", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([[True, 0.2, 0.1], [0.1, 0.2, 0.1]]),
     ])
-    def test_data_handler_must_raise_an_exception_when_concentration_data_set_is_not_a_list(self,
-                                                                                            param_concentration_data):
-        analytical_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        with pytest.raises(DataNotListOfLists):
-            handle_data_from_react(analytical_data, param_concentration_data)
+    def test_check_list_of_lists_must_raise_exception_when_value_not_valid(self, param_data):
+        """Given a list of lists with not number value(s)
+        when check_list_of_lists is called,
+        Must raise an ValueNotValid"""
+        with pytest.raises(ValueNotValid):
+            DataHandler.check_list_of_lists(param_data)
 
-    @pytest.mark.parametrize('param_analytical_data', [
-        ([[1.0, 1.0, 10.0], [2.0, 6.0]]),
-        ([[1.0, 1.0, 10.0], [2.0, 6.0, 2.0, 3.0]]),
-        ([[2.0, 6.0], [1.0, 1.0, 10.0]]),
-        ([[2.0, 6.0, 2.0, 3.0], [1.0, 1.0, 10.0]]),
-        ([[1.0, 1.0, 10.0], [1.0, 1.0, 10.0], [1.0, 1.0, 10.0]]),
+    @pytest.mark.parametrize('param_data, expected_result', [
+        ([["1,234", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.234, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([[",1", 0.2, 0.1], [0.1, 0.2, 0.1]], [[0.1, 0.2, 0.1], [0.1, 0.2, 0.1]])
     ])
-    def test_data_handler_must_raise_an_exception_when_analytical_data_set_not_symmetric(self, param_analytical_data):
-        concentration_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        with pytest.raises(DataSetNotSymmetric):
-            handle_data_from_react(param_analytical_data, concentration_data)
+    def test_check_list_of_lists_must_convert_number_with_comma_to_float(self, param_data, expected_result):
+        assert DataHandler.check_list_of_lists(param_data) == expected_result
 
-    @pytest.mark.parametrize('param_concentration_data', [
-        ([[1.0, 1.0, 10.0], [2.0, 6.0]]),
-        ([[1.0, 1.0, 10.0], [2.0, 6.0, 2.0, 3.0]]),
-        ([[2.0, 6.0], [1.0, 1.0, 10.0]]),
-        ([[2.0, 6.0, 2.0, 3.0], [1.0, 1.0, 10.0]]),
-        ([[1.0, 1.0, 10.0], [1.0, 1.0, 10.0], [1.0, 1.0, 10.0]])
-    ])
-    def test_data_handler_must_raise_an_exception_when_analytical_data_set_not_symmetric(self,
-                                                                                         param_concentration_data):
-        analytical_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        with pytest.raises(DataSetNotSymmetric):
-            handle_data_from_react(analytical_data, param_concentration_data)
-
-    @pytest.mark.parametrize('param_analytical_data', [
-        ([['', 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([['NaNananana BATMAN', 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["1,234", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["NULL", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[",1", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["123.EE4", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["12.34.56", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[True, 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[(0, 1), 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[[0.1], 1.0, 10.0], [2.0, 6.0, 2.0]]),
-    ])
-    def test_data_handler_must_raise_an_exception_when_a_analytical_value_not_float(self, param_analytical_data):
-        concentration_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        with pytest.raises(AnalyticalValueNotNumber):
-            handle_data_from_react(param_analytical_data, concentration_data)
-
-    @pytest.mark.parametrize('param_concentration_data', [
-        ([['', 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([['NaNananana BATMAN', 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["1,234", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["NULL", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[",1", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["123.EE4", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["12.34.56", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[True, 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[12e3, 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[(0, 1), 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[[0.1], 1.0, 10.0], [2.0, 6.0, 2.0]]),
-    ])
-    def test_data_handler_must_raise_an_exception_when_a_analytical_value_not_float(self, param_concentration_data):
-        analytical_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        with pytest.raises(ConcentrationValueNotNumber):
-            handle_data_from_react(analytical_data, param_concentration_data)
-
-    @pytest.mark.parametrize('param_analytical_data', [
-        ([['1234567', 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([['NaN', 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["1.234", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["123.E4", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[".1", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["6.523537535629999e-07", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["6e777777", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["-iNF", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["1.797693e+308", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["infinity", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["0E0", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["+1e1", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["  1.23  ", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["  \n  \t   1.23    \n\t\n", 1.0, 10.0], [2.0, 6.0, 2.0]]),
+    @pytest.mark.parametrize('param_data, expected_result', [
+        ([["1.234", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.234, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["123.E4", 0.2, 0.1], [0.1, 0.2, 0.1]], [[123.E4, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([[".1", 0.2, 0.1], [0.1, 0.2, 0.1]], [[0.1, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["6.523537535629999e-07", 0.2, 0.1], [0.1, 0.2, 0.1]], [[6.523537535629999e-07, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["6e777777", 0.2, 0.1], [0.1, 0.2, 0.1]], [[6e777777, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["1.797693e+308", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.797693e+308, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["0E0", 0.2, 0.1], [0.1, 0.2, 0.1]], [[0.0, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["+1e1", 0.2, 0.1], [0.1, 0.2, 0.1]], [[+1e1, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["  1.23  ", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.23, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([["  \n    1.23    \n\n", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.23, 0.2, 0.1], [0.1, 0.2, 0.1]]),
 
     ])
-    def test_data_must_convert_analytical_values_if_possible(self, param_analytical_data):
-        concentration_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        handle_data_from_react(param_analytical_data, concentration_data)
-        assert handle_data_from_react.is_valid_data
-
-    @pytest.mark.parametrize('param_concentration_data', [
-        ([['1234567', 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([['NaN', 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["1.234", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["123.E4", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([[".1", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["6.523537535629999e-07", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["6e777777", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["-iNF", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["1.797693e+308", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["infinity", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["0E0", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["+1e1", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["  1.23  ", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-        ([["  \n  \t   1.23    \n\t\n", 1.0, 10.0], [2.0, 6.0, 2.0]]),
-
-    ])
-    def test_data_must_convert_concentration_values_if_possible(self, param_concentration_data):
-        analytical_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        handle_data_from_react(analytical_data, param_concentration_data)
-        assert handle_data_from_react.is_valid_data
-
-    def test_data_must_raise_an_exception_when_concentration_data_has_negative_values(self):
-        analytical_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        concentration_data = [[-1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        with pytest.raises(ConcentrationValueNegative):
-            handle_data_from_react(analytical_data, concentration_data)
-
-    def test_data_must_raise_an_exception_when_analytical_data_has_negative_values(self):
-        analytical_data = [[-1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        concentration_data = [[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]]
-        with pytest.raises(AnalyticalValueNegative):
-            handle_data_from_react(analytical_data, concentration_data)
+    def test_check_list_of_lists_must_pass_when_value_is_conversible_to_float(self, param_data, expected_result):
+        """Given a list of lists, with not float number value(s)
+        when check list_of_lists is called,
+        Must create a list containing floats"""
+        assert DataHandler.check_list_of_lists(param_data) == expected_result
 
     @pytest.mark.parametrize('param_analytical_data, param_concentration_data', [
-        ([[1.0, 1.0, 10.0], [2.0, 6.0, 2.0]], [[1.0, None, 10.0], [2.0, 6.0, 2.0]]),
-        ([[1.0, None, 10.0], [2.0, 6.0, 2.0]], [[1.0, 3.0, 10.0], [2.0, 6.0, 2.0]])
+        ([[1, 2, 3]], [[1, 2, 3], [4, 5, 6]]),
+        ([[1, 2, 3], [4, 5, 6]], [[1, 2, 3]]),
+        ([[1, 2, 3]], [[1, 2, 3], [4, 5, 6]]),
     ])
-    def test_data_must_clean_nan(self, param_analytical_data, param_concentration_data):
-        handle_data_from_react(param_analytical_data, param_concentration_data)
-        assert handle_data_from_react.handled_analytical_data == [[1.0, 10.0], [2.0, 6.0, 2.0]]
-        assert handle_data_from_react.handled_concentration_data == [[1.0, 10.0], [2.0, 6.0, 2.0]]
+    def test_check_symmetric_data(self, param_analytical_data, param_concentration_data):
+        """Given an asymetric list
+        when check_symmetric_data is called
+        must raise DataNotSymmetric"""
+        with pytest.raises(DataNotSymmetric):
+            DataHandler(param_analytical_data, param_concentration_data).check_symmetric_data()
+
+    @pytest.mark.parametrize('param_analytical_data, param_concentration_data', [
+        ([[1, 2, 3], [4, 5, 6, 8]], [[1, 2, 3], [4, 5, 6]]),
+        ([[1, 2, 3], [4, 5, 6]], [[1, 2, 3], [4, 5, 6, 8]]),
+        ([[1, 2, 3, 4], [5, 6, 8]], [[1, 2, 3], [4, 5, 6]]),
+        ([[1, 2, 3], [4, 5, 6]], [[1, 2, 3, 4], [4, 5, 6, 8]]),
+
+    ])
+    def test_check_symmetric_data_set(self, param_analytical_data, param_concentration_data):
+        """Given an asymetric data set
+        when check_symmetric_data_set is called
+        must raise DataNotSymmetric"""
+        param_analytical_data = [[1, 2, 3], [4, 5, 6, 8]]
+        param_concentration_data = [[1, 2, 3], [4, 5, 6]]
+        with pytest.raises(DataNotSymmetric):
+            DataHandler(param_analytical_data, param_concentration_data).check_symmetric_data_set()
+
+    def test_replace_null_values(self):
+        """Given data with null/none/undefined values,
+        when replace_null_values is called,
+        Must remove NoneType from both sets of lists
+        """
+        param_analytical_data = [[1, 2, 3], [4, 5, None]]
+        param_concentration_data = [[7, 8, 9], [10, 11, 12]]
+        data_handler = DataHandler(param_analytical_data, param_concentration_data)
+        data_handler.replace_null_values()
+        assert data_handler.external_concentration_data == [[1, 2, 3], [4, 5]]
+        assert data_handler.external_analytical_data == [[7, 8, 9], [10, 11]]
