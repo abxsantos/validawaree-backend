@@ -3,8 +3,7 @@ from unittest.mock import call, PropertyMock, MagicMock
 import pytest
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
-    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, DataWasNotFitted, DurbinWatsonValueError, \
-    OulierCheckError
+    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, DataWasNotFitted, DurbinWatsonValueError
 from src.analytical_validation.validators.linearity_validator import LinearityValidator
 
 
@@ -17,6 +16,7 @@ def fitted_result_obj(mocker):
     mock.ssr = MagicMock()
     mock.df_model = MagicMock()
     mock.df_resid = MagicMock()
+    mock.resid = MagicMock()
     return mock
 
 
@@ -139,83 +139,75 @@ class TestLinearityValidator(object):
 
     def test_slope_property_exists_when_fitted_result_not_none(self, linearity_validator_obj, fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.slope is not None
         assert linearity_validator_obj.slope == fitted_result_obj.params[1]
 
     def test_intercept_property_exists_when_fitted_result_not_none(self, linearity_validator_obj, fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.intercept is not None
         assert linearity_validator_obj.intercept == fitted_result_obj.params[0]
 
     def test_r_squared_adjusted_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                             fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.r_squared_adj is not None
         assert linearity_validator_obj.r_squared_adj == fitted_result_obj.rsquared_adj
 
     def test_r_squared_property_exists_when_fitted_result_not_none(self, linearity_validator_obj, fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.r_squared is not None
         assert linearity_validator_obj.r_squared == fitted_result_obj.rsquared
+
+    def test_regression_residues_exists_when_fitted_result_not_none(self, linearity_validator_obj, fitted_result_obj):
+        """Given a regression model
+        when regression_residues is called
+        the regression residues must be created"""
+        assert linearity_validator_obj.regression_residues == fitted_result_obj.resid
 
     def test_sum_of_squares_model_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                               fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.sum_of_squares_model is not None
         assert linearity_validator_obj.sum_of_squares_model == fitted_result_obj.ess
 
     def test_sum_of_squares_total_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                               fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.sum_of_squares_total is not None
         assert linearity_validator_obj.sum_of_squares_total == fitted_result_obj.ess + fitted_result_obj.ssr
 
     def test_sum_of_squares_resid_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                               fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.sum_of_squares_resid is not None
         assert linearity_validator_obj.sum_of_squares_resid == fitted_result_obj.ssr
 
     def test_degrees_of_freedom_model_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                                   fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.degrees_of_freedom_model is not None
         assert linearity_validator_obj.degrees_of_freedom_model == fitted_result_obj.df_model
 
     def test_degrees_of_freedom_residues_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                                      fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.degrees_of_freedom_residues is not None
         assert linearity_validator_obj.degrees_of_freedom_residues == fitted_result_obj.df_resid
 
     def test_degrees_of_freedom_total_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                                   fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.degrees_of_freedom_total is not None
         assert linearity_validator_obj.degrees_of_freedom_total == fitted_result_obj.df_model + fitted_result_obj.df_resid
 
     def test_mean_squared_error_model_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                                   fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.mean_squared_error_model is not None
         assert linearity_validator_obj.mean_squared_error_model == fitted_result_obj.mse_model
 
     def test_mean_squared_error_residues_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                                      fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.mean_squared_error_residues is not None
         assert linearity_validator_obj.mean_squared_error_residues == fitted_result_obj.mse_resid
 
     def test_anova_f_value_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                        fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.anova_f_value is not None
         assert linearity_validator_obj.anova_f_value == fitted_result_obj.fvalue
 
     def test_anova_f_pvalue_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                         fitted_result_obj):
         # Act & assert
-        assert linearity_validator_obj.anova_f_pvalue is not None
         assert linearity_validator_obj.anova_f_pvalue == fitted_result_obj.f_pvalue
 
     @pytest.mark.parametrize('param_anova_f_pvalue, param_alpha, expected_result', [
@@ -298,7 +290,7 @@ class TestLinearityValidator(object):
     @pytest.mark.parametrize(
         'param_significant_slope, param_insignificant_intercept, param_valid_r_squared, expected_result', [
             (True, True, True, True), (True, False, False, False), (True, True, False, False),
-            (False, True, True, False), (False, True, False, False),(False, False, False, False)
+            (False, True, True, False), (False, True, False, False), (False, False, False, False)
         ])
     def test_valid_regression_model(self, mocker, param_significant_slope, param_insignificant_intercept,
                                     param_valid_r_squared, expected_result):
@@ -320,14 +312,6 @@ class TestLinearityValidator(object):
         assert outliers == [[10.0], [6.0]]
         assert cleaned_data == [[1.0, 1.0], [2.0, 2.0]]
         assert cleaned_concentration_data == [[1.0, 2.0], [8.0, 10.0]]
-
-    def test_check_outliers_when_given_assimetrical_list_of_list_data(self, linearity_validator_outlier_obj):
-
-        analytical_data = [[0.1, 0.1, 0.1], [0.3, 0.3, 0.80]]
-        concentration_data = [[0.05, 0.05, 0.05], [0.06, 0.06]]
-        validator = LinearityValidator(analytical_data, concentration_data)
-        with pytest.raises(OulierCheckError):
-            outliers, cleaned_data, cleaned_concentration_data = validator.check_outliers()
 
     @pytest.mark.parametrize('param_shapiro_pvalue, param_alpha, expected_result', [
         (10, 0.05, True), (0.01, 0.1, False), (0.0501, 0.05, True), (0.099, 0.1, False)

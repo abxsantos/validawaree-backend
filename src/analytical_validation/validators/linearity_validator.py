@@ -7,7 +7,7 @@ import statsmodels.stats.stattools as stattools
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
     AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, \
-    DataWasNotFitted, DurbinWatsonValueError, OulierCheckError
+    DataWasNotFitted, DurbinWatsonValueError
 from analytical_validation.statistical_tests.dixon_qtest import dixon_qtest
 
 
@@ -49,10 +49,7 @@ class LinearityValidator(object):
         self.fitted_result = None
         # Anova parameters
         self.has_required_parameters = False
-        # Outliers
-        self.outliers = []
-        self.cleaned_data = []
-        self.cleaned_concentration_data = []
+
         # Durbin Watson parameters
         self.durbin_watson_value = None
         self.shapiro_pvalue = None
@@ -162,6 +159,7 @@ class LinearityValidator(object):
             return True
         else:
             return False
+
     @property
     def valid_regression_model(self):
         """The slope significance avaliation.
@@ -169,13 +167,21 @@ class LinearityValidator(object):
         If the r squared > 0.990, slope is significant and intercept is
         insignificant,regression model is valid.
 
-        :return: The validity of regression model.
-        :rtype: bool
+        :return valid_regression_model: The validity of regression model.
+        :rtype valid_regression_model: bool
         """
         if self.significant_slope and self.insignificant_intercept and self.valid_r_squared:
             return True
         else:
             return False
+
+    @property
+    def regression_residues(self):
+        """Residues of the regression
+        :return regression_residues: List containing the residues of the model
+        :rtype regression_residues: list
+        """
+        return self.fitted_result.resid.tolist()
 
     # ANOVA table values
     @property
@@ -274,20 +280,26 @@ class LinearityValidator(object):
 
         data = deepcopy(self.original_analytical_data)
         concentration = deepcopy(self.original_concentration_data)
+        cleaned_concentration_data = []
+        outliers = []
+        cleaned_data = []
         for data_set in data:
             outliers_set, cleaned_data_set = dixon_qtest(data_set)
-            self.outliers.append(outliers_set)
-            self.cleaned_data.append(cleaned_data_set)
-        try:
-            set_index = 0
-            while set_index < len(data):
-                concentration[set_index].pop(self.original_analytical_data[set_index].index(self.outliers[set_index][0]))
-                set_index += 1
-                self.cleaned_concentration_data = concentration
-            # TODO: Implement the reuse of cleaned data for the regression
-        except:
-            raise OulierCheckError()
-        return self.outliers, self.cleaned_data, self.cleaned_concentration_data
+            outliers.append(outliers_set)
+            cleaned_data.append(cleaned_data_set)
+
+        set_index = 0
+        while set_index < len(data):
+            try:
+                concentration[set_index].pop(self.original_analytical_data[set_index].index(outliers[set_index][0]))
+            except:
+                pass
+            set_index += 1
+            cleaned_concentration_data = concentration
+        # TODO: Implement the reuse of cleaned data for the regression
+
+        # raise OulierCheckError()
+        return outliers, cleaned_data, cleaned_concentration_data
 
     def run_shapiro_wilk_test(self):
         self.shapiro_pvalue = scipy.stats.shapiro(self.analytical_data)[1]
