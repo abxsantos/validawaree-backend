@@ -181,7 +181,7 @@ class LinearityValidator(object):
         :return regression_residues: List containing the residues of the model
         :rtype regression_residues: list
         """
-        return self.fitted_result.resid
+        return self.fitted_result.resid.tolist()
 
     # ANOVA table values
     @property
