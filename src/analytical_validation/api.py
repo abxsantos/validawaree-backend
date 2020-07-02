@@ -29,8 +29,6 @@ class LinearityValidation(Resource):
             linearity_validator.ordinary_least_squares_linear_regression()
             linearity_validator.run_shapiro_wilk_test()
             outliers, cleaned_analytical_data, cleaned_concentration_data = linearity_validator.check_outliers()
-            print(cleaned_analytical_data)
-            print(cleaned_concentration_data)
             linearity_validator.run_breusch_pagan_test()
             linearity_validator.check_residual_autocorrelation()
             return {
@@ -54,6 +52,7 @@ class LinearityValidation(Resource):
                        'cleaned_data': {'outliers': outliers,
                                         'cleaned_analytical_data': cleaned_analytical_data,
                                         'cleaned_concentration_data': cleaned_concentration_data},
+                       'regression_residues': linearity_validator.regression_residues,
                        'is_normal_distribution': linearity_validator.is_normal_distribution,
                        'is_homokedastic': linearity_validator.is_homokedastic,
                        'durbin_watson_value': linearity_validator.durbin_watson_value}, 201

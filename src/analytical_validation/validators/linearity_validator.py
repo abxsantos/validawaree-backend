@@ -7,7 +7,7 @@ import statsmodels.stats.stattools as stattools
 
 from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
     AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, \
-    DataWasNotFitted, DurbinWatsonValueError, OulierCheckError
+    DataWasNotFitted, DurbinWatsonValueError
 from analytical_validation.statistical_tests.dixon_qtest import dixon_qtest
 
 
@@ -159,6 +159,7 @@ class LinearityValidator(object):
             return True
         else:
             return False
+
     @property
     def valid_regression_model(self):
         """The slope significance avaliation.
@@ -166,13 +167,21 @@ class LinearityValidator(object):
         If the r squared > 0.990, slope is significant and intercept is
         insignificant,regression model is valid.
 
-        :return: The validity of regression model.
-        :rtype: bool
+        :return valid_regression_model: The validity of regression model.
+        :rtype valid_regression_model: bool
         """
         if self.significant_slope and self.insignificant_intercept and self.valid_r_squared:
             return True
         else:
             return False
+
+    @property
+    def regression_residues(self):
+        """Residues of the regression
+        :return regression_residues: List containing the residues of the model
+        :rtype regression_residues: list
+        """
+        return self.fitted_result.resid
 
     # ANOVA table values
     @property
@@ -289,7 +298,7 @@ class LinearityValidator(object):
             cleaned_concentration_data = concentration
         # TODO: Implement the reuse of cleaned data for the regression
 
-            # raise OulierCheckError()
+        # raise OulierCheckError()
         return outliers, cleaned_data, cleaned_concentration_data
 
     def run_shapiro_wilk_test(self):
