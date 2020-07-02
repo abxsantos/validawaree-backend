@@ -321,14 +321,6 @@ class TestLinearityValidator(object):
         assert cleaned_data == [[1.0, 1.0], [2.0, 2.0]]
         assert cleaned_concentration_data == [[1.0, 2.0], [8.0, 10.0]]
 
-    def test_check_outliers_when_given_assimetrical_list_of_list_data(self, linearity_validator_outlier_obj):
-
-        analytical_data = [[0.1, 0.1, 0.1], [0.3, 0.3, 0.80]]
-        concentration_data = [[0.05, 0.05, 0.05], [0.06, 0.06]]
-        validator = LinearityValidator(analytical_data, concentration_data)
-        with pytest.raises(OulierCheckError):
-            outliers, cleaned_data, cleaned_concentration_data = validator.check_outliers()
-
     @pytest.mark.parametrize('param_shapiro_pvalue, param_alpha, expected_result', [
         (10, 0.05, True), (0.01, 0.1, False), (0.0501, 0.05, True), (0.099, 0.1, False)
     ])

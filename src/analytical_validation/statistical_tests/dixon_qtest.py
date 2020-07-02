@@ -21,6 +21,10 @@ def dixon_qtest(data, left=True, right=True, alpha=0.05):
     :type left: bool
     :param alpha: Significance (default value = 0.05)
     :type alpha: float
+    :returns outliers: List containing all the outliers removed.
+    :rtype outliers: list
+    :returns cleaned_data: List without oulier values.
+    :rtype cleaned_data: list
     :raises AnalyticalValueNotNumber: When a value in analytical data isn't a float.
     :raises AnalyticalValueNegative: When a value in analytical data is negative.
     :raises AlphaValueNotValid: When the alpha value is not a float.
