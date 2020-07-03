@@ -2,8 +2,7 @@ from unittest.mock import call, PropertyMock, MagicMock
 
 import pytest
 
-from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
-    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, DataWasNotFitted, DurbinWatsonValueError
+from analytical_validation.exceptions import DataWasNotFitted, DurbinWatsonValueError
 from src.analytical_validation.validators.linearity_validator import LinearityValidator
 
 
@@ -16,7 +15,7 @@ def fitted_result_obj(mocker):
     mock.ssr = MagicMock()
     mock.df_model = MagicMock()
     mock.df_resid = MagicMock()
-    mock.resid = MagicMock()
+    mock.resid = mocker.Mock()
     return mock
 
 
@@ -74,39 +73,6 @@ def ordinary_least_squares_regression_mock(mocker):
 
 class TestLinearityValidator(object):
 
-    @pytest.mark.parametrize('param_analytical_data, param_concentration_data, expected_exception', [
-        ({0.100: 'abc', 0.200: 'def', 0.150: 'fgh'}, [[0.1, 0.2, 0.3]], DataNotList),
-        ([[0.100, 0.200, 0.150]], {0.1: 'abc', 0.2: 'def', 0.3: 'fgh'}, DataNotList),
-        ([[0.100, 0.200, 0.150]], [["STRING", 0.2, 0.3]], ConcentrationValueNotNumber),
-        ([[0.100, 0.200, 0.150]], [[-0.2, 0.2, 0.3]], ConcentrationValueNegative),
-        ([["STRING", 0.200, 0.150]], [[0.2, 0.2, 0.3]], AnalyticalValueNotNumber),
-        ([[-0.100, 0.200, 0.150]], [[0.2, 0.2, 0.3]], AnalyticalValueNegative),
-
-    ])
-    def test_constructor_raise_exception_when_analytical_data_is_not_list(self, param_analytical_data,
-                                                                          param_concentration_data, expected_exception):
-        """Given analytical data that is not a list
-        When LinearityValidator constructor is called
-        Then must raise exception"""
-        """Given concentration data that is not a list
-        When LinearityValidator constructor is called
-        Then must raise exception"""
-        """Given concentration values != float
-        The ordinary_least_squares_linear_regression
-        Should raise exception"""
-        """Given negative concentration values
-        The ordinary_least_squares_linear_regression
-        Should raise exception"""
-        """Given analytical values != float
-         The ordinary_least_squares_linear_regression
-         Should raise exception"""
-        """Given negative values
-        When I call ordinary_least_squares_linear_regression
-        Then it must raise exception"""
-        # Act & Assert
-        with pytest.raises(expected_exception):
-            LinearityValidator(param_analytical_data, param_concentration_data)
-
     def test_constructor_must_create_object_when_analytical_data_has_float_values(self, linearity_validator_obj):
         """Given analytical data
         The LinearityValidator
@@ -158,7 +124,7 @@ class TestLinearityValidator(object):
         """Given a regression model
         when regression_residues is called
         the regression residues must be created"""
-        assert linearity_validator_obj.regression_residues == fitted_result_obj.resid
+        assert linearity_validator_obj.regression_residues == fitted_result_obj.resid.tolist()
 
     def test_sum_of_squares_model_property_exists_when_fitted_result_not_none(self, linearity_validator_obj,
                                                                               fitted_result_obj):
@@ -239,7 +205,7 @@ class TestLinearityValidator(object):
         linearity_validator = LinearityValidator(analytical_data, concentration_data, param_alpha)
         linearity_validator.breusch_pagan_pvalue = param_breusch_pagan_pvalue
         # Act & Assert
-        assert linearity_validator.is_homokedastic is expected_result
+        assert linearity_validator.is_homoscedastic is expected_result
 
     @pytest.mark.parametrize('param_significant_slope, param_alpha, expected_result', [
         (0.051, 0.05, False), (10, 0.1, False), (0.049, 0.05, True), (0.001, 0.10, True)
