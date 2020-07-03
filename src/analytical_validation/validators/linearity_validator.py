@@ -5,9 +5,7 @@ import statsmodels.api as statsmodels
 import statsmodels.stats.api as statsmodelsapi
 import statsmodels.stats.stattools as stattools
 
-from analytical_validation.exceptions import AnalyticalValueNotNumber, ConcentrationValueNotNumber, \
-    AnalyticalValueNegative, ConcentrationValueNegative, DataNotList, \
-    DataWasNotFitted, DurbinWatsonValueError
+from analytical_validation.exceptions import DataWasNotFitted, DurbinWatsonValueError
 from analytical_validation.statistical_tests.dixon_qtest import dixon_qtest
 
 
@@ -15,17 +13,14 @@ class LinearityValidator(object):
     """
 
     Example:
-        >>> l = LinearityValidator(samples=[])
-        >>> l.validate()
-        False
-        >>> l.plot_values()
-        [(1, 20), (4, 44)]
+        >>> analytical_data = [[0.1,0.2,0.1],[0.3,0.3,0.32],[0.41,0.43,0.45],[0.51,0.53,0.55]]
+        >>> concentration_data = [[0.01,0.02,0.01],[0.03,0.03,0.032],[0.041,0.043,0.045],[0.051,0.053,0.055]]
 
-        >>> l = LinearityValidator(samples=[1, 2, 3])
-        >>> l.validate()
-        True
-        >>> l.plot_values()
-        [(1, 20), (4, 44)]
+        >>> linearity_validator = LinearityValidator(analytical_data, concentration_data)
+
+        >>> outliers, cleaned_analytical_data, cleaned_concentration_data, linearity_is_valid = linearity_validator.validate_linearity
+        >>> linearity_validator.durbin_watson_value
+        >>> linearity_validator.anova_f_value
     """
 
     def __init__(self, analytical_data, concentration_data, alpha=0.05):
@@ -37,51 +32,54 @@ class LinearityValidator(object):
         :type concentration_data: list
         :param alpha: Significance (default value = 0.05)
         :type alpha: float
-        :raises AnalyticalValueNotNumber: When a value in analytical data isn't a float.
-        :raises ConcentrationNotNumber: When a value in concentration data isn't a float.
-        :raises AnalyticalValueNegative: When a value in analytical data is negative.
-        :raises ConcentrationValueNegative: When a value in concentration data is negative.
         """
         self.original_analytical_data = analytical_data
         self.original_concentration_data = concentration_data
+        # Flattened data
+        self.analytical_data = [x for y in analytical_data for x in y]
+        self.concentration_data = [x for y in concentration_data for x in y]
         self.alpha = alpha
         # Ordinary least squares linear regression coefficients
         self.fitted_result = None
         # Anova parameters
         self.has_required_parameters = False
-
         # Durbin Watson parameters
         self.durbin_watson_value = None
         self.shapiro_pvalue = None
+        self.breusch_pagan_pvalue = None
+        self.linearity_is_valid = False
 
-        if isinstance(analytical_data, list) is False:
-            raise DataNotList()
-        if isinstance(concentration_data, list) is False:
-            raise DataNotList()
-        self.analytical_data = [x for y in analytical_data for x in y]
-        self.concentration_data = [x for y in concentration_data for x in y]
-        if not all(isinstance(value, float) for value in self.analytical_data):
-            raise AnalyticalValueNotNumber()
-        if not all(isinstance(value, float) for value in self.concentration_data):
-            raise ConcentrationValueNotNumber()
-        if not all(value > 0 for value in self.analytical_data):
-            raise AnalyticalValueNegative()
-        if not all(value > 0 for value in self.concentration_data):
-            raise ConcentrationValueNegative()
-
-    def validate(self):
+    def validate_linearity(self):
         """Validate the linearity of given data.
-        :return: True if data is linear; otherwise, False.
+        :return outliers: List containing all the outliers.
+        :rtype outliers: list[list[float]]]
+        :return cleaned_analytical_data: List containing the analytical data without outliers.
+        :rtype outliers: list[list[float]]]
+        :return cleaned_concentration_data: List containing the concentration data without corresponding analytical data outliers.
+        :rtype outliers: list[list[float]]]
+        :return linearity_is_valid: True if data is linear; otherwise, False.
         :rtype: bool
+        :raises DataWasNotFitted():
+        :raises DurbinWatsonValueError() :
         """
-        pass
+        try:
+            self.ordinary_least_squares_linear_regression()
+            self.run_shapiro_wilk_test()
+            outliers, cleaned_analytical_data, cleaned_concentration_data = self.check_outliers()
+            self.run_breusch_pagan_test()
+            self.check_residual_autocorrelation()
+            self.linearity_is_valid = True
+            return outliers, cleaned_analytical_data, cleaned_concentration_data, self.linearity_is_valid
+        except:
+            return self.linearity_is_valid
 
     def ordinary_least_squares_linear_regression(self):
-        """Fit the data using the ordinary least squares method of Linear Regression."""
+        """Fit the data using the Ordinary Least Squares method of Linear Regression."""
         concentration_data = statsmodels.add_constant(self.concentration_data)
         model = statsmodels.OLS(self.analytical_data, concentration_data)
         self.fitted_result = model.fit()
 
+    # Regression coefficients
     @property
     def intercept(self):
         """The intercept value.
@@ -272,11 +270,17 @@ class LinearityValidator(object):
         """
         return self.fitted_result.f_pvalue < self.alpha
 
+    # Outlier check
     def check_outliers(self):
         """Check for outliers in the data set
         using the Dixon Q value test.
-        :return: The data set list without outliers and a list of outliers.
-        :rtype: list"""
+        :return outliers: List containing all the outliers.
+        :rtype outliers: list[list[float]]]
+        :return cleaned_analytical_data: List containing the analytical data without outliers.
+        :rtype outliers: list[list[float]]]
+        :return cleaned_concentration_data: List containing the concentration data without corresponding analytical data outliers.
+        :rtype outliers: list[list[float]]]
+        """
 
         data = deepcopy(self.original_analytical_data)
         concentration = deepcopy(self.original_concentration_data)
@@ -297,12 +301,11 @@ class LinearityValidator(object):
             set_index += 1
             cleaned_concentration_data = concentration
         # TODO: Implement the reuse of cleaned data for the regression
-
-        # raise OulierCheckError()
         return outliers, cleaned_data, cleaned_concentration_data
 
+    # Normality of data test
     def run_shapiro_wilk_test(self):
-        self.shapiro_pvalue = scipy.stats.shapiro(self.analytical_data)[1]
+        self.shapiro_pvalue = (scipy.stats.shapiro(self.analytical_data))[1]
 
     @property
     def is_normal_distribution(self):
@@ -312,6 +315,7 @@ class LinearityValidator(object):
         # TODO: check if property is needed
         return self.shapiro_pvalue > self.alpha
 
+    # Heterokedasticity test
     def run_breusch_pagan_test(self):
         """Run the Breusch-Pagan test."""
         if self.fitted_result is None:
@@ -324,7 +328,7 @@ class LinearityValidator(object):
         # TODO: Deal with heteroskedastic, removing outliers or using Weighted Least Squares Regression
 
     @property
-    def is_homokedastic(self):
+    def is_homoscedastic(self):
         """The homokedastic data information.
 
         The data is homokedastic when the variance is constant; otherwise it is heterokedastic.

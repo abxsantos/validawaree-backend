@@ -97,6 +97,7 @@ class DurbinWatsonValueError(Exception):
     def __init__(self):
         super().__init__("The Durbin Watson value is out of bounds. Should be less than 4 and more than 0.")
 
+
 class OulierCheckError(Exception):
     def __init__(self):
         super().__init__("Something went wrong checking outliers. Check your input format, data must be symmetric.")

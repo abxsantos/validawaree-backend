@@ -7,7 +7,7 @@ from analytical_validation.exceptions import DataNotList, DataNotListOfLists, Va
 class DataHandler(object):
     def __init__(self, external_analytical_data, external_concentration_data):
         """
-        Validate the linearity of the method.
+         Prepare the data coming from the front end for analysis.
         :param external_analytical_data: List containing all measured analytical signal.
         :type external_analytical_data: list[list]
         :param external_concentration_data: List containing the concentration for each analytical signal
@@ -71,10 +71,6 @@ class DataHandler(object):
     def check_symmetric_data(self):
         """
         Check if the analytical data and concentration data have the same number of data sets.
-        :param external_concentration_data: List of lists containing analytical values.
-        :type external_concentration_data: list[list]
-        :param external_analytical_data: List of lists containing or concentration values.
-        :type external_analytical_data: list[list]
         :raises DataNotSymmetric:
         """
         if len(self.external_analytical_data) != len(self.external_concentration_data):
@@ -83,15 +79,11 @@ class DataHandler(object):
     def check_symmetric_data_set(self):
         """
         Check if the analytical data sets and concentration data sets have the same number of values.
-        :param external_concentration_data: List of lists containing analytical values.
-        :type external_concentration_data: list[list[any]]
-        :param external_analytical_data: List of lists containing or concentration values.
-        :type external_analytical_data: list[list[any]]
         :raises DataNotSymmetric:
         """
         if sum(list(map(lambda concentration_data_set: len(concentration_data_set),
                         self.external_concentration_data))) != sum(
-                            list(map(lambda analytical_data_set: len(analytical_data_set), self.external_analytical_data))):
+            list(map(lambda analytical_data_set: len(analytical_data_set), self.external_analytical_data))):
             raise DataNotSymmetric()
 
     def replace_null_values(self):
@@ -99,10 +91,6 @@ class DataHandler(object):
         Checks for NoneType values in the analytical data set.
         If the data set has a None value, the method removes it from the
         analytical list and also removes the corresponding concentration value.
-        :param external_concentration_data: List of lists containing analytical values.
-        :type external_concentration_data: list[list[float]]
-        :param external_analytical_data: List of lists containing or concentration values.
-        :type external_analytical_data: list[list[float]]
         :return clean_analytical_data: List without NoneType.
         :rtype: list[list[float]]
         :return clean_concentration_data: List without corresponding index value of NoneType.
@@ -122,3 +110,21 @@ class DataHandler(object):
                 clean_concentration_data[set_index].pop(i)
             set_index += 1
         return clean_analytical_data, clean_concentration_data
+
+    def handle_linearity_data_from_react(self):
+        """
+        Prepare the data coming from the React-Redux Front-end for Linearity validation analysis.
+        :returns analytical_data: List containing the analytical data, ready to be validated.
+        :rtype analytical_data: list[list[float]]]
+        :returns analytical_data: List containing the concentration data, ready to be validated.
+        :rtype analytical_data: list[list[float]]]
+        """
+        DataHandler.check_is_list(self.external_analytical_data)
+        DataHandler.check_is_list(self.external_concentration_data)
+        analytical_data = DataHandler.check_list_of_lists(self.external_analytical_data)
+        concentration_data = DataHandler.check_list_of_lists(self.external_concentration_data)
+        linearity_data_handler = DataHandler(analytical_data, concentration_data)
+        linearity_data_handler.check_symmetric_data()
+        linearity_data_handler.check_symmetric_data_set()
+        analytical_data, concentration_data = linearity_data_handler.replace_null_values()
+        return analytical_data, concentration_data
