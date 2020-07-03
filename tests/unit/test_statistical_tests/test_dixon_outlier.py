@@ -6,19 +6,18 @@ from analytical_validation.statistical_tests.dixon_qtest import dixon_qtest
 
 
 class TestDixonQTest(object):
-
-    # TODO: Review these tests, parametrize, mock and refactor in general!
-
-    def test_qtest_must_raise_exception_when_alpha_not_valid(self):
+    @pytest.mark.parametrize("param_alpha", [
+        10, 0.049, 0.051, 0.11, 0.09, 0.011, -1, True, "Not Number", None
+    ])
+    def test_qtest_must_raise_exception_when_alpha_not_valid(self, param_alpha):
         """Given a alpha value
         When q_test is called
-        Should raise an exceptio"""
+        Should raise an exception"""
         # Arrange
         data = [1, 1, 1]
-        alpha = 10
-        # Assert
+        # Act &  Assert
         with pytest.raises(AlphaNotValid):
-            dixon_qtest(data, alpha=alpha)
+            dixon_qtest(data, alpha=param_alpha)
 
     def test_qtest_must_raise_exception_when_left_not_bool(self):
         """Given non bool left value
@@ -38,45 +37,32 @@ class TestDixonQTest(object):
         # Arrange
         data = [0.100, 0.150, 0.200]
         right = "NOT BOOL"
-        # Act
+        # Act &  Assert
         with pytest.raises(DirectionNotBoolean):
             dixon_qtest(data, right=right)
-        # Assert
 
-    def test_qtest_must_raise_exception_when_data_not_list(self):
+    @pytest.mark.parametrize('param_data, expected_result', [
+        ("Not List", DataNotList), ({"key": "value"}, DataNotList), ((0, 1, 2, 3, 4), DataNotList), (True, DataNotList),
+        (0.05, DataNotList), (10, DataNotList), ([], DataIsEmpty), (["String", 1, 2, 3, 2], DataNotNumber),
+        ([True, 1, 2, 3, 2], DataNotNumber), ([[], 1, 2, 3, 2], DataNotNumber)
+    ])
+    def test_qtest_must_raise_exception(self, param_data, expected_result):
         """Given data that's not
         a list of lists
         when q_test is called
         should raise exception"""
-        # Arrange
-        data = "Not list"
-        # Act
-        with pytest.raises(DataNotList):
-            dixon_qtest(data)
-        # Assert
-
-    def test_qtest_must_raise_exception_when_data_is_empty(self):
         """Given data that's not
         a list of lists
         when q_test is called
         should raise exception"""
-        # Arrange
-        data = []
-        # Act
-        with pytest.raises(DataIsEmpty):
-            dixon_qtest(data)
-        # Assert
-
-    def test_qtest_must_raise_exception_when_analytical_data_not_number(self):
         """Given data with not float value
         when q_test is called
         should raise an exception"""
         # Arrange
-        data = ["String", 1, 2, 3, 2]
-        # Act
-        with pytest.raises(DataNotNumber):
+        data = "Not list"
+        # Act &  Assert
+        with pytest.raises(DataNotList):
             dixon_qtest(data)
-        # Assert
 
     def test_qtest_must_return_list_of_numbers_when_data_contains_outliers(self):
         """Given data with outliers
@@ -86,6 +72,7 @@ class TestDixonQTest(object):
         data = [0.100, 0.150, 0.200, 0.100, 0.200, 10.0]
         # Act
         outliers, cleaned_data = dixon_qtest(data)
+        # Assert
         assert outliers == [10.0]
         assert cleaned_data == [0.100, 0.150, 0.200, 0.100, 0.200]
 
@@ -103,7 +90,7 @@ class TestDixonQTest(object):
     def test_qtest_must_pass_when_number_of_data_points_is_less_than_3(self):
         """Given data with less than 3
         When q_test is called
-        should pass"""
+        should pass returning the not cleaned data"""
         # Arrange
         data = [1, 1]
         # Act
@@ -112,12 +99,12 @@ class TestDixonQTest(object):
         assert cleaned_data == data
         assert outliers == []
 
-    def test_qtest_must_pass_when_number_of_data_points_is_greater_than_30(self):
-        """Given data with less than 3
+    def test_qtest_must_pass_when_number_of_data_points_is_greater_than_29(self):
+        """Given data with more than 28 numbers
         When q_test is called
-        should pass"""
+        should pass returning the not cleaned data"""
         # Arrange
-        data = list(range(1, 31))
+        data = list(range(1, 29))
         # Act
         outliers, cleaned_data = dixon_qtest(data)
         # Assert
