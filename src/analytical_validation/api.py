@@ -16,24 +16,13 @@ class LinearityValidation(Resource):
         analytical_data = json.loads(args['analytical_data'])
         concentration_data = json.loads(args['concentration_data'])
         try:
-            DataHandler.check_is_list(analytical_data)
-            DataHandler.check_is_list(concentration_data)
-            analytical_data = DataHandler.check_list_of_lists(analytical_data)
-            concentration_data = DataHandler.check_list_of_lists(concentration_data)
-            linearity_data_handler = DataHandler(analytical_data, concentration_data)
-            linearity_data_handler.check_symmetric_data()
-            linearity_data_handler.check_symmetric_data_set()
-            analytical_data, concentration_data = linearity_data_handler.replace_null_values()
-
+            analytical_data, concentration_data = DataHandler(analytical_data,
+                                                              concentration_data).handle_linearity_data_from_react
             linearity_validator = LinearityValidator(analytical_data, concentration_data)
-            linearity_validator.ordinary_least_squares_linear_regression()
-            linearity_validator.run_shapiro_wilk_test()
-            outliers, cleaned_analytical_data, cleaned_concentration_data = linearity_validator.check_outliers()
-            linearity_validator.run_breusch_pagan_test()
-            linearity_validator.check_residual_autocorrelation()
+            outliers, cleaned_analytical_data, cleaned_concentration_data, linearity_is_valid = linearity_validator.validate_linearity
             return {
                        'regression_coefficients': {'intercept': linearity_validator.intercept,
-                                                   'insiginificant_intercept': linearity_validator.insignificant_intercept,
+                                                   'insignificant_intercept': linearity_validator.insignificant_intercept,
                                                    'slope': linearity_validator.slope,
                                                    'significant_slope': linearity_validator.significant_slope,
                                                    'r_squared': linearity_validator.r_squared,
@@ -48,13 +37,13 @@ class LinearityValidation(Resource):
                                             'mean_squared_error_residues': linearity_validator.mean_squared_error_residues,
                                             'anova_f_value': linearity_validator.anova_f_value,
                                             'anova_f_pvalue': linearity_validator.anova_f_pvalue, },
-                       # TODO: Pass cleaned data
                        'cleaned_data': {'outliers': outliers,
                                         'cleaned_analytical_data': cleaned_analytical_data,
                                         'cleaned_concentration_data': cleaned_concentration_data},
+                       'linearity_is_valid': linearity_validator.linearity_is_valid,
                        'regression_residues': linearity_validator.regression_residues,
                        'is_normal_distribution': linearity_validator.is_normal_distribution,
-                       'is_homokedastic': linearity_validator.is_homokedastic,
+                       'is_homoscedastic': linearity_validator.is_homoscedastic,
                        'durbin_watson_value': linearity_validator.durbin_watson_value}, 201
 
         except Exception as err:
