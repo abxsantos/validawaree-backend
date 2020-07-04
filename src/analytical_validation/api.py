@@ -40,6 +40,8 @@ class LinearityValidation(Resource):
                        'cleaned_data': {'outliers': outliers,
                                         'cleaned_analytical_data': cleaned_analytical_data,
                                         'cleaned_concentration_data': cleaned_concentration_data},
+                       'shapiro_pvalue': linearity_validator.shapiro_pvalue,
+                       'breusch_pagan_pvalue': linearity_validator.breusch_pagan_pvalue,
                        'linearity_is_valid': linearity_validator.linearity_is_valid,
                        'regression_residues': linearity_validator.regression_residues,
                        'is_normal_distribution': linearity_validator.is_normal_distribution,
