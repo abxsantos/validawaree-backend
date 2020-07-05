@@ -49,30 +49,6 @@ class LinearityValidator(object):
         self.breusch_pagan_pvalue = None
         self.linearity_is_valid = False
 
-    def validate_linearity(self):
-        """Validate the linearity of given data.
-        :return outliers: List containing all the outliers.
-        :rtype outliers: list[list[float]]]
-        :return cleaned_analytical_data: List containing the analytical data without outliers.
-        :rtype outliers: list[list[float]]]
-        :return cleaned_concentration_data: List containing the concentration data without corresponding analytical data outliers.
-        :rtype outliers: list[list[float]]]
-        :return linearity_is_valid: True if data is linear; otherwise, False.
-        :rtype: bool
-        :raises DataWasNotFitted():
-        :raises DurbinWatsonValueError() :
-        """
-        try:
-            self.ordinary_least_squares_linear_regression()
-            self.run_shapiro_wilk_test()
-            outliers, cleaned_analytical_data, cleaned_concentration_data = self.check_outliers()
-            self.run_breusch_pagan_test()
-            self.check_residual_autocorrelation()
-            self.linearity_is_valid = True
-            return outliers, cleaned_analytical_data, cleaned_concentration_data, self.linearity_is_valid
-        except:
-            return self.linearity_is_valid
-
     def ordinary_least_squares_linear_regression(self):
         """Fit the data using the Ordinary Least Squares method of Linear Regression."""
         concentration_data = statsmodels.add_constant(self.concentration_data)
@@ -358,3 +334,27 @@ class LinearityValidator(object):
             self.durbin_watson_value = value
         else:
             raise DurbinWatsonValueError()
+
+    def validate_linearity(self):
+        """Validate the linearity of given data.
+        :return outliers: List containing all the outliers.
+        :rtype outliers: list[list[float]]]
+        :return cleaned_analytical_data: List containing the analytical data without outliers.
+        :rtype outliers: list[list[float]]]
+        :return cleaned_concentration_data: List containing the concentration data without corresponding analytical data outliers.
+        :rtype outliers: list[list[float]]]
+        :return linearity_is_valid: True if data is linear; otherwise, False.
+        :rtype: bool
+        :raises DataWasNotFitted():
+        :raises DurbinWatsonValueError() :
+        """
+        try:
+            self.ordinary_least_squares_linear_regression()
+            self.run_shapiro_wilk_test()
+            self.run_breusch_pagan_test()
+            self.check_residual_autocorrelation()
+            outliers, cleaned_analytical_data, cleaned_concentration_data = self.check_outliers()
+            self.linearity_is_valid = True
+            return outliers, cleaned_analytical_data, cleaned_concentration_data, self.linearity_is_valid
+        except:
+            return self.linearity_is_valid

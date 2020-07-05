@@ -13,13 +13,15 @@ parser.add_argument('concentration_data')
 class LinearityValidation(Resource):
     def post(self):
         args = parser.parse_args()
-        analytical_data = json.loads(args['analytical_data'])
-        concentration_data = json.loads(args['concentration_data'])
+        input_analytical_data = json.loads(args['analytical_data'])
+        input_concentration_data = json.loads(args['concentration_data'])
         try:
-            analytical_data, concentration_data = DataHandler(analytical_data,
-                                                              concentration_data).handle_linearity_data_from_react
-            linearity_validator = LinearityValidator(analytical_data, concentration_data)
-            outliers, cleaned_analytical_data, cleaned_concentration_data, linearity_is_valid = linearity_validator.validate_linearity
+            data_handler = DataHandler(input_analytical_data, input_concentration_data)
+            checked_analytical_data, checked_concentration_data = data_handler.handle_linearity_data_from_react()
+
+            linearity_validator = LinearityValidator(checked_analytical_data, checked_concentration_data)
+            outliers, cleaned_analytical_data, cleaned_concentration_data, linearity_is_valid = linearity_validator.validate_linearity()
+
             return {
                        'regression_coefficients': {'intercept': linearity_validator.intercept,
                                                    'insignificant_intercept': linearity_validator.insignificant_intercept,

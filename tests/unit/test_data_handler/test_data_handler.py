@@ -134,3 +134,30 @@ class TestDataHandler(object):
         clean_analytical_data, clean_concentration_data = data_handler.replace_null_values()
         assert clean_analytical_data == expected_analytical_result
         assert clean_concentration_data == expected_concentration_result
+
+    def test_data_handler_must_pass_given_adequate_data(self):
+        analytical_data = [
+            [0.188, 0.192, 0.203],
+            [0.349, 0.346, 0.348],
+            [0.489, 0.482, 0.492],
+            [0.637, 0.641, 0.641],
+            [0.762, 0.768, 0.786],
+            [0.931, 0.924, 0.925],
+        ]
+        concentration_data = [
+            [0.008, 0.008, 0.008],
+            [0.016, 0.016, 0.016],
+            [0.02, 0.02, 0.02],
+            [0.028, 0.028, 0.028],
+            [0.032, 0.032, 0.032],
+            [0.04, 0.04, 0.04],
+        ]
+        data_handler = DataHandler(analytical_data, concentration_data)
+        analytical_data = DataHandler.check_list_of_lists(analytical_data)
+        concentration_data = DataHandler.check_list_of_lists(concentration_data)
+        data_handler.check_symmetric_data()
+        data_handler.check_symmetric_data_set()
+        checked_analytical_data, checked_concentration_data = data_handler.replace_null_values()
+        assert checked_analytical_data == analytical_data
+        assert checked_concentration_data == concentration_data
+
