@@ -105,13 +105,22 @@ class DataHandler(object):
             none_index.append([index for index, value in enumerate(analytical_data_set) if value is None])
         set_index = 0
         while set_index < len(clean_analytical_data):
+            index_pop_correction = 0
             for i in none_index[set_index]:
-                if none_index[set_index][0] != i:
-                    i -= 1
+                i -= list(range(len(none_index[set_index])))[index_pop_correction]
                 clean_analytical_data[set_index].pop(i)
                 clean_concentration_data[set_index].pop(i)
+                index_pop_correction += 1
             set_index += 1
+
+        def clean_empty_lists(data):
+            return [data_set for data_set in data if data_set != []]
+
+        clean_analytical_data = clean_empty_lists(clean_analytical_data)
+        clean_concentration_data = clean_empty_lists(clean_concentration_data)
         return clean_analytical_data, clean_concentration_data
+
+
 
     def handle_linearity_data_from_react(self):
         """
