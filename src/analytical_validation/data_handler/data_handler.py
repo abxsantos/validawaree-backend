@@ -48,9 +48,11 @@ class DataHandler(object):
             :return value: A positive number converted to float.
             :rtype: float
             """
-            if isinstance(value, bool):
+            if value is None:
+                return value
+            elif isinstance(value, bool):
                 raise ValueNotValid()
-            if isinstance(value, str):
+            elif isinstance(value, str):
                 value = value.replace(',', '.').replace(' ', '').replace('"', '').replace('\n', '').replace('"\\"', '')
             try:
                 if float(value) >= 0:
@@ -103,13 +105,22 @@ class DataHandler(object):
             none_index.append([index for index, value in enumerate(analytical_data_set) if value is None])
         set_index = 0
         while set_index < len(clean_analytical_data):
-            for i in none_index[set_index]:
-                if none_index[set_index][0] != i:
-                    i -= 1
-                clean_analytical_data[set_index].pop(i)
-                clean_concentration_data[set_index].pop(i)
+            index_pop_correction = 0
+            for index_pop in none_index[set_index]:
+                index_pop -= list(range(len(none_index[set_index])))[index_pop_correction] # Corrects the index when there is more than 1 None
+                clean_analytical_data[set_index].pop(index_pop)
+                clean_concentration_data[set_index].pop(index_pop)
+                index_pop_correction += 1
             set_index += 1
+
+        def clean_empty_lists(data):
+            return [data_set for data_set in data if data_set != []]
+
+        clean_analytical_data = clean_empty_lists(clean_analytical_data)
+        clean_concentration_data = clean_empty_lists(clean_concentration_data)
         return clean_analytical_data, clean_concentration_data
+
+
 
     def handle_linearity_data_from_react(self):
         """

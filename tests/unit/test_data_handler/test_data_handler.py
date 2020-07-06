@@ -84,6 +84,7 @@ class TestDataHandler(object):
         ([["+1e1", 0.2, 0.1], [0.1, 0.2, 0.1]], [[+1e1, 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["  1.23  ", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.23, 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["  \n    1.23    \n\n", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.23, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([[None, 0.2, 0.1], [0.1, 0.2, 0.1]], [[None, 0.2, 0.1], [0.1, 0.2, 0.1]]),
 
     ])
     def test_check_list_of_lists_must_pass_when_value_is_conversible_to_float(self, param_data, expected_result):
@@ -123,6 +124,8 @@ class TestDataHandler(object):
             ([[1, 2, 3], [4, 5, None]], [[7, 8, 9], [10, 11, 12]], [[1, 2, 3], [4, 5]], [[7, 8, 9], [10, 11]]),
             ([[None, 2, 3], [4, 5, None]], [[7, 8, 9], [10, 11, 12]], [[2, 3], [4, 5]], [[8, 9], [10, 11]]),
             ([[None, 2, 3], [4, None, None]], [[7, 8, 9], [10, 11, 12]], [[2, 3], [4]], [[8, 9], [10]]),
+            ([[None, 2, 3], [None, None, None]], [[7, 8, 9], [10, 11, 12]], [[2, 3]], [[8, 9]]),
+
         ])
     def test_replace_null_values(self, param_analytical_data, param_concentration_data, expected_analytical_result,
                                  expected_concentration_result):
@@ -134,3 +137,29 @@ class TestDataHandler(object):
         clean_analytical_data, clean_concentration_data = data_handler.replace_null_values()
         assert clean_analytical_data == expected_analytical_result
         assert clean_concentration_data == expected_concentration_result
+
+    def test_data_handler_must_pass_given_adequate_data(self):
+        analytical_data = [
+            [0.188, 0.192, 0.203],
+            [0.349, 0.346, 0.348],
+            [0.489, 0.482, 0.492],
+            [0.637, 0.641, 0.641],
+            [0.762, 0.768, 0.786],
+            [0.931, 0.924, 0.925],
+        ]
+        concentration_data = [
+            [0.008, 0.008, 0.008],
+            [0.016, 0.016, 0.016],
+            [0.02, 0.02, 0.02],
+            [0.028, 0.028, 0.028],
+            [0.032, 0.032, 0.032],
+            [0.04, 0.04, 0.04],
+        ]
+        data_handler = DataHandler(analytical_data, concentration_data)
+        analytical_data = DataHandler.check_list_of_lists(analytical_data)
+        concentration_data = DataHandler.check_list_of_lists(concentration_data)
+        data_handler.check_symmetric_data()
+        data_handler.check_symmetric_data_set()
+        checked_analytical_data, checked_concentration_data = data_handler.replace_null_values()
+        assert checked_analytical_data == analytical_data
+        assert checked_concentration_data == concentration_data
