@@ -15,6 +15,8 @@ class LinearityValidation(Resource):
         args = parser.parse_args()
         input_analytical_data = json.loads(args['analytical_data'])
         input_concentration_data = json.loads(args['concentration_data'])
+        print(input_analytical_data)
+        print(input_concentration_data)
         try:
             data_handler = DataHandler(input_analytical_data, input_concentration_data)
             checked_analytical_data, checked_concentration_data = data_handler.handle_linearity_data_from_react()

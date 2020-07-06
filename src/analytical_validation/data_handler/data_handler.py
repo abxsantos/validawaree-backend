@@ -106,10 +106,10 @@ class DataHandler(object):
         set_index = 0
         while set_index < len(clean_analytical_data):
             index_pop_correction = 0
-            for i in none_index[set_index]:
-                i -= list(range(len(none_index[set_index])))[index_pop_correction]
-                clean_analytical_data[set_index].pop(i)
-                clean_concentration_data[set_index].pop(i)
+            for index_pop in none_index[set_index]:
+                index_pop -= list(range(len(none_index[set_index])))[index_pop_correction] # Corrects the index when there is more than 1 None
+                clean_analytical_data[set_index].pop(index_pop)
+                clean_concentration_data[set_index].pop(index_pop)
                 index_pop_correction += 1
             set_index += 1
 

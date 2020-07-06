@@ -280,7 +280,7 @@ class LinearityValidator(object):
         return outliers, cleaned_data, cleaned_concentration_data
 
     # Normality of data test
-    def run_shapiro_wilk_test(self):
+    def run_shapiro_wilk_test(self): # TODO: Review this value!!
         self.shapiro_pvalue = (scipy.stats.shapiro(self.analytical_data))[1]
 
     @property
@@ -329,11 +329,12 @@ class LinearityValidator(object):
         if self.fitted_result is None:
             raise DataWasNotFitted()
         # TODO: check if property is needed
-        value = stattools.durbin_watson(self.fitted_result.resid)
-        if 0 < value < 4:
-            self.durbin_watson_value = value
-        else:
-            raise DurbinWatsonValueError()
+        self.durbin_watson_value = stattools.durbin_watson(self.fitted_result.resid)
+
+    @property
+    def positive_correlation(self):
+        if 0 < self.durbin_watson_value < 4:
+            return self.positive_correlation is True
 
     def validate_linearity(self):
         """Validate the linearity of given data.
@@ -354,7 +355,8 @@ class LinearityValidator(object):
             self.run_breusch_pagan_test()
             self.check_residual_autocorrelation()
             outliers, cleaned_analytical_data, cleaned_concentration_data = self.check_outliers()
-            self.linearity_is_valid = True
+            if self.valid_regression_model and self.is_homoscedastic and self.is_normal_distribution and self.positive_correlation:
+                self.linearity_is_valid = True
             return outliers, cleaned_analytical_data, cleaned_concentration_data, self.linearity_is_valid
         except:
             return self.linearity_is_valid
