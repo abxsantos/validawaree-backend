@@ -48,9 +48,11 @@ class DataHandler(object):
             :return value: A positive number converted to float.
             :rtype: float
             """
-            if isinstance(value, bool):
+            if value is None:
+                return value
+            elif isinstance(value, bool):
                 raise ValueNotValid()
-            if isinstance(value, str):
+            elif isinstance(value, str):
                 value = value.replace(',', '.').replace(' ', '').replace('"', '').replace('\n', '').replace('"\\"', '')
             try:
                 if float(value) >= 0:
