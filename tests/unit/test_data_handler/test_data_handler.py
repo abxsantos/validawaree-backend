@@ -84,6 +84,7 @@ class TestDataHandler(object):
         ([["+1e1", 0.2, 0.1], [0.1, 0.2, 0.1]], [[+1e1, 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["  1.23  ", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.23, 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["  \n    1.23    \n\n", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.23, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([[None, 0.2, 0.1], [0.1, 0.2, 0.1]], [[None, 0.2, 0.1], [0.1, 0.2, 0.1]]),
 
     ])
     def test_check_list_of_lists_must_pass_when_value_is_conversible_to_float(self, param_data, expected_result):
@@ -123,6 +124,8 @@ class TestDataHandler(object):
             ([[1, 2, 3], [4, 5, None]], [[7, 8, 9], [10, 11, 12]], [[1, 2, 3], [4, 5]], [[7, 8, 9], [10, 11]]),
             ([[None, 2, 3], [4, 5, None]], [[7, 8, 9], [10, 11, 12]], [[2, 3], [4, 5]], [[8, 9], [10, 11]]),
             ([[None, 2, 3], [4, None, None]], [[7, 8, 9], [10, 11, 12]], [[2, 3], [4]], [[8, 9], [10]]),
+            ([[None, 2, 3], [None, None, None]], [[7, 8, 9], [10, 11, 12]], [[2, 3]], [[8, 9]]),
+
         ])
     def test_replace_null_values(self, param_analytical_data, param_concentration_data, expected_analytical_result,
                                  expected_concentration_result):
@@ -160,4 +163,3 @@ class TestDataHandler(object):
         checked_analytical_data, checked_concentration_data = data_handler.replace_null_values()
         assert checked_analytical_data == analytical_data
         assert checked_concentration_data == concentration_data
-
