@@ -9,4 +9,4 @@ api = Api(app)
 api.add_resource(LinearityValidation, '/linearity_result')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
