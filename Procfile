@@ -1,1 +1,1 @@
-web: gunicorn --workers 1 --bind :5000 wsgi:app
+web: gunicorn --workers 1 --pythonpath src --bind :5000 wsgi:app
