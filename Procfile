@@ -1,0 +1,1 @@
+web: gunicorn --workers 1 --bind :5000 wsgi:app
