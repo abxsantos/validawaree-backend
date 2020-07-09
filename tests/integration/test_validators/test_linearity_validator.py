@@ -3,6 +3,7 @@ from analytical_validation.validators.linearity_validator import LinearityValida
 
 
 class TestLinearityValidator(object):
+
     def test_linearity_validator_integration_with_methods(self):
         input_analytical_data = [[0.188, 0.192, 0.203], [0.349, 0.346, 0.348], [0.489, 0.482, 0.492],
                                  [0.637, 0.641, 0.641],
