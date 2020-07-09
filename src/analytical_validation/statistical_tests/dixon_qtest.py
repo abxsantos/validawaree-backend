@@ -9,7 +9,8 @@ class DixonQTest(object):
 
      Example:
          >>> data_set = [1.0, 1.0, 1.0, 2.0]
-         >>> dixon_qtest(data_set)
+         >>> DixonQTest(data_set)
+         >>> DixonQTest.check_data_for_outliers()
          >>> cleaned_data = [1.0, 1.0, 1.0]
          >>> outliers = [2.0]
 
