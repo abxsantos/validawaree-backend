@@ -2,7 +2,8 @@ import pytest
 
 from analytical_validation.exceptions import DataNotNumber, DataIsEmpty, \
     DataNotList, AlphaNotValid, DirectionNotBoolean
-from analytical_validation.statistical_tests.dixon_qtest import dixon_qtest
+
+from analytical_validation.statistical_tests.dixon_qtest import DixonQTest
 
 
 class TestDixonQTest(object):
@@ -15,9 +16,10 @@ class TestDixonQTest(object):
         Should raise an exception"""
         # Arrange
         data = [1, 1, 1]
+        dixon_qtest = DixonQTest(data, alpha=param_alpha)
         # Act &  Assert
         with pytest.raises(AlphaNotValid):
-            dixon_qtest(data, alpha=param_alpha)
+            dixon_qtest.check_dixon_q_test_input_data()
 
     def test_qtest_must_raise_exception_when_left_not_bool(self):
         """Given non bool left value
@@ -26,9 +28,10 @@ class TestDixonQTest(object):
         # Arrange
         data = [0.100, 0.150, 0.200]
         left = "NOT BOOL"
+        dixon_qtest = DixonQTest(data, left=left)
         # Act & Assert
         with pytest.raises(DirectionNotBoolean):
-            dixon_qtest(data, left=left)
+            dixon_qtest.check_dixon_q_test_input_data()
 
     def test_qtest_must_raise_exception_when_right_not_bool(self):
         """Given non bool left value
@@ -37,9 +40,10 @@ class TestDixonQTest(object):
         # Arrange
         data = [0.100, 0.150, 0.200]
         right = "NOT BOOL"
+        dixon_qtest = DixonQTest(data, right=right)
         # Act &  Assert
         with pytest.raises(DirectionNotBoolean):
-            dixon_qtest(data, right=right)
+            dixon_qtest.check_dixon_q_test_input_data()
 
     @pytest.mark.parametrize('param_data, expected_result', [
         ("Not List", DataNotList), ({"key": "value"}, DataNotList), ((0, 1, 2, 3, 4), DataNotList), (True, DataNotList),
@@ -61,8 +65,9 @@ class TestDixonQTest(object):
         # Arrange
         data = "Not list"
         # Act &  Assert
+        dixon_qtest = DixonQTest(data)
         with pytest.raises(DataNotList):
-            dixon_qtest(data)
+            dixon_qtest.check_dixon_q_test_input_data()
 
     def test_qtest_must_return_list_of_numbers_when_data_contains_outliers(self):
         """Given data with outliers
@@ -70,8 +75,9 @@ class TestDixonQTest(object):
         should return list of lists containing numbers"""
         # Arrange
         data = [0.100, 0.150, 0.200, 0.100, 0.200, 10.0]
+        dixon_qtest = DixonQTest(data)
         # Act
-        outliers, cleaned_data = dixon_qtest(data)
+        outliers, cleaned_data = dixon_qtest.check_data_for_outliers()
         # Assert
         assert outliers == [10.0]
         assert cleaned_data == [0.100, 0.150, 0.200, 0.100, 0.200]
@@ -82,8 +88,9 @@ class TestDixonQTest(object):
         should return an empty list"""
         # Arrange
         data = [0.100, 0.150, 0.200]
+        dixon_qtest = DixonQTest(data)
         # Act
-        outliers, cleaned_data = dixon_qtest(data)
+        outliers, cleaned_data = dixon_qtest.check_data_for_outliers()
         # Assert
         assert outliers == []
 
@@ -93,8 +100,9 @@ class TestDixonQTest(object):
         should pass returning the not cleaned data"""
         # Arrange
         data = [1, 1]
+        dixon_qtest = DixonQTest(data)
         # Act
-        outliers, cleaned_data = dixon_qtest(data)
+        outliers, cleaned_data = dixon_qtest.check_data_for_outliers()
         # Assert
         assert cleaned_data == data
         assert outliers == []
@@ -105,8 +113,9 @@ class TestDixonQTest(object):
         should pass returning the not cleaned data"""
         # Arrange
         data = list(range(1, 29))
+        dixon_qtest = DixonQTest(data)
         # Act
-        outliers, cleaned_data = dixon_qtest(data)
+        outliers, cleaned_data = dixon_qtest.check_data_for_outliers()
         # Assert
         assert cleaned_data == data
         assert outliers == []
@@ -117,8 +126,9 @@ class TestDixonQTest(object):
         should pass the test"""
         # Arrange
         data = [0.100, 0.150, 0.200]
+        dixon_qtest = DixonQTest(data)
         # Act
-        outliers, cleaned_data = dixon_qtest(data)
+        outliers, cleaned_data = dixon_qtest.check_data_for_outliers()
         # Assert
         assert outliers == []
         assert cleaned_data == [0.100, 0.150, 0.200]
