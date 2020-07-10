@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/analytical-validation.iml" filepath="$PROJECT_DIR$/.idea/analytical-validation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/validawaree-api.iml" filepath="$PROJECT_DIR$/.idea/validawaree-api.iml" />
     </modules>
   </component>
 </project>
