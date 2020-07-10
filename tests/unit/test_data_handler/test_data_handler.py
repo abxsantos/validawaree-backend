@@ -1,6 +1,6 @@
 import pytest
 
-from analytical_validation.data_handler.data_handler import DataHandler
+from analytical_validation.data_handler.data_handler import DataHandler, DataHandlerHelper, check_values
 from analytical_validation.exceptions import DataNotList, DataNotListOfLists, ValueNotValid, DataNotSymmetric
 
 
@@ -16,6 +16,16 @@ class TestDataHandler(object):
     #  check if there are invalid numbers (negative, null)
     #  clean up non real float values
 
+    @pytest.mark.parametrize('param_value', [
+        1, 0.1, .1, "1.234", "123.E4", ".1", "6.523537535629999e-07", "6e777777", "1.797693e+308", "0E0", "+1e1",
+         "+1e1", "  1.23  ", "  \n    1.23    \n\n", None
+    ])
+    def test_check_value_must_return_float_when_given_positive_numbers(self, param_value):
+        """Given positive numbers,
+        When check value is called
+        must return the value parsed to float"""
+        assert isinstance(check_values(param_value), float) is True or check_values(param_value) is None
+
     @pytest.mark.parametrize('param_data', [
         "STR", {}, 1, 0.990, (0, 1)
     ])
@@ -26,7 +36,7 @@ class TestDataHandler(object):
         must raise an DataNotList
         """
         with pytest.raises(DataNotList):
-            check_is_list(param_data)
+            DataHandlerHelper(param_data).check_is_list()
 
     @pytest.mark.parametrize('param_data', [
         ["STR"], [{}], [1], [0.990], [(0, 1)]
@@ -38,7 +48,7 @@ class TestDataHandler(object):
         must raise an DataNotListOfLists
         """
         with pytest.raises(DataNotListOfLists):
-            DataHandler.check_list_of_lists(param_data)
+            DataHandlerHelper(param_data).check_list_of_lists()
 
     @pytest.mark.parametrize('param_data', [
         ([["STR", 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -61,7 +71,7 @@ class TestDataHandler(object):
         when check_list_of_lists is called,
         Must raise an ValueNotValid"""
         with pytest.raises(ValueNotValid):
-            check_list_of_lists(param_data)
+            DataHandlerHelper(param_data).check_list_of_lists()
 
     @pytest.mark.parametrize('param_data, expected_result', [
         ([["1,234", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.234, 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -71,7 +81,7 @@ class TestDataHandler(object):
         """Given a list of lists containing strings with comma separated decimals
         When check_list_of_lists is called
         Must pass returning the values converted to float"""
-        assert check_list_of_lists(param_data) == expected_result
+        assert DataHandlerHelper(param_data).check_list_of_lists() == expected_result
 
     @pytest.mark.parametrize('param_data, expected_result', [
         ([["1.234", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.234, 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -91,7 +101,7 @@ class TestDataHandler(object):
         """Given a list of lists, with not float number value(s)
         when check _list_of_lists is called,
         Must create a list containing floats"""
-        assert check_list_of_lists(param_data) == expected_result
+        assert DataHandlerHelper(param_data).check_list_of_lists() == expected_result
 
     @pytest.mark.parametrize('param_analytical_data, param_concentration_data', [
         ([[1, 2, 3]], [[1, 2, 3], [4, 5, 6]]),
@@ -140,7 +150,8 @@ class TestDataHandler(object):
 
     def test_data_handler_must_pass_given_adequate_data(self):
         """Given analytical data and concentration data, in a list of lists,
-        When handle_data must return a symmetrical list of lists containing only float values."""
+        When handle_data is called
+        must return a symmetrical list of lists containing only float values."""
 
         analytical_data = [
             [0.188, 0.192, 0.203],
@@ -158,6 +169,7 @@ class TestDataHandler(object):
             [0.032, 0.032, 0.032],
             [0.04, 0.04, 0.04],
         ]
-        checked_analytical_data, checked_concentration_data = DataHandler(analytical_data, concentration_data).handle_data()
+        checked_analytical_data, checked_concentration_data = DataHandler(analytical_data,
+                                                                          concentration_data).handle_data()
         assert checked_analytical_data == analytical_data
         assert checked_concentration_data == concentration_data
