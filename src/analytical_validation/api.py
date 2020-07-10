@@ -9,18 +9,17 @@ parser = reqparse.RequestParser()
 parser.add_argument('analytical_data')
 parser.add_argument('concentration_data')
 
+
 class LinearityValidation(Resource):
     def post(self):
         args = parser.parse_args()
         input_analytical_data = json.loads(args['analytical_data'])
         input_concentration_data = json.loads(args['concentration_data'])
         try:
-            data_handler = DataHandler(input_analytical_data, input_concentration_data)
-            checked_analytical_data, checked_concentration_data = data_handler.handle_linearity_data_from_react()
+            checked_analytical_data, checked_concentration_data = DataHandler(input_analytical_data,
+                                                                              input_concentration_data).handle_data()
             linearity_validator = LinearityValidator(checked_analytical_data, checked_concentration_data)
             outliers, cleaned_analytical_data, cleaned_concentration_data, linearity_is_valid = linearity_validator.validate_linearity()
-            print(cleaned_analytical_data)
-
             return {
                        'regression_coefficients': {'intercept': linearity_validator.intercept,
                                                    'insignificant_intercept': linearity_validator.insignificant_intercept,
