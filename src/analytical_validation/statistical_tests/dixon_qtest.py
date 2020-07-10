@@ -19,7 +19,7 @@ class DixonQTest(object):
      :param left: Q-test of minimum value in the ordered list if True.
      :type left: bool
      :param right: Q-test of maximum value in the ordered list if True.
-     :type left: bool
+     :type right: bool
      :param alpha: Significance (default value = 0.05)
      :type alpha: float
      :returns outliers: List containing all the outliers removed.
@@ -63,7 +63,7 @@ class DixonQTest(object):
         self.q_right = None
 
     def check_dixon_q_test_input_data(self):
-        if isinstance(self.left, bool) is False or isinstance(self.right, bool) is False:
+        if isinstance(self.left, bool) is False and isinstance(self.right, bool) is False:
             raise DirectionNotBoolean()
         if self.alpha not in self.valid_alpha:
             raise AlphaNotValid()
@@ -71,7 +71,7 @@ class DixonQTest(object):
             raise DataNotList()
         if not self.data:
             raise DataIsEmpty()
-        if len(self.data) < 3 or len(self.data) > 28:
+        if len(self.data) < 3 or len(self.data) > 30:
             return False
         if all(isinstance(value, (int, float)) for value in self.data) is False:
             raise DataNotNumber()
@@ -143,11 +143,11 @@ class DixonQTest(object):
         elif self.calculated_q_value['left'] == self.calculated_q_value['right']:
             return self.outliers, self.cleaned_data
 
-        elif self.calculated_q_value['left'] > self.q_critical:
+        elif self.left is True and self.calculated_q_value['left'] > self.q_critical:
             self.outliers = [self.sorted_data[0]]
             self.cleaned_data.remove(self.outliers[0])
 
-        elif self.calculated_q_value['right'] > self.q_critical:
+        elif self.right is True and self.calculated_q_value['right'] > self.q_critical:
             self.outliers = [self.sorted_data[-1]]
             self.cleaned_data.remove(self.outliers[0])
 
