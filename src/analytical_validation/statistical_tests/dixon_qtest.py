@@ -63,74 +63,98 @@ class DixonQTest(object):
         self.q_right = None
 
     def check_dixon_q_test_input_data(self):
-            if isinstance(self.left, bool) is False or isinstance(self.right, bool) is False:
-                raise DirectionNotBoolean()
-            if self.alpha not in self.valid_alpha:
-                raise AlphaNotValid()
-            if isinstance(self.data, list) is False:
-                raise DataNotList()
-            if not self.data:
-                raise DataIsEmpty()
-            if len(self.data) < 3 or len(self.data) > 28:
-                return False
-            if all(isinstance(value, (int, float)) for value in self.data) is False:
-                raise DataNotNumber()
-            return True
+        if isinstance(self.left, bool) is False or isinstance(self.right, bool) is False:
+            raise DirectionNotBoolean()
+        if self.alpha not in self.valid_alpha:
+            raise AlphaNotValid()
+        if isinstance(self.data, list) is False:
+            raise DataNotList()
+        if not self.data:
+            raise DataIsEmpty()
+        if len(self.data) < 3 or len(self.data) > 28:
+            return False
+        if all(isinstance(value, (int, float)) for value in self.data) is False:
+            raise DataNotNumber()
+        return True
 
     @property
-    def q_values(self):
-        QVALUES = None
+    def q_critical(self):
+        """
+        The dixon Q test critical value based on number of observations and the alpha value.
+        :return q_critical: The critical Q value for the given data.
+        :rtype q_critical: float
+        """
+        alpha_q_values = None
         if self.alpha == 0.10:
-            QVALUES = self.QVALUES['alpha_10']
+            alpha_q_values = self.QVALUES['alpha_10']
         elif self.alpha == 0.05:
-            QVALUES = self.QVALUES['alpha_05']
+            alpha_q_values = self.QVALUES['alpha_05']
         elif self.alpha == 0.01:
-            QVALUES = self.QVALUES['alpha_01']
-        return {n: q for n, q in zip(range(3, len(QVALUES) + 1), QVALUES)}
+            alpha_q_values = self.QVALUES['alpha_01']
+        return {n: q for n, q in zip(range(3, len(alpha_q_values) + 1), alpha_q_values)}[len(self.data)]
 
     @property
     def sorted_data(self):
+        """
+        Sorts the given data in an ascending order.
+        :return sorted_data: Data sorted out in ascendind order.
+        :rtype sorted_data: list
+        """
         return sorted(self.data)
 
-    def two_sided_test(self):
+    @property
+    def calculated_q_value(self):
+        """
+        Calculate the Q value for the suspected outliers.
+        :return calculated_q_value: Calculated Q values.
+        :rtype calculated_q_value: tuple(float, float)
+        """
+        q_left = None
+        q_right = None
         if self.left:
-            try:
-                self.q_left = round(abs((self.sorted_data[1] - self.sorted_data[0]) / (self.sorted_data[-1] - self.sorted_data[0])), 3)
-            except ZeroDivisionError:
-                pass
+            q_left = self.q_value_calculation(self.sorted_data[1], self.sorted_data[0])
         if self.right:
-            try:
-                self.q_right = round(abs((self.sorted_data[-2] - self.sorted_data[-1]) / (self.sorted_data[-1] - self.sorted_data[0])), 3)
-            except ZeroDivisionError:
-                pass
+            q_right = self.q_value_calculation(self.sorted_data[-2], self.sorted_data[-1])
+        return {'left': q_left, 'right': q_right}
+
+    def q_value_calculation(self, value, reference):
+        """
+        Calculate the Q value for the suspected outliers.
+        :return calculated_q_value: Calculated Q value.
+        :rtype calculated_q_value: float
+        """
+        try:
+            return round(abs((reference - value) / (self.sorted_data[-1] - self.sorted_data[0])), 3)
+        except ZeroDivisionError:
+            pass
 
     def remove_outliers(self):
-        q_crit = self.q_values[len(self.data)]
-
-        if self.q_left is None and self.q_right is None:
+        """
+        Remove based on the left (minimum value) and right (greater value)
+        Q calculated values, the outliers from data set.
+        :return outliers: List containing outliers in the data set based on Dixon Q test
+        :rtype outliers: list[list]
+        :return cleaned_data: List containing the data set without the outliers.
+        :rtype cleaned_data:list[list]
+        """
+        if self.calculated_q_value['left'] is None and self.calculated_q_value['right'] is None:
             return self.outliers, self.cleaned_data
 
-        elif self.q_left == self.q_right:
+        elif self.calculated_q_value['left'] == self.calculated_q_value['right']:
             return self.outliers, self.cleaned_data
 
-        elif self.q_left > q_crit:
+        elif self.calculated_q_value['left'] > self.q_critical:
             self.outliers = [self.sorted_data[0]]
             self.cleaned_data.remove(self.outliers[0])
 
-        elif self.q_right > q_crit:
+        elif self.calculated_q_value['right'] > self.q_critical:
             self.outliers = [self.sorted_data[-1]]
             self.cleaned_data.remove(self.outliers[0])
-
-        else:
-            self.outliers = [self.sorted_data[0], self.sorted_data[-1]]
-            self.cleaned_data.remove(self.outliers[0])
-            self.cleaned_data.remove(self.outliers[1])
 
         return self.outliers, self.cleaned_data
 
     def check_data_for_outliers(self):
         if self.check_dixon_q_test_input_data() is True:
-            self.two_sided_test()
             return self.remove_outliers()
         else:
             return [], self.data

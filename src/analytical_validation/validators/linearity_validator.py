@@ -5,8 +5,8 @@ import statsmodels.api as statsmodels
 import statsmodels.stats.api as statsmodelsapi
 import statsmodels.stats.stattools as stattools
 
-from analytical_validation.exceptions import DataWasNotFitted, DurbinWatsonValueError
-from analytical_validation.statistical_tests.dixon_qtest import dixon_qtest
+from analytical_validation.exceptions import DataWasNotFitted
+from analytical_validation.statistical_tests.dixon_qtest import DixonQTest
 
 
 class LinearityValidator(object):
@@ -264,7 +264,7 @@ class LinearityValidator(object):
         outliers = []
         cleaned_data = []
         for data_set in data:
-            outliers_set, cleaned_data_set = dixon_qtest(data_set)
+            outliers_set, cleaned_data_set = DixonQTest(data_set).check_data_for_outliers()
             outliers.append(outliers_set)
             cleaned_data.append(cleaned_data_set)
 
@@ -280,7 +280,7 @@ class LinearityValidator(object):
         return outliers, cleaned_data, cleaned_concentration_data
 
     # Normality of data test
-    def run_shapiro_wilk_test(self): # TODO: Review this value!!
+    def run_shapiro_wilk_test(self):
         self.shapiro_pvalue = (scipy.stats.shapiro(self.analytical_data))[1]
 
     @property
@@ -288,7 +288,6 @@ class LinearityValidator(object):
         """check for normality in data set using the Shapiro-Wilk test.
         :return: True if data has a normal distribution, False otherwise.
         :rtype: bool"""
-        # TODO: check if property is needed
         return self.shapiro_pvalue > self.alpha
 
     # Heterokedasticity test
@@ -328,7 +327,6 @@ class LinearityValidator(object):
         """
         if self.fitted_result is None:
             raise DataWasNotFitted()
-        # TODO: check if property is needed
         self.durbin_watson_value = stattools.durbin_watson(self.fitted_result.resid)
 
     @property
