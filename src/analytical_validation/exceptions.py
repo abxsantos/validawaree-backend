@@ -63,14 +63,9 @@ class DataIsEmpty(Exception):
         super().__init__("The data is empty!")
 
 
-class DataTooSmall(Exception):
+class DataIsOutOfRange(Exception):
     def __init__(self):
-        super().__init__("At least 3 data points are required")
-
-
-class DataTooBig(Exception):
-    def __init__(self):
-        super().__init__("Dixon outlier Q test can't be used with more than 28 values in a data set.")
+        super().__init__("Dixon outlier Q test can't be used with less than 3 or more than 28 values in a data set.")
 
 
 class AlphaNotValid(Exception):
