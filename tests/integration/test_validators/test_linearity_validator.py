@@ -15,7 +15,7 @@ class TestLinearityValidator(object):
                                     [0.04, 0.04008, 0.04064]]
         # Arrange
         data_handler = DataHandler(input_analytical_data, input_concentration_data)
-        checked_analytical_data, checked_concentration_data = data_handler.handle_linearity_data_from_react()
+        checked_analytical_data, checked_concentration_data = data_handler.handle_data()
         linearity_validator = LinearityValidator(checked_analytical_data, checked_concentration_data)
         # Act
         linearity_validator.validate_linearity()
@@ -47,7 +47,7 @@ class TestLinearityValidator(object):
                                     [None, None, None]]
         # Arrange
         data_handler = DataHandler(input_analytical_data, input_concentration_data)
-        checked_analytical_data, checked_concentration_data = data_handler.handle_linearity_data_from_react()
+        checked_analytical_data, checked_concentration_data = data_handler.handle_data()
         linearity_validator = LinearityValidator(checked_analytical_data, checked_concentration_data)
         # Assert
         linearity_validator.validate_linearity()
@@ -80,7 +80,7 @@ class TestLinearityValidator(object):
                               [43564, 43800, 43776], [47680, 47800, 47341]]
         # Arrange
         data_handler = DataHandler(input_analytical_data, input_concentration_data)
-        checked_analytical_data, checked_concentration_data = data_handler.handle_linearity_data_from_react()
+        checked_analytical_data, checked_concentration_data = data_handler.handle_data()
         linearity_validator = LinearityValidator(checked_analytical_data, checked_concentration_data)
         # Act
         outliers, cleaned_analytical_data, cleaned_concentration_data, linearity_is_valid = linearity_validator.validate_linearity()
