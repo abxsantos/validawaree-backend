@@ -19,23 +19,23 @@ class TestDataHandler(object):
     @pytest.mark.parametrize('param_data', [
         "STR", {}, 1, 0.990, (0, 1)
     ])
-    def test_DataHandler_must_raise_exception_when_not_list(self, param_data):
+    def test_check_is_list_must_raise_exception_when_not_list(self, param_data):
         """
         Given data of different types
-        when data_is_list is called
-        must raise an exception
+        when check_is_list is called
+        must raise an DataNotList
         """
         with pytest.raises(DataNotList):
-            DataHandler.check_is_list(param_data)
+            check_is_list(param_data)
 
     @pytest.mark.parametrize('param_data', [
         ["STR"], [{}], [1], [0.990], [(0, 1)]
     ])
-    def test_DataHandler_must_raise_exception_when_not_list_of_lists(self, param_data):
+    def test_check_list_of_lists_must_raise_exception_when_not_list_of_lists(self, param_data):
         """
         Given data that it's not a list of lists
-        when DataHandler is called
-        must raise an exception
+        when check_list_of_lists is called
+        must raise an DataNotListOfLists
         """
         with pytest.raises(DataNotListOfLists):
             DataHandler.check_list_of_lists(param_data)
@@ -45,13 +45,13 @@ class TestDataHandler(object):
         ([["NaNananana BATMAN", 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["NULL", 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["123.EE4", 0.2, 0.1], [0.1, 0.2, 0.1]]),
-        ([["infinity and BEYOND", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([[0.1, 0.2, 0.1], [0.1, "infinity and BEYOND", 0.1]]),
         ([["12.34.56", 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["#56", 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["56%", 0.2, 0.1], [0.1, 0.2, 0.1]]),
-        ([["x86E0", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([[0.1, 0.2, 0.1], [0.1, "x86E0", 0.1]]),
         ([["86-5", 0.2, 0.1], [0.1, 0.2, 0.1]]),
-        ([["True", 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([[0.1, 0.2, 0.1], [0.1, 0.2, "True"]]),
         ([["+1e1^5", 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["56%", 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([[True, 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -61,7 +61,7 @@ class TestDataHandler(object):
         when check_list_of_lists is called,
         Must raise an ValueNotValid"""
         with pytest.raises(ValueNotValid):
-            DataHandler.check_list_of_lists(param_data)
+            check_list_of_lists(param_data)
 
     @pytest.mark.parametrize('param_data, expected_result', [
         ([["1,234", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.234, 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -71,7 +71,7 @@ class TestDataHandler(object):
         """Given a list of lists containing strings with comma separated decimals
         When check_list_of_lists is called
         Must pass returning the values converted to float"""
-        assert DataHandler.check_list_of_lists(param_data) == expected_result
+        assert check_list_of_lists(param_data) == expected_result
 
     @pytest.mark.parametrize('param_data, expected_result', [
         ([["1.234", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.234, 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -80,8 +80,8 @@ class TestDataHandler(object):
         ([["6.523537535629999e-07", 0.2, 0.1], [0.1, 0.2, 0.1]], [[6.523537535629999e-07, 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["6e777777", 0.2, 0.1], [0.1, 0.2, 0.1]], [[6e777777, 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["1.797693e+308", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.797693e+308, 0.2, 0.1], [0.1, 0.2, 0.1]]),
-        ([["0E0", 0.2, 0.1], [0.1, 0.2, 0.1]], [[0.0, 0.2, 0.1], [0.1, 0.2, 0.1]]),
-        ([["+1e1", 0.2, 0.1], [0.1, 0.2, 0.1]], [[+1e1, 0.2, 0.1], [0.1, 0.2, 0.1]]),
+        ([[0.1, 0.2, 0.1], ["0E0", 0.2, 0.1]], [[0.1, 0.2, 0.1], [0.0, 0.2, 0.1]]),
+        ([[0.2, "+1e1", 0.1], [0.1, 0.2, 0.1]], [[0.2, +1e1, 0.1], [0.1, 0.2, 0.1]]),
         ([["  1.23  ", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.23, 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([["  \n    1.23    \n\n", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.23, 0.2, 0.1], [0.1, 0.2, 0.1]]),
         ([[None, 0.2, 0.1], [0.1, 0.2, 0.1]], [[None, 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -91,7 +91,7 @@ class TestDataHandler(object):
         """Given a list of lists, with not float number value(s)
         when check _list_of_lists is called,
         Must create a list containing floats"""
-        assert DataHandler.check_list_of_lists(param_data) == expected_result
+        assert check_list_of_lists(param_data) == expected_result
 
     @pytest.mark.parametrize('param_analytical_data, param_concentration_data', [
         ([[1, 2, 3]], [[1, 2, 3], [4, 5, 6]]),
@@ -139,6 +139,9 @@ class TestDataHandler(object):
         assert clean_concentration_data == expected_concentration_result
 
     def test_data_handler_must_pass_given_adequate_data(self):
+        """Given analytical data and concentration data, in a list of lists,
+        When handle_data must return a symmetrical list of lists containing only float values."""
+
         analytical_data = [
             [0.188, 0.192, 0.203],
             [0.349, 0.346, 0.348],
@@ -155,11 +158,6 @@ class TestDataHandler(object):
             [0.032, 0.032, 0.032],
             [0.04, 0.04, 0.04],
         ]
-        data_handler = DataHandler(analytical_data, concentration_data)
-        analytical_data = DataHandler.check_list_of_lists(analytical_data)
-        concentration_data = DataHandler.check_list_of_lists(concentration_data)
-        data_handler.check_symmetric_data()
-        data_handler.check_symmetric_data_set()
-        checked_analytical_data, checked_concentration_data = data_handler.replace_null_values()
+        checked_analytical_data, checked_concentration_data = DataHandler(analytical_data, concentration_data).handle_data()
         assert checked_analytical_data == analytical_data
         assert checked_concentration_data == concentration_data
