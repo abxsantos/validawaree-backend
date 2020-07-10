@@ -4,17 +4,7 @@ from analytical_validation.data_handler.data_handler import DataHandler, DataHan
 from analytical_validation.exceptions import DataNotList, DataNotListOfLists, ValueNotValid, DataNotSymmetric
 
 
-class TestDataHandler(object):
-
-    #  check for data inconsistency
-    #  the analytical data must be completely symmetric with concentration data
-    #  check if it's a list
-    #  check if its a list containing lists (set of data)
-    #  check if the number of set of data is symmetric
-    #  check if the number of values in the data sets are symmetric
-    #  check if values are numbers and convert to float
-    #  check if there are invalid numbers (negative, null)
-    #  clean up non real float values
+class TestDataHandlerHelper(object):
 
     @pytest.mark.parametrize('param_value', [
         1, 0.1, .1, "1.234", "123.E4", ".1", "6.523537535629999e-07", "6e777777", "1.797693e+308", "0E0", "+1e1",
@@ -102,6 +92,8 @@ class TestDataHandler(object):
         when check _list_of_lists is called,
         Must create a list containing floats"""
         assert DataHandlerHelper(param_data).check_list_of_lists() == expected_result
+
+class TestDataHandler(object):
 
     @pytest.mark.parametrize('param_analytical_data, param_concentration_data', [
         ([[1, 2, 3]], [[1, 2, 3], [4, 5, 6]]),
