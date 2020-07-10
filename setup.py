@@ -1,10 +1,10 @@
-from setuptools import setup, find_packages
+import setuptools
 
-setup(name='VALIDAWAREE',
-      description='A free analytical method validator api',
+setuptools.setup(name='validawaree-api-abxsantos',
+      description='An api for validating analytical methods',
       author='Alexandre Xavier',
       author_email='ale.bxsantos@gmail.com',
-      api_url='https://agile-temple-75165.herokuapp.com/',
-      front_url='https://fast-badlands-43198.herokuapp.com/',
-      packages=find_packages(),
+      url='https://github.com/abxsantos/validawaree-backend',
+      packages=setuptools.find_packages(),
+      python_requires='>=3.6',
      )
