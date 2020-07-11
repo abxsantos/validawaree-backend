@@ -1,9 +1,12 @@
 python:
-  - "3.6"
-  - "3.8"
+  - 3.6
+  - 3.8
 before_install:
-  - "export PYTHONPATH=$PYTHONPATH:$(pwd)"
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)/tests
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+
 install:
-  - "pip install -r requirements.txt"
+  - pip install -r requirements.txt
 script:
-  - "pytest"
+  - pytest tests/
