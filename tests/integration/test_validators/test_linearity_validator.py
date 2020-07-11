@@ -1,3 +1,5 @@
+from pytest import approx
+
 from analytical_validation.data_handler.data_handler import DataHandler
 from analytical_validation.validators.linearity_validator import LinearityValidator
 
@@ -108,28 +110,28 @@ class TestLinearityValidator(object):
         breusch_pagan_pvalue = linearity_validator.breusch_pagan_pvalue
         linearity_is_valid = linearity_validator.linearity_is_valid
         # Assert
-        assert intercept == 5739.794788269286
-        assert slope == 2.596878737685822
-        assert r_squared == 0.9975294485602224
+        assert intercept == approx(5739.794788269286)
+        assert slope == approx(2.596878737685822)
+        assert r_squared == approx(0.9975294485602224)
         assert significant_slope
         assert insignificant_intercept is False
         assert valid_r_squared
         assert valid_regression_model is False
-        assert sum_of_squares_model == 3127367965.4154825
-        assert sum_of_squares_resid == 7745458.98451753
-        assert sum_of_squares_total == 3135113424.4
+        assert sum_of_squares_model == approx(3127367965.4154825)
+        assert sum_of_squares_resid == approx(7745458.98451753)
+        assert sum_of_squares_total == approx(3135113424.4)
         assert degrees_of_freedom_model == 1
         assert degrees_of_freedom_residues == 13
         assert degrees_of_freedom_total == 14
-        assert mean_squared_error_model == 3127367965.4154825
-        assert mean_squared_error_residues == 595804.5372705793
-        assert anova_f_value == 5248.983130847184
-        assert anova_f_pvalue == 2.456125525312856e-18
+        assert mean_squared_error_model == approx(3127367965.4154825)
+        assert mean_squared_error_residues == approx(595804.5372705793)
+        assert anova_f_value == approx(5248.983130847184)
+        assert anova_f_pvalue == approx(2.456125525312856e-18)
         assert is_normal_distribution
         assert is_homoscedastic
-        assert durbin_watson_value == 2.015779987671755
-        assert shapiro_pvalue == 0.24514977633953094
-        assert breusch_pagan_pvalue == 0.37048855993099217
+        assert durbin_watson_value == approx(2.015779987671755)
+        assert shapiro_pvalue == approx(0.24514977633953094)
+        assert breusch_pagan_pvalue == approx(0.37048855993099217)
         assert outliers == [[], [], [], [], []]
         assert cleaned_analytical_data == input_analytical_data
         assert cleaned_concentration_data == input_concentration_data
