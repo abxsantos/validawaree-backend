@@ -2,6 +2,12 @@ language: python
 python:
   - "3.6"
   - "3.8"
+  -
+# safelist
+branches:
+  only:
+  - master
+  -
 before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - export PYTHONPATH=$PYTHONPATH:$(pwd)/tests
@@ -10,5 +16,11 @@ before_install:
 install:
   - pip install --upgrade pip
   - pip install -r requirements.txt
+
 script:
-  - pytest tests/
+  - pytest --cov=analytical_validation tests/
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+    
+
