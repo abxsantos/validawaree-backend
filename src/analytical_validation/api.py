@@ -13,6 +13,7 @@ parser.add_argument('concentration_data')
 class LinearityValidation(Resource):
     def post(self):
         args = parser.parse_args()
+        print(args)
         input_analytical_data = json.loads(args['analytical_data'])
         input_concentration_data = json.loads(args['concentration_data'])
         try:
