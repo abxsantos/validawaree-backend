@@ -108,7 +108,7 @@ class NegativeValue(Exception):
         super().__init__("Negative values are not valid. Check and try again.")
 
 
-errors = {
+custom_exceptions = {
     "AnalyticalValueNotNumber": {"message": "One of the analytical values is not a number!", "status": 400},
     "DataNotListOfLists": {"message": "The given data is not a list of lists.", "status": 400},
     "DataWasNotFitted": {"message": "There is no regression model!", "status": 400},

@@ -2,8 +2,9 @@ import json
 
 from flask_restful import Resource, reqparse
 
+from analytical_validation.exceptions import custom_exceptions
+
 from analytical_validation.data_handler.data_handler import DataHandler
-from analytical_validation.exceptions import errors
 from analytical_validation.validators.linearity_validator import LinearityValidator
 
 parser = reqparse.RequestParser()
@@ -49,6 +50,5 @@ class LinearityValidation(Resource):
                        'is_normal_distribution': linearity_validator.is_normal_distribution,
                        'is_homoscedastic': linearity_validator.is_homoscedastic,
                        'durbin_watson_value': linearity_validator.durbin_watson_value}, 201
-        except Exception as err:
-            return errors[err.__class__.__name__], 400
-
+        except Exception as error:
+            return custom_exceptions[error.__class__.__name__], 400
