@@ -3,6 +3,7 @@ import json
 from flask_restful import Resource, reqparse
 
 from analytical_validation.data_handler.data_handler import DataHandler
+from analytical_validation.exceptions import errors
 from analytical_validation.validators.linearity_validator import LinearityValidator
 
 parser = reqparse.RequestParser()
@@ -11,9 +12,9 @@ parser.add_argument('concentration_data')
 
 
 class LinearityValidation(Resource):
+
     def post(self):
         args = parser.parse_args()
-        print(args)
         input_analytical_data = json.loads(args['analytical_data'])
         input_concentration_data = json.loads(args['concentration_data'])
         try:
@@ -48,6 +49,6 @@ class LinearityValidation(Resource):
                        'is_normal_distribution': linearity_validator.is_normal_distribution,
                        'is_homoscedastic': linearity_validator.is_homoscedastic,
                        'durbin_watson_value': linearity_validator.durbin_watson_value}, 201
-
         except Exception as err:
-            return err, 400
+            return errors[err.__class__.__name__], 400
+

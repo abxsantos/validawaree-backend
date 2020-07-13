@@ -4,12 +4,7 @@ from flask_cors import CORS
 
 from analytical_validation.api import LinearityValidation
 
-
-def create_app():
-    app = Flask(__name__)
-    return app
-
-app = create_app()
+app = Flask(__name__)
 
 CORS(app)
 api = Api(app)
