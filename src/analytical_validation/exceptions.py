@@ -117,8 +117,6 @@ errors = {
     "DataIsEmpty": {"message": "The data is empty!", "status": 400},
     "AlphaNotValid": {"message": "The alpha value is not valid. Only 0.01, 0.05, 0.10 are accepted values.",
                       "status": 400},
-    "DirectionNotBoolean": {"message": "The left and right input values should be booleans (True or False).",
-                            "status": 400},
     "ValueNotValid": {"message": "Non number values are not valid. Check and try again.",
                       "status": 400},
     "NegativeValue": {"message": "Negative values are not valid. Check and try again.",
