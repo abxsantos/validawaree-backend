@@ -15,6 +15,7 @@ def check_values(value):
     :rtype: float
     """
     if value is None:
+
         return value
     elif isinstance(value, bool):
         raise ValueNotValid()
@@ -25,7 +26,7 @@ def check_values(value):
             return float(value)
         else:
             raise NegativeValue()
-    except:
+    except ValueError:
         raise ValueNotValid()
 
 

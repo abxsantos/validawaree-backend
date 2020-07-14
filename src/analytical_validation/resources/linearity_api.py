@@ -3,6 +3,8 @@ import json
 from flask_restful import Resource, reqparse
 
 from analytical_validation.data_handler.data_handler import DataHandler
+from analytical_validation.exceptions import custom_exceptions, NegativeValue, DataNotSymmetric, DataNotListOfLists, \
+    DataNotList, ValueNotValid
 from analytical_validation.validators.linearity_validator import LinearityValidator
 
 parser = reqparse.RequestParser()
@@ -10,10 +12,10 @@ parser.add_argument('analytical_data')
 parser.add_argument('concentration_data')
 
 
-class LinearityValidation(Resource):
+class Linearity(Resource):
+
     def post(self):
         args = parser.parse_args()
-        print(args)
         input_analytical_data = json.loads(args['analytical_data'])
         input_concentration_data = json.loads(args['concentration_data'])
         try:
@@ -21,6 +23,7 @@ class LinearityValidation(Resource):
                                                                               input_concentration_data).handle_data()
             linearity_validator = LinearityValidator(checked_analytical_data, checked_concentration_data)
             outliers, cleaned_analytical_data, cleaned_concentration_data, linearity_is_valid = linearity_validator.validate_linearity()
+
             return {
                        'regression_coefficients': {'intercept': linearity_validator.intercept,
                                                    'insignificant_intercept': linearity_validator.insignificant_intercept,
@@ -47,7 +50,15 @@ class LinearityValidation(Resource):
                        'regression_residues': linearity_validator.regression_residues,
                        'is_normal_distribution': linearity_validator.is_normal_distribution,
                        'is_homoscedastic': linearity_validator.is_homoscedastic,
-                       'durbin_watson_value': linearity_validator.durbin_watson_value}, 201
-
-        except Exception as err:
-            return err, 400
+                       'durbin_watson_value': linearity_validator.durbin_watson_value,
+                       'status': 201}, 201
+        except ValueNotValid as error:
+            return custom_exceptions[error.__class__.__name__], 400
+        except DataNotList as error:
+            return custom_exceptions[error.__class__.__name__], 400
+        except DataNotListOfLists as error:
+            return custom_exceptions[error.__class__.__name__], 400
+        except DataNotSymmetric as error:
+            return custom_exceptions[error.__class__.__name__], 400
+        except NegativeValue as error:
+            return custom_exceptions[error.__class__.__name__], 400

@@ -106,3 +106,13 @@ class ValueNotValid(Exception):
 class NegativeValue(Exception):
     def __init__(self):
         super().__init__("Negative values are not valid. Check and try again.")
+
+
+custom_exceptions = {
+    "DataNotListOfLists": {"body": "The given data is not a list of lists.", "status": 400},
+    "DataNotList": {"body": "One of the input data is not a list.", "status": 400},
+    "ValueNotValid": {"body": "Non number values are not valid. Check and try again.",
+                      "status": 400},
+    "NegativeValue": {"body": "Negative values are not valid. Check and try again.",
+                      "status": 400},
+}
