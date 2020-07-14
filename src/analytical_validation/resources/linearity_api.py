@@ -12,7 +12,7 @@ parser.add_argument('analytical_data')
 parser.add_argument('concentration_data')
 
 
-class LinearityValidation(Resource):
+class Linearity(Resource):
 
     def post(self):
         args = parser.parse_args()
