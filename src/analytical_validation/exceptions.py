@@ -109,12 +109,10 @@ class NegativeValue(Exception):
 
 
 custom_exceptions = {
-    "DataNotListOfLists": {"message": "The given data is not a list of lists.", "status": 400},
-    "DataNotList": {"message": "There is no regression model!", "status": 400},
-    "ValueNotValid": {"message": "Non number values are not valid. Check and try again.",
+    "DataNotListOfLists": {"body": "The given data is not a list of lists.", "status": 400},
+    "DataNotList": {"body": "One of the input data is not a list.", "status": 400},
+    "ValueNotValid": {"body": "Non number values are not valid. Check and try again.",
                       "status": 400},
-    "NegativeValue": {"message": "Negative values are not valid. Check and try again.",
+    "NegativeValue": {"body": "Negative values are not valid. Check and try again.",
                       "status": 400},
-    "DataNotSymmetric": {"message": "The given data is not symmetric. Check if there's a value missing.",
-                         "status": 400},
 }
