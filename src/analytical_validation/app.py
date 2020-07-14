@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
+from flask_swagger_ui import get_swaggerui_blueprint
 
 from analytical_validation.resources.linearity_api import Linearity
-from analytical_validation.resources.api_docs import ApiDocs
 
 def create_app():
     app = Flask(__name__)
@@ -11,10 +11,22 @@ def create_app():
 
 app = create_app()
 
+### swagger specific ###
+SWAGGER_URL = '/api_docs'
+API_URL = '/static/openapi.yaml'
+SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "VALIDAWAREE"
+    }
+)
+app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+### end swagger specific ###
+
 CORS(app)
 api = Api(app)
 
-api.add_resource(ApiDocs, '/api_docs')
 api.add_resource(Linearity, '/linearity')
 
 

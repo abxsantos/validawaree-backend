@@ -1,0 +1,164 @@
+openapi: 3.0.1
+info:
+  title: VALIDAWAREE
+  description: An analytical method validator API build with Flask.
+  version: "0.0.0"
+servers:
+  - url: 'https://agile-temple-75165.herokuapp.com'
+paths:
+  /linearity_result:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                concentration_data:
+                  type: string
+                analytical_data:
+                  type: string
+            examples:
+              '0':
+                value: >-
+                  {
+                    "analytical_data":"[[0.188, 0.192, 0.203], [0.349, 0.346, 0.348]]",
+                    "concentration_data": "[[0.008, 0.008016, 0.008128],[0.016, 0.016032, 0.016256]]"
+                  }
+      responses:
+        '201':
+          description: Auto generated using Swagger Inspector
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  breusch_pagan_pvalue:
+                    type: number
+                  regression_coefficients:
+                    type: object
+                    properties:
+                      insignificant_intercept:
+                        type: boolean
+                      intercept:
+                        type: number
+                      significant_slope:
+                        type: boolean
+                      slope:
+                        type: number
+                      valid_regression:
+                        type: boolean
+                      r_squared:
+                        type: number
+                  regression_residues:
+                    type: array
+                    items:
+                      type: number
+                  is_normal_distribution:
+                    type: boolean
+                  durbin_watson_value:
+                    type: number
+                  is_homoscedastic:
+                    type: boolean
+                  cleaned_data:
+                    type: object
+                    properties:
+                      cleaned_concentration_data:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: number
+                      cleaned_analytical_data:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: number
+                      outliers:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: string
+                  regression_anova:
+                    type: object
+                    properties:
+                      sum_of_squares_model:
+                        type: number
+                      sum_of_squares_total:
+                        type: number
+                      anova_f_value:
+                        type: number
+                      mean_squared_error_model:
+                        type: number
+                      degrees_of_freedom_residues:
+                        type: number
+                      mean_squared_error_residues:
+                        type: number
+                      degrees_of_freedom_total:
+                        type: number
+                      sum_of_squares_residues:
+                        type: number
+                      degrees_of_freedom_model:
+                        type: number
+                      anova_f_pvalue:
+                        type: number
+                  shapiro_pvalue:
+                    type: number
+                  linearity_is_valid:
+                    type: boolean
+              examples:
+                '0':
+                  value: >
+                    {
+                      "regression_coefficients": {
+                        "intercept": 0.04097798150398932,
+                        "insignificant_intercept": false,
+                        "slope": 19.05417648243958,
+                        "significant_slope": true,
+                        "r_squared": 0.9971484699053907,
+                        "valid_regression": false},
+
+                    "regression_anova": {
+                        "sum_of_squares_model": 0.03529107864689157,
+                        "sum_of_squares_residues": 0.00010092135310841256,
+                        "sum_of_squares_total": 0.035391999999999986,
+                        "degrees_of_freedom_model": 1.0,
+                        "degrees_of_freedom_residues": 4.0,
+                        "degrees_of_freedom_total": 5.0,
+                        "mean_squared_error_model": 0.03529107864689157,
+                        "mean_squared_error_residues": 2.523033827710314e-05,
+                        "anova_f_value": 1398.755667058126,
+                        "anova_f_pvalue": 3.0521119165671813e-06},
+
+                    "cleaned_data": {
+                        "outliers": [[], []],
+                        "cleaned_analytical_data": [[0.188, 0.192, 0.203], [0.349, 0.346, 0.348]],
+                        "cleaned_concentration_data": [[0.008, 0.008016, 0.008128], [0.016, 0.016032, 0.016256]]}
+                    "shapiro_pvalue": 0.010626216419041157,
+                    "breusch_pagan_pvalue": 0.13922889606776723,
+                    "linearity_is_valid": false,
+
+                    "regression_residues": [
+                          -0.005411393363505962,
+                          -0.0017162601872250105,
+                          0.007149672046741801,
+                          0.0031551947769773436,
+                          -0.00045453887046076336,
+                          -0.0027226744025271588
+                          ],
+                    "is_normal_distribution": false,
+                    "is_homoscedastic": true,
+                    "durbin_watson_value": 1.2523536806715905
+                    }
+      servers:
+        - url: 'https://agile-temple-75165.herokuapp.com'
+      tags:
+        - Linearity
+      summary: Linearity analysis of analytical and concentration data
+      description: This method serves the linear regression coefficients, anova analysis, outlier removal and other linearity related statistical test results of a given list of lists containing float points of anaytical data and another lists of lists containing float points of concentration data.
+    servers:
+      - url: 'https://agile-temple-75165.herokuapp.com'
+tags:
+  - name: Linearity
