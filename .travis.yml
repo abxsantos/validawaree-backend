@@ -5,7 +5,7 @@ python:
 # safelist
 branches:
   only:
-  - master
+    - master
 before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - export PYTHONPATH=$PYTHONPATH:$(pwd)/tests
@@ -20,5 +20,13 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-    
+
+
+deploy:
+  provider: heroku
+  api_key: $HEROKU_API_KEY
+  app: validawaree-backend
+  on:
+    tags: true
+    branch: master
 
