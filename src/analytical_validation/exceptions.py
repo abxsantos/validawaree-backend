@@ -109,14 +109,8 @@ class NegativeValue(Exception):
 
 
 custom_exceptions = {
-    "AnalyticalValueNotNumber": {"message": "One of the analytical values is not a number!", "status": 400},
     "DataNotListOfLists": {"message": "The given data is not a list of lists.", "status": 400},
-    "DataWasNotFitted": {"message": "There is no regression model!", "status": 400},
     "DataNotList": {"message": "There is no regression model!", "status": 400},
-    "DataNotNumber": {"message": "The data contains a value that isn't a number.", "status": 400},
-    "DataIsEmpty": {"message": "The data is empty!", "status": 400},
-    "AlphaNotValid": {"message": "The alpha value is not valid. Only 0.01, 0.05, 0.10 are accepted values.",
-                      "status": 400},
     "ValueNotValid": {"message": "Non number values are not valid. Check and try again.",
                       "status": 400},
     "NegativeValue": {"message": "Negative values are not valid. Check and try again.",
