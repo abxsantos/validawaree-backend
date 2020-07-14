@@ -26,7 +26,7 @@ def check_values(value):
             return float(value)
         else:
             raise NegativeValue()
-    except Exception:
+    except ValueError:
         raise ValueNotValid()
 
 
