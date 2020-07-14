@@ -92,7 +92,7 @@ class TestLinearityValidator(object):
         significant_slope = linearity_validator.significant_slope
         insignificant_intercept = linearity_validator.insignificant_intercept
         valid_r_squared = linearity_validator.valid_r_squared
-        valid_regression_model =  linearity_validator.valid_regression_model
+        valid_regression_model = linearity_validator.valid_regression_model
         sum_of_squares_model = linearity_validator.sum_of_squares_model
         sum_of_squares_resid = linearity_validator.sum_of_squares_resid
         sum_of_squares_total = linearity_validator.sum_of_squares_total

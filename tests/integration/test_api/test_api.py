@@ -1,10 +1,10 @@
 import json
-
 import pytest
+
+from analytical_validation.app import app
 
 url = 'http://127.0.0.1:5000'
 
-from analytical_validation.app import app
 
 
 @pytest.fixture
@@ -37,8 +37,8 @@ class TestApp(object):
           "concentration_data": '[[0.008, 0.008, 0.008], [0.016, 0.016, 0.016]]'},
          "Non number values are not valid. Check and try again."),
         ({"analytical_data": "[[-3,1,2],[1,2,3]]",
-             "concentration_data": "[[0.008, 0.008, 0.008], [0.016, 0.016, 0.016]]"
-         }, "Negative values are not valid. Check and try again.")])
+          "concentration_data": "[[0.008, 0.008, 0.008], [0.016, 0.016, 0.016]]"},
+         "Negative values are not valid. Check and try again.")])
     def test_api_must_serve_exceptions_to_frontend(self, client, param_json_data, param_error):
         """"Given data that`s not a list, the api must send a message to frontend with the error"""
         headers = {

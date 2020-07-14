@@ -254,7 +254,8 @@ class LinearityValidator(object):
         :rtype outliers: list[list[float]]]
         :return cleaned_analytical_data: List containing the analytical data without outliers.
         :rtype outliers: list[list[float]]]
-        :return cleaned_concentration_data: List containing the concentration data without corresponding analytical data outliers.
+        :return cleaned_concentration_data: List containing the concentration data without
+        corresponding analytical data outliers.
         :rtype outliers: list[list[float]]]
         """
 
@@ -276,10 +277,8 @@ class LinearityValidator(object):
                 pass
             set_index += 1
             cleaned_concentration_data = concentration
-        # TODO: Implement the reuse of cleaned data for the regression
         return outliers, cleaned_data, cleaned_concentration_data
 
-    # Normality of data test
     def run_shapiro_wilk_test(self):
         self.shapiro_pvalue = (scipy.stats.shapiro(self.analytical_data))[1]
 
@@ -340,7 +339,8 @@ class LinearityValidator(object):
         :rtype outliers: list[list[float]]]
         :return cleaned_analytical_data: List containing the analytical data without outliers.
         :rtype outliers: list[list[float]]]
-        :return cleaned_concentration_data: List containing the concentration data without corresponding analytical data outliers.
+        :return cleaned_concentration_data: List containing the concentration data without
+        corresponding analytical data outliers.
         :rtype outliers: list[list[float]]]
         :return linearity_is_valid: True if data is linear; otherwise, False.
         :rtype: bool
@@ -353,7 +353,8 @@ class LinearityValidator(object):
             self.run_breusch_pagan_test()
             self.check_residual_autocorrelation()
             outliers, cleaned_analytical_data, cleaned_concentration_data = self.check_outliers()
-            if self.valid_regression_model and self.is_homoscedastic and self.is_normal_distribution and self.positive_correlation:
+            if self.valid_regression_model and self.is_homoscedastic and self.is_normal_distribution \
+                    and self.positive_correlation:
                 self.linearity_is_valid = True
             return outliers, cleaned_analytical_data, cleaned_concentration_data, self.linearity_is_valid
         except:

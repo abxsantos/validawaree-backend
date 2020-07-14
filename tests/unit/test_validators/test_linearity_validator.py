@@ -2,7 +2,7 @@ from unittest.mock import call, PropertyMock, MagicMock
 
 import pytest
 
-from analytical_validation.exceptions import DataWasNotFitted, DurbinWatsonValueError
+from analytical_validation.exceptions import DataWasNotFitted
 from src.analytical_validation.validators.linearity_validator import LinearityValidator
 
 
@@ -60,14 +60,14 @@ def durbin_watson_mock(mocker):
 @pytest.fixture(scope='function')
 def add_constant_mock(mocker):
     add_constant_mock = mocker.patch(
-        'analytical_validation.validators.linearity_validator.statsmodels.add_constant')  # Quando chamar, este modulo sera usado ao inves do original
+        'analytical_validation.validators.linearity_validator.statsmodels.add_constant')
     return add_constant_mock
 
 
 @pytest.fixture(scope='function')
 def ordinary_least_squares_regression_mock(mocker):
     ordinary_least_squares_regression_mock = mocker.patch(
-        'analytical_validation.validators.linearity_validator.statsmodels.OLS')  # Quando chamar, este modulo sera usado ao inves do original
+        'analytical_validation.validators.linearity_validator.statsmodels.OLS')
     return ordinary_least_squares_regression_mock
 
 
@@ -83,9 +83,9 @@ class TestLinearityValidator(object):
         assert linearity_validator_obj.concentration_data == [0.1, 0.2, 0.3]
 
     def test_ordinary_least_squares_linear_regression_must_pass_float_when_given_correct_data(self,
-                                                                                              ordinary_least_squares_regression_mock,
-                                                                                              add_constant_mock,
-                                                                                              linearity_validator_obj):
+                                                                        ordinary_least_squares_regression_mock,
+                                                                        add_constant_mock,
+                                                                        linearity_validator_obj):
         """Given concentration values = float
         The ordinary_least_squares_linear_regression
         Then must set properties"""
@@ -359,4 +359,3 @@ class TestLinearityValidator(object):
         durbin_watson_mock.return_value = durbin_watson_pvalue
         # Act & Assert
         assert linearity_validator_obj.durbin_watson_value is None
-    

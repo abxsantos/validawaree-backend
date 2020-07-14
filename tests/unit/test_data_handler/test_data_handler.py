@@ -93,6 +93,7 @@ class TestDataHandlerHelper(object):
         Must create a list containing floats"""
         assert DataHandlerHelper(param_data).check_list_of_lists() == expected_result
 
+
 class TestDataHandler(object):
 
     @pytest.mark.parametrize('param_analytical_data, param_concentration_data', [

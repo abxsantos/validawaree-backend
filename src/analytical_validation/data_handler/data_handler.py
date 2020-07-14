@@ -115,7 +115,7 @@ class DataHandler(object):
         set_index = 0
         while set_index < len(clean_analytical_data):
             index_pop_correction = 0
-            for index_pop in none_index[set_index]:             # Corrects the index when there is more than 1 NoneType
+            for index_pop in none_index[set_index]:  # Corrects the index when there is more than 1 NoneType
                 index_pop -= list(range(len(none_index[set_index])))[index_pop_correction]
                 clean_analytical_data[set_index].pop(index_pop)
                 clean_concentration_data[set_index].pop(index_pop)
@@ -141,5 +141,6 @@ class DataHandler(object):
         concentration_data = DataHandlerHelper(self.external_concentration_data).check_list_of_lists()
         DataHandler(analytical_data, concentration_data).check_symmetric_data()
         DataHandler(analytical_data, concentration_data).check_symmetric_data_set()
-        checked_analytical_data, checked_concentration_data = DataHandler(analytical_data, concentration_data).replace_null_values()
+        checked_analytical_data, checked_concentration_data = DataHandler(analytical_data,
+                                                                          concentration_data).replace_null_values()
         return checked_analytical_data, checked_concentration_data
