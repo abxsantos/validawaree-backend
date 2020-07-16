@@ -16,6 +16,7 @@ class Linearity(Resource):
 
     def post(self):
         args = parser.parse_args()
+        print(args)
         input_analytical_data = json.loads(args['analytical_data'])
         input_concentration_data = json.loads(args['concentration_data'])
         try:
@@ -62,3 +63,7 @@ class Linearity(Resource):
             return custom_exceptions[error.__class__.__name__], 400
         except NegativeValue as error:
             return custom_exceptions[error.__class__.__name__], 400
+        except TypeError:
+            return {"TypeError": {"body": "There is something wrong with your values! Check and try again.",
+                                  "status": 400}}, 400
+
