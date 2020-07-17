@@ -13,7 +13,7 @@ def create_app():
 app = create_app()
 
 SWAGGER_URL = '/api_docs'
-API_URL = '/openapi_docs/openapi.yaml'
+API_URL = '/static/openapi.yaml'
 SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
