@@ -1,4 +1,4 @@
-from analytical_validation.app import app
+from analytical_validation.api.app import app
 
 
 if __name__ == '__main__':

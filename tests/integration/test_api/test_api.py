@@ -1,7 +1,7 @@
 import json
 import pytest
 
-from analytical_validation.app import app
+from analytical_validation.api.app import app
 
 url = 'http://127.0.0.1:5000'
 

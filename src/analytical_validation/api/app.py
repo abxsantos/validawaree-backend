@@ -3,7 +3,7 @@ from flask_restful import Api
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 
-from analytical_validation.resources.linearity_api import Linearity
+from analytical_validation.api.api import Linearity
 
 
 def create_app():
@@ -13,7 +13,7 @@ def create_app():
 app = create_app()
 
 SWAGGER_URL = '/api_docs'
-API_URL = '/static/openapi.yaml'
+API_URL = '/openapi_docs/openapi.yaml'
 SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
