@@ -2,12 +2,16 @@ openapi: 3.0.1
 info:
   title: VALIDAWAREE
   description: An analytical method validator API build with Flask.
-  version: "0.0.0"
+  version: '0.0.1'
 servers:
+  - url: 'http://127.0.0.1:5000'
   - url: 'https://agile-temple-75165.herokuapp.com'
 paths:
-  /linearity_result:
+  /linearity:
     post:
+      tags:
+        - Linearity
+      description: This method serves the linear regression coefficients, anova analysis, outlier removal and other linearity related statistical test results of a given list of lists containing float points of anaytical data and another lists of lists containing float points of concentration data.
       requestBody:
         content:
           application/json:
@@ -20,14 +24,22 @@ paths:
                   type: string
             examples:
               '0':
-                value: >-
-                  {
-                    "analytical_data":"[[0.188, 0.192, 0.203], [0.349, 0.346, 0.348]]",
-                    "concentration_data": "[[0.008, 0.008016, 0.008128],[0.016, 0.016032, 0.016256]]"
-                  }
+                value: "                  {\r\n                    \"analytical_data\":\"[[88269, 86954, 88492], [99580, 101235, 100228], [108238, 109725, 110970],[118102, 119044, 118292], [129714, 129481, 130213]]\",\r\n                    \"concentration_data\": \"[[31800, 31680, 31600], [36080, 36600, 36150], [39641, 40108, 40190],[43564, 43800, 43776], [47680, 47800, 47341]]\"\r\n                  }"
+              '1':
+                value: "                  {\r\n                    \"analytical_data\":\"[[0], [0]]\",\r\n                    \"concentration_data\": \"[[0],[0]]\"\r\n                  }"
+              '2':
+                value: "                  {\r\n                    \"analytical_data\":\"[[0], []]\",\r\n                    \"concentration_data\": \"[[0],[]]\"\r\n                  }"
+              '3':
+                value: "                  {\r\n                    \"analytical_data\":\"[[0.188, null, 0.203], [0.349, 0.346, null]]\",\r\n                    \"concentration_data\": \"[[0.008, 0.008016, 0.008128],[0.016, 0.016032, 0.016256]]\"\r\n                  }"
+              '4':
+                value: "                  {\r\n                    \"analytical_data\":\"[[0.188, 5000, 0.203], [0.349, 0.346, 10000]]\",\r\n                    \"concentration_data\": \"[[0.008, 0.008016, 0.008128],[0.016, 0.016032, 0.016256]]\"\r\n                  }"
+              '5':
+                value: "                  {\r\n                    \"analytical_data\":\"[[0.188, null, 0.203], [0.349, 0.346, 0.348]]\",\r\n                    \"concentration_data\": \"[[0.008, 0.008016, 0.008128],[0.016, 0.016032, 0.016256]]\"\r\n                  }"
+              '6':
+                value: "                  {\r\n                    \"analytical_data\":\"[[0.188, -0.192, 0.203], [0.349, 0.346, 0.348]]\",\r\n                    \"concentration_data\": \"[[0.008, 0.008016, 0.008128],[0.016, 0.016032, 0.016256]]\"\r\n                  }"
       responses:
         '201':
-          description: Auto generated using Swagger Inspector
+          description: This is the expected result of the API when served with a list of lists containing float numbers.
           content:
             application/json:
               schema:
@@ -108,57 +120,363 @@ paths:
                     type: number
                   linearity_is_valid:
                     type: boolean
+                  status:
+                    type: integer
               examples:
                 '0':
-                  value: >
+                  value: |
                     {
-                      "regression_coefficients": {
-                        "intercept": 0.04097798150398932,
-                        "insignificant_intercept": false,
-                        "slope": 19.05417648243958,
-                        "significant_slope": true,
-                        "r_squared": 0.9971484699053907,
-                        "valid_regression": false},
-
-                    "regression_anova": {
-                        "sum_of_squares_model": 0.03529107864689157,
-                        "sum_of_squares_residues": 0.00010092135310841256,
-                        "sum_of_squares_total": 0.035391999999999986,
-                        "degrees_of_freedom_model": 1.0,
-                        "degrees_of_freedom_residues": 4.0,
-                        "degrees_of_freedom_total": 5.0,
-                        "mean_squared_error_model": 0.03529107864689157,
-                        "mean_squared_error_residues": 2.523033827710314e-05,
-                        "anova_f_value": 1398.755667058126,
-                        "anova_f_pvalue": 3.0521119165671813e-06},
-
-                    "cleaned_data": {
-                        "outliers": [[], []],
-                        "cleaned_analytical_data": [[0.188, 0.192, 0.203], [0.349, 0.346, 0.348]],
-                        "cleaned_concentration_data": [[0.008, 0.008016, 0.008128], [0.016, 0.016032, 0.016256]]}
-                    "shapiro_pvalue": 0.010626216419041157,
-                    "breusch_pagan_pvalue": 0.13922889606776723,
-                    "linearity_is_valid": false,
-
-                    "regression_residues": [
-                          -0.005411393363505962,
-                          -0.0017162601872250105,
-                          0.007149672046741801,
-                          0.0031551947769773436,
-                          -0.00045453887046076336,
-                          -0.0027226744025271588
-                          ],
-                    "is_normal_distribution": false,
-                    "is_homoscedastic": true,
-                    "durbin_watson_value": 1.2523536806715905
+                        "regression_coefficients": {
+                            "intercept": 5739.794788269384,
+                            "insignificant_intercept": false,
+                            "slope": 2.5968787376858193,
+                            "significant_slope": true,
+                            "r_squared": 0.9975294485602224,
+                            "valid_regression": false
+                        },
+                        "regression_anova": {
+                            "sum_of_squares_model": 3127367965.4154825,
+                            "sum_of_squares_residues": 7745458.984517464,
+                            "sum_of_squares_total": 3135113424.4,
+                            "degrees_of_freedom_model": 1.0,
+                            "degrees_of_freedom_residues": 13.0,
+                            "degrees_of_freedom_total": 14.0,
+                            "mean_squared_error_model": 3127367965.4154825,
+                            "mean_squared_error_residues": 595804.5372705741,
+                            "anova_f_value": 5248.9831308472285,
+                            "anova_f_pvalue": 2.456125525312719e-18
+                        },
+                        "cleaned_data": {
+                            "outliers": [
+                                [],
+                                [],
+                                [],
+                                [],
+                                []
+                            ],
+                            "cleaned_analytical_data": [
+                                [
+                                    88269.0,
+                                    86954.0,
+                                    88492.0
+                                ],
+                                [
+                                    99580.0,
+                                    101235.0,
+                                    100228.0
+                                ],
+                                [
+                                    108238.0,
+                                    109725.0,
+                                    110970.0
+                                ],
+                                [
+                                    118102.0,
+                                    119044.0,
+                                    118292.0
+                                ],
+                                [
+                                    129714.0,
+                                    129481.0,
+                                    130213.0
+                                ]
+                            ],
+                            "cleaned_concentration_data": [
+                                [
+                                    31800.0,
+                                    31680.0,
+                                    31600.0
+                                ],
+                                [
+                                    36080.0,
+                                    36600.0,
+                                    36150.0
+                                ],
+                                [
+                                    39641.0,
+                                    40108.0,
+                                    40190.0
+                                ],
+                                [
+                                    43564.0,
+                                    43800.0,
+                                    43776.0
+                                ],
+                                [
+                                    47680.0,
+                                    47800.0,
+                                    47341.0
+                                ]
+                            ]
+                        },
+                        "shapiro_pvalue": 0.24514977633953094,
+                        "breusch_pagan_pvalue": 0.3704885599310024,
+                        "linearity_is_valid": false,
+                        "regression_residues": [
+                            -51.53864667844027,
+                            -1054.9131981561368,
+                            690.8371008587274,
+                            144.8203560262482,
+                            449.443412429624,
+                            611.0388443882402,
+                            -444.6648288729484,
+                            -170.40719937223184,
+                            861.6487441375357,
+                            -768.2201168144238,
+                            -439.083498908265,
+                            -1128.758409203816,
+                            155.02699887074414,
+                            -389.5984496515448,
+                            1534.3688909462362
+                        ],
+                        "is_normal_distribution": true,
+                        "is_homoscedastic": true,
+                        "durbin_watson_value": 2.0157799876717526,
+                        "status": 201
+                    }
+                '1':
+                  value: |
+                    {
+                        "regression_coefficients": {
+                            "intercept": 0.041217205101945764,
+                            "insignificant_intercept": true,
+                            "slope": 19.126477981565955,
+                            "significant_slope": true,
+                            "r_squared": 0.9963263334976914,
+                            "valid_regression": true
+                        },
+                        "regression_anova": {
+                            "sum_of_squares_model": 0.023135693790149885,
+                            "sum_of_squares_residues": 8.530620985010717e-05,
+                            "sum_of_squares_total": 0.02322099999999999,
+                            "degrees_of_freedom_model": 1.0,
+                            "degrees_of_freedom_residues": 2.0,
+                            "degrees_of_freedom_total": 3.0,
+                            "mean_squared_error_model": 0.023135693790149885,
+                            "mean_squared_error_residues": 4.265310492505358e-05,
+                            "anova_f_value": 542.4152316883369,
+                            "anova_f_pvalue": 0.0018385233351812863
+                        },
+                        "cleaned_data": {
+                            "outliers": [
+                                [],
+                                []
+                            ],
+                            "cleaned_analytical_data": [
+                                [
+                                    0.188,
+                                    0.203
+                                ],
+                                [
+                                    0.349,
+                                    0.346
+                                ]
+                            ],
+                            "cleaned_concentration_data": [
+                                [
+                                    0.008,
+                                    0.008128
+                                ],
+                                [
+                                    0.016,
+                                    0.016032
+                                ]
+                            ]
+                        },
+                        "shapiro_pvalue": 0.0686609297990799,
+                        "breusch_pagan_pvalue": 0.04563797577748835,
+                        "linearity_is_valid": false,
+                        "regression_residues": [
+                            -0.0062290289544734145,
+                            0.006322781863886157,
+                            0.001759147192998911,
+                            -0.0018529001024111813
+                        ],
+                        "is_normal_distribution": true,
+                        "is_homoscedastic": false,
+                        "durbin_watson_value": 2.243935139421171,
+                        "status": 201
+                    }
+                '2':
+                  value: |
+                    {
+                        "regression_coefficients": {
+                            "intercept": -177.55084124059795,
+                            "insignificant_intercept": true,
+                            "slope": 221813.43946658363,
+                            "significant_slope": false,
+                            "r_squared": 0.05466120181952705,
+                            "valid_regression": false
+                        },
+                        "regression_anova": {
+                            "sum_of_squares_model": 4782558.355524287,
+                            "sum_of_squares_residues": 82712011.7659797,
+                            "sum_of_squares_total": 87494570.121504,
+                            "degrees_of_freedom_model": 1.0,
+                            "degrees_of_freedom_residues": 4.0,
+                            "degrees_of_freedom_total": 5.0,
+                            "mean_squared_error_model": 4782558.355524287,
+                            "mean_squared_error_residues": 20678002.941494927,
+                            "anova_f_value": 0.2312872461163568,
+                            "anova_f_pvalue": 0.6556937940667378
+                        },
+                        "cleaned_data": {
+                            "outliers": [
+                                [
+                                    5000.0
+                                ],
+                                [
+                                    10000.0
+                                ]
+                            ],
+                            "cleaned_analytical_data": [
+                                [
+                                    0.188,
+                                    0.203
+                                ],
+                                [
+                                    0.349,
+                                    0.346
+                                ]
+                            ],
+                            "cleaned_concentration_data": [
+                                [
+                                    0.008,
+                                    0.008128
+                                ],
+                                [
+                                    0.016,
+                                    0.016032
+                                ]
+                            ]
+                        },
+                        "shapiro_pvalue": 0.0063750906847417355,
+                        "breusch_pagan_pvalue": 0.13403880571314597,
+                        "linearity_is_valid": false,
+                        "regression_residues": [
+                            -1596.768674492071,
+                            3399.4943104764634,
+                            -1625.1457947437939,
+                            -3371.11519022474,
+                            -3378.216220287671,
+                            6571.751569271814
+                        ],
+                        "is_normal_distribution": false,
+                        "is_homoscedastic": true,
+                        "durbin_watson_value": 1.8408447251966846,
+                        "status": 201
+                    }
+                '3':
+                  value: |
+                    {
+                        "regression_coefficients": {
+                            "intercept": 0.04271052464598807,
+                            "insignificant_intercept": false,
+                            "slope": 18.946339058154166,
+                            "significant_slope": true,
+                            "r_squared": 0.996542071508304,
+                            "valid_regression": false
+                        },
+                        "regression_anova": {
+                            "sum_of_squares_model": 0.027806314112881893,
+                            "sum_of_squares_residues": 9.64858871180958e-05,
+                            "sum_of_squares_total": 0.027902799999999988,
+                            "degrees_of_freedom_model": 1.0,
+                            "degrees_of_freedom_residues": 3.0,
+                            "degrees_of_freedom_total": 4.0,
+                            "mean_squared_error_model": 0.027806314112881893,
+                            "mean_squared_error_residues": 3.21619623726986e-05,
+                            "anova_f_value": 864.5714397230283,
+                            "anova_f_pvalue": 8.639010578635376e-05
+                        },
+                        "cleaned_data": {
+                            "outliers": [
+                                [],
+                                []
+                            ],
+                            "cleaned_analytical_data": [
+                                [
+                                    0.188,
+                                    0.203
+                                ],
+                                [
+                                    0.349,
+                                    0.346,
+                                    0.348
+                                ]
+                            ],
+                            "cleaned_concentration_data": [
+                                [
+                                    0.008,
+                                    0.008128
+                                ],
+                                [
+                                    0.016,
+                                    0.016032,
+                                    0.016256
+                                ]
+                            ]
+                        },
+                        "shapiro_pvalue": 0.016299128532409668,
+                        "breusch_pagan_pvalue": 0.02825172472288939,
+                        "linearity_is_valid": false,
+                        "regression_residues": [
+                            -0.006281237111221388,
+                            0.0062936314893349,
+                            0.0031480504235452678,
+                            -0.0004582324263157078,
+                            -0.0027022123753421834
+                        ],
+                        "is_normal_distribution": false,
+                        "is_homoscedastic": false,
+                        "durbin_watson_value": 1.9283931373280512,
+                        "status": 201
+                    }
+        '400':
+          description: When the inputs are not correctly checked and sent to the API, it will return an error message with a status code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  TypeError:
+                    type: object
+                    properties:
+                      body:
+                        type: string
+                      status:
+                        type: integer
+                  body:
+                    type: string
+                  status:
+                    type: integer
+              examples:
+                '0':
+                  value: |
+                    {
+                        "TypeError": {
+                            "body": "There is something wrong with your values! Check and try again.",
+                            "status": 400
+                        }
+                    }
+                '1':
+                  value: |
+                    {
+                        "TypeError": {
+                            "body": "There is something wrong with your values! Check and try again.",
+                            "status": 400
+                        }
+                    }
+                '2':
+                  value: |
+                    {
+                        "body": "Negative values are not valid. Check and try again.",
+                        "status": 400
                     }
       servers:
-        - url: 'https://agile-temple-75165.herokuapp.com'
-      tags:
-        - Linearity
-      summary: Linearity analysis of analytical and concentration data
-      description: This method serves the linear regression coefficients, anova analysis, outlier removal and other linearity related statistical test results of a given list of lists containing float points of anaytical data and another lists of lists containing float points of concentration data.
+        - url: 'http://127.0.0.1:5000'
+    servers:
+      - url: 'http://127.0.0.1:5000'
+  /linearity_result:
     servers:
       - url: 'https://agile-temple-75165.herokuapp.com'
-tags:
-  - name: Linearity
