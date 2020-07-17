@@ -48,6 +48,10 @@ class LinearityValidator(object):
         self.shapiro_pvalue = None
         self.breusch_pagan_pvalue = None
         self.linearity_is_valid = False
+        self.outliers = []
+        self.cleaned_analytical_data = []
+        self.cleaned_concentration_data = []
+
 
     def ordinary_least_squares_linear_regression(self):
         """Fit the data using the Ordinary Least Squares method of Linear Regression."""
@@ -258,26 +262,20 @@ class LinearityValidator(object):
         corresponding analytical data outliers.
         :rtype outliers: list[list[float]]]
         """
-
         data = deepcopy(self.original_analytical_data)
         concentration = deepcopy(self.original_concentration_data)
-        cleaned_concentration_data = []
-        outliers = []
-        cleaned_data = []
         for data_set in data:
             outliers_set, cleaned_data_set = DixonQTest(data_set).check_data_for_outliers()
-            outliers.append(outliers_set)
-            cleaned_data.append(cleaned_data_set)
+            self.outliers.append(outliers_set)
+            self.cleaned_analytical_data.append(cleaned_data_set)
 
-        set_index = 0
-        while set_index < len(data):
+        for index in range(len(data)):
             try:
-                concentration[set_index].pop(self.original_analytical_data[set_index].index(outliers[set_index][0]))
+                concentration[index].pop(self.original_analytical_data[index].index(self.outliers[index][0]))
             except:
                 pass
-            set_index += 1
-            cleaned_concentration_data = concentration
-        return outliers, cleaned_data, cleaned_concentration_data
+            index += 1
+            self.cleaned_concentration_data = concentration
 
     def run_shapiro_wilk_test(self):
         self.shapiro_pvalue = (scipy.stats.shapiro(self.analytical_data))[1]
@@ -352,10 +350,9 @@ class LinearityValidator(object):
             self.run_shapiro_wilk_test()
             self.run_breusch_pagan_test()
             self.check_residual_autocorrelation()
-            outliers, cleaned_analytical_data, cleaned_concentration_data = self.check_outliers()
+            self.check_outliers()
             if self.valid_regression_model and self.is_homoscedastic and self.is_normal_distribution \
                     and self.positive_correlation:
                 self.linearity_is_valid = True
-            return outliers, cleaned_analytical_data, cleaned_concentration_data, self.linearity_is_valid
         except:
             return self.linearity_is_valid

@@ -3,7 +3,7 @@ from flask_restful import Api
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 
-from analytical_validation.resources.linearity_api import Linearity
+from analytical_validation.api.api import Linearity
 
 
 def create_app():

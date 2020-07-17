@@ -1,7 +1,7 @@
-# VALIDAWAREE (backend)
-Branch | Travis | Codecov
--------|--------|---------
-master | [![Build Status](https://travis-ci.org/abxsantos/validawaree-backend.svg?branch=master)](https://travis-ci.org/abxsantos/validawaree-backend) | [![codecov](https://codecov.io/gh/abxsantos/validawaree-backend/branch/master/graph/badge.svg)](https://codecov.io/gh/abxsantos/validawaree-backend)
+# VALIDAWAREE (backend) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Branch | Travis | Codecov | LGTM
+-------|--------|---------|------
+master | [![Build Status](https://travis-ci.org/abxsantos/validawaree-backend.svg?branch=master)](https://travis-ci.org/abxsantos/validawaree-backend) | [![codecov](https://codecov.io/gh/abxsantos/validawaree-backend/branch/master/graph/badge.svg)](https://codecov.io/gh/abxsantos/validawaree-backend) | [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/abxsantos/validawaree-backend.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/abxsantos/validawaree-backend/context:python)
 
 VALIDAWAREE is a scientific web application capable of validating experimental analytical data based on the latest ANVISA (Brazilian National Sanitary Surveillance Agency). 
 

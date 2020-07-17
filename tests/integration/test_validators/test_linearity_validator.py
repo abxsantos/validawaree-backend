@@ -85,7 +85,7 @@ class TestLinearityValidator(object):
         checked_analytical_data, checked_concentration_data = data_handler.handle_data()
         linearity_validator = LinearityValidator(checked_analytical_data, checked_concentration_data)
         # Act
-        outliers, cleaned_analytical_data, cleaned_concentration_data, linearity_is_valid = linearity_validator.validate_linearity()
+        linearity_validator.validate_linearity()
         intercept = linearity_validator.intercept
         slope = linearity_validator.slope
         r_squared = linearity_validator.r_squared
@@ -109,6 +109,9 @@ class TestLinearityValidator(object):
         shapiro_pvalue = linearity_validator.shapiro_pvalue
         breusch_pagan_pvalue = linearity_validator.breusch_pagan_pvalue
         linearity_is_valid = linearity_validator.linearity_is_valid
+        outliers = linearity_validator.outliers
+        cleaned_analytical_data = linearity_validator.cleaned_analytical_data
+        cleaned_concentration_data = linearity_validator.cleaned_concentration_data
         # Assert
         assert intercept == approx(5739.794788269286)
         assert slope == approx(2.596878737685822)

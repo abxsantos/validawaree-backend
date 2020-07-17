@@ -1,7 +1,7 @@
 import json
 import pytest
 
-from analytical_validation.app import app
+from analytical_validation.api.app import app
 
 url = 'http://127.0.0.1:5000'
 
@@ -27,19 +27,14 @@ class TestApp(object):
                      "concentration_data": '[[0.008, 0.008, 0.008], [0.016, 0.016, 0.016]]'}
         assert client.post(url + '/linearity', data=json.dumps(json_data), headers=headers).status_code == 201
 
-    @pytest.mark.parametrize('param_json_data, param_error', [
-        ({"analytical_data": '"AAAAAA"', "concentration_data": '[[0.008, 0.008, 0.008], [0.016, 0.016, 0.016]]'},
-         "One of the input data is not a list."),
-        ({"analytical_data": '["BBBB",[1,2,3]]',
-          "concentration_data": '[[0.008, 0.008, 0.008], [0.016, 0.016, 0.016]]'},
-         'The given data is not a list of lists.'),
+    @pytest.mark.parametrize('param_json_data, param_error_text, param_exception', [
         ({"analytical_data": '[["CCCC",1,2],[1,2,3]]',
           "concentration_data": '[[0.008, 0.008, 0.008], [0.016, 0.016, 0.016]]'},
-         "Non number values are not valid. Check and try again."),
+         "Non number values are not valid. Check and try again.", "ValueNotValid"),
         ({"analytical_data": "[[-3,1,2],[1,2,3]]",
           "concentration_data": "[[0.008, 0.008, 0.008], [0.016, 0.016, 0.016]]"},
-         "Negative values are not valid. Check and try again.")])
-    def test_api_must_serve_exceptions_to_frontend(self, client, param_json_data, param_error):
+         "Negative values are not valid. Check and try again.", "NegativeValue")])
+    def test_api_must_serve_exceptions_to_frontend(self, client, param_json_data, param_error_text, param_exception):
         """"Given data that`s not a list, the api must send a message to frontend with the error"""
         headers = {
             'Content-Type': 'application/json',
@@ -47,4 +42,4 @@ class TestApp(object):
         }
         response = client.post(url + '/linearity', data=json.dumps(param_json_data), headers=headers)
         assert response.status_code == 400
-        assert response.json["body"] == param_error
+        assert response.json[param_exception]["body"] == param_error_text

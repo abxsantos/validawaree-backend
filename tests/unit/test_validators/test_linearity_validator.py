@@ -274,10 +274,10 @@ class TestLinearityValidator(object):
         assert linearity_validator.valid_regression_model is expected_result
 
     def test_check_outliers_when_given_list_of_list_data(self, linearity_validator_outlier_obj):
-        outliers, cleaned_data, cleaned_concentration_data = linearity_validator_outlier_obj.check_outliers()
-        assert outliers == [[10.0], [6.0]]
-        assert cleaned_data == [[1.0, 1.0], [2.0, 2.0]]
-        assert cleaned_concentration_data == [[1.0, 2.0], [8.0, 10.0]]
+        linearity_validator_outlier_obj.check_outliers()
+        assert linearity_validator_outlier_obj.outliers == [[10.0], [6.0]]
+        assert linearity_validator_outlier_obj.cleaned_analytical_data == [[1.0, 1.0], [2.0, 2.0]]
+        assert linearity_validator_outlier_obj.cleaned_concentration_data == [[1.0, 2.0], [8.0, 10.0]]
 
     @pytest.mark.parametrize('param_shapiro_pvalue, param_alpha, expected_result', [
         (10, 0.05, True), (0.01, 0.1, False), (0.0501, 0.05, True), (0.099, 0.1, False)

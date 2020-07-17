@@ -15,7 +15,6 @@ def check_values(value):
     :rtype: float
     """
     if value is None:
-
         return value
     elif isinstance(value, bool):
         raise ValueNotValid()
@@ -30,39 +29,31 @@ def check_values(value):
         raise ValueNotValid()
 
 
-class DataHandlerHelper(object):
-    def __init__(self, data):
-        """
-        Helper class to make individual data checks.
-        :param data:
-        :type data: list[list[float]]
-        """
-        self.data = data
+def check_is_list(data):
+    """
+    Check if the given data is a list.
+    :raises:DataNotList
+    """
+    if isinstance(data, list) is False:
+        raise DataNotList()
 
-    def check_is_list(self):
-        """
-        Check if the given data is a list.
-        :raises:DataNotList
-        """
-        if isinstance(self.data, list) is False:
-            raise DataNotList()
 
-    def check_list_of_lists(self):
-        """
-        Check for numbers converting it to float type.
-        :raise NegativeValue:
-        :raise ValueNotValid:
-        :raise DataNotListOfLists:
-        :return float_data: List containing float only values.
-        :rtype: list[list[float]]
-        """
-        float_data = []
-        for data_set in self.data:
-            if isinstance(data_set, list) is False:
-                raise DataNotListOfLists()
-            float_data_set = [check_values(value) for value in data_set]
-            float_data.append(float_data_set)
-        return float_data
+def check_list_of_lists(data):
+    """
+    Check for numbers converting it to float type.
+    :raise NegativeValue:
+    :raise ValueNotValid:
+    :raise DataNotListOfLists:
+    :return float_data: List containing float only values.
+    :rtype: list[list[float]]
+    """
+    float_data = []
+    for data_set in data:
+        if isinstance(data_set, list) is False:
+            raise DataNotListOfLists()
+        float_data_set = [check_values(value) for value in data_set]
+        float_data.append(float_data_set)
+    return float_data
 
 
 class DataHandler(object):
@@ -74,8 +65,11 @@ class DataHandler(object):
         :param external_concentration_data: List containing the concentration for each analytical signal
         :type external_concentration_data: list[list[float]]
         """
-        self.external_analytical_data = external_analytical_data
-        self.external_concentration_data = external_concentration_data
+
+        check_is_list(external_analytical_data)
+        check_is_list(external_concentration_data)
+        self.external_analytical_data = check_list_of_lists(external_analytical_data)
+        self.external_concentration_data = check_list_of_lists(external_concentration_data)
 
     def check_symmetric_data(self):
         """
@@ -135,12 +129,8 @@ class DataHandler(object):
         :returns analytical_data: List containing the concentration data, ready to be validated.
         :rtype analytical_data: list[list[float]]]
         """
-        DataHandlerHelper(self.external_analytical_data).check_is_list()
-        DataHandlerHelper(self.external_concentration_data).check_is_list()
-        analytical_data = DataHandlerHelper(self.external_analytical_data).check_list_of_lists()
-        concentration_data = DataHandlerHelper(self.external_concentration_data).check_list_of_lists()
-        DataHandler(analytical_data, concentration_data).check_symmetric_data()
-        DataHandler(analytical_data, concentration_data).check_symmetric_data_set()
-        checked_analytical_data, checked_concentration_data = DataHandler(analytical_data,
-                                                                          concentration_data).replace_null_values()
+        data_handler = DataHandler(self.external_analytical_data, self.external_concentration_data)
+        data_handler.check_symmetric_data()
+        data_handler.check_symmetric_data_set()
+        checked_analytical_data, checked_concentration_data = data_handler.replace_null_values()
         return checked_analytical_data, checked_concentration_data
