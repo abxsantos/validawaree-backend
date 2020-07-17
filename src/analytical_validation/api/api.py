@@ -63,7 +63,10 @@ class Linearity(Resource):
             return custom_exceptions[error.__class__.__name__], 400
         except NegativeValue as error:
             return custom_exceptions[error.__class__.__name__], 400
+        except AttributeError:
+            return {"AttributeError": {
+                "body": "You can't fit a model with only one point! Check your values and try again.",
+                "status": 400}}, 400
         except TypeError:
             return {"TypeError": {"body": "There is something wrong with your values! Check and try again.",
                                   "status": 400}}, 400
-
