@@ -269,13 +269,12 @@ class LinearityValidator(object):
             self.outliers.append(outliers_set)
             self.cleaned_analytical_data.append(cleaned_data_set)
 
-        set_index = 0
-        while set_index < len(data):
+        for index in range(len(data)):
             try:
-                concentration[set_index].pop(self.original_analytical_data[set_index].index(self.outliers[set_index][0]))
+                concentration[index].pop(self.original_analytical_data[index].index(self.outliers[index][0]))
             except:
                 pass
-            set_index += 1
+            index += 1
             self.cleaned_concentration_data = concentration
 
     def run_shapiro_wilk_test(self):
