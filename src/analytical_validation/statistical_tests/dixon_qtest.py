@@ -121,7 +121,7 @@ class DixonQTest(object):
         """
         Calculate the Q value for the suspected outliers.
         :return calculated_q_value: Calculated Q value.
-        :rtype calculated_q_value: float
+        :rtype calculated_q_value: float or None
         """
         try:
             return round(abs((reference - value) / (self.sorted_data[-1] - self.sorted_data[0])), 3)

@@ -1,6 +1,6 @@
 import pytest
 
-from analytical_validation.data_handler.data_handler import DataHandler, DataHandlerHelper, check_values
+from analytical_validation.data_handler.data_handler import DataHandler, check_values, check_is_list, check_list_of_lists
 from analytical_validation.exceptions import DataNotList, DataNotListOfLists, ValueNotValid, DataNotSymmetric
 
 
@@ -26,7 +26,7 @@ class TestDataHandlerHelper(object):
         must raise an DataNotList
         """
         with pytest.raises(DataNotList):
-            DataHandlerHelper(param_data).check_is_list()
+            check_is_list(param_data)
 
     @pytest.mark.parametrize('param_data', [
         ["STR"], [{}], [1], [0.990], [(0, 1)]
@@ -38,7 +38,7 @@ class TestDataHandlerHelper(object):
         must raise an DataNotListOfLists
         """
         with pytest.raises(DataNotListOfLists):
-            DataHandlerHelper(param_data).check_list_of_lists()
+            check_list_of_lists(param_data)
 
     @pytest.mark.parametrize('param_data', [
         ([["STR", 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -61,7 +61,7 @@ class TestDataHandlerHelper(object):
         when check_list_of_lists is called,
         Must raise an ValueNotValid"""
         with pytest.raises(ValueNotValid):
-            DataHandlerHelper(param_data).check_list_of_lists()
+            check_list_of_lists(param_data)
 
     @pytest.mark.parametrize('param_data, expected_result', [
         ([["1,234", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.234, 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -71,7 +71,7 @@ class TestDataHandlerHelper(object):
         """Given a list of lists containing strings with comma separated decimals
         When check_list_of_lists is called
         Must pass returning the values converted to float"""
-        assert DataHandlerHelper(param_data).check_list_of_lists() == expected_result
+        assert check_list_of_lists(param_data) == expected_result
 
     @pytest.mark.parametrize('param_data, expected_result', [
         ([["1.234", 0.2, 0.1], [0.1, 0.2, 0.1]], [[1.234, 0.2, 0.1], [0.1, 0.2, 0.1]]),
@@ -91,7 +91,7 @@ class TestDataHandlerHelper(object):
         """Given a list of lists, with not float number value(s)
         when check _list_of_lists is called,
         Must create a list containing floats"""
-        assert DataHandlerHelper(param_data).check_list_of_lists() == expected_result
+        assert check_list_of_lists(param_data) == expected_result
 
 
 class TestDataHandler(object):
