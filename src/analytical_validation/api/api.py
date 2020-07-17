@@ -23,7 +23,7 @@ class Linearity(Resource):
             checked_analytical_data, checked_concentration_data = DataHandler(input_analytical_data,
                                                                               input_concentration_data).handle_data()
             linearity_validator = LinearityValidator(checked_analytical_data, checked_concentration_data)
-            outliers, cleaned_analytical_data, cleaned_concentration_data, linearity_is_valid = linearity_validator.validate_linearity()
+            linearity_validator.validate_linearity()
 
             return {
                        'regression_coefficients': {'intercept': linearity_validator.intercept,
@@ -42,9 +42,9 @@ class Linearity(Resource):
                                             'mean_squared_error_residues': linearity_validator.mean_squared_error_residues,
                                             'anova_f_value': linearity_validator.anova_f_value,
                                             'anova_f_pvalue': linearity_validator.anova_f_pvalue, },
-                       'cleaned_data': {'outliers': outliers,
-                                        'cleaned_analytical_data': cleaned_analytical_data,
-                                        'cleaned_concentration_data': cleaned_concentration_data},
+                       'cleaned_data': {'outliers': linearity_validator.outliers,
+                                        'cleaned_analytical_data': linearity_validator.cleaned_analytical_data,
+                                        'cleaned_concentration_data': linearity_validator.cleaned_concentration_data},
                        'shapiro_pvalue': linearity_validator.shapiro_pvalue,
                        'breusch_pagan_pvalue': linearity_validator.breusch_pagan_pvalue,
                        'linearity_is_valid': linearity_validator.linearity_is_valid,
