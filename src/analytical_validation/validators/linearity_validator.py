@@ -52,7 +52,6 @@ class LinearityValidator(object):
         self.cleaned_analytical_data = []
         self.cleaned_concentration_data = []
 
-
     def ordinary_least_squares_linear_regression(self):
         """Fit the data using the Ordinary Least Squares method of Linear Regression."""
         concentration_data = statsmodels.add_constant(self.concentration_data)
