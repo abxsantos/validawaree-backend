@@ -11,7 +11,7 @@ _correct_data = [0.1, 0.11, 0.12,
 _data_with_none = [0.1, 0.11, 0.12,
                    0.1, None, 0.12,
                    0.1, 0.11, 0.12,
-                   0.1, 0.11, None],
+                   0.1, 0.11, None]
 
 
 @pytest.fixture(scope="function")
@@ -50,10 +50,11 @@ class TestIntermediatePrecisionValidator:
             0.6, 0.65, 0.7,
             0.6, 0.65, 0.7
         ]
-        assert intermediate_precision.calculate_obtained_concentrations() == expected_result
+        intermediate_precision.calculate_obtained_concentrations()
+        assert intermediate_precision.calculated_concentration == expected_result
 
     @pytest.mark.parametrize("param_analytical_data", [
-        "str", {"whaaat": 0.1}, [0.1], (0.1, 0.2), 10, -1, None
+        "str", {"whaaat": 0.1}, 10, -1, None
     ])
     def test_calculate_obtained_concentrations_must_raise_a_warning_given_incorrect_data(self, param_analytical_data):
         """
@@ -61,8 +62,13 @@ class TestIntermediatePrecisionValidator:
         when calculate_obtained_concentrations is called,
         must raise an warning
         """
+        intermediate_precision = IntermediatePrecision(alpha=0.05,
+                                                       analytical_data=param_analytical_data,
+                                                       intercept=0.1,
+                                                       slope=5,
+                                                       )
         with pytest.raises(IncorrectIntermediatePrecisionData):
-            IntermediatePrecision(analytical_data=param_analytical_data, intercept=10, slope=10, alpha=0.05)
+            intermediate_precision.calculate_obtained_concentrations()
 
     def test_calculate_obtained_concentrations_must_keep_none_type_concentration_values_without_raising_error(self,
                                                                                                               intermediate_precision_object):
@@ -77,7 +83,13 @@ class TestIntermediatePrecisionValidator:
             0.6, 0.65, 0.7,
             0.6, 0.65, None
         ]
-        assert intermediate_precision_object(_data_with_none).calculate_obtained_concentrations == expected_result
+        intermediate_precision = IntermediatePrecision(alpha=0.05,
+                                                       analytical_data=_data_with_none,
+                                                       intercept=0.1,
+                                                       slope=5,
+                                                       )
+        intermediate_precision.calculate_obtained_concentrations()
+        assert intermediate_precision.calculated_concentration == expected_result
 
     def test_two_way_anova(self, intermediate_precision_object, two_way_anova_mocked_object):
         """
@@ -85,7 +97,7 @@ class TestIntermediatePrecisionValidator:
         when two_way ANOVA is called,
         must return an object containing the ANOVA properties
         """
-        assert intermediate_precision_object.two_way_anova_result == two_way_anova_mocked_object.sum_sq
+        assert intermediate_precision_object.two_way_anova_result == two_way_anova_mocked_object
 
     def test_two_way_anova_must_not_raise_warning_when_given_none_type_values(self,
                                                                               intermediate_precision_object):
@@ -96,7 +108,11 @@ class TestIntermediatePrecisionValidator:
         """
         intermediate_precision = IntermediatePrecision(analytical_data=_data_with_none, intercept=2, slope=2,
                                                        alpha=0.05)
-        assert intermediate_precision.two_way_anova()
+        intermediate_precision.calculate_obtained_concentrations()
+        try:
+            intermediate_precision.two_way_anova()
+        except IncorrectIntermediatePrecisionData:
+            pytest.fail("Unexpected MyError ..")
 
     def test_validate_intermediate_precision_must_return_true_if_data_is_validated(self,
                                                                                    intermediate_precision_object):
@@ -105,7 +121,8 @@ class TestIntermediatePrecisionValidator:
         when validate_intermediate_precision is called,
         must return True
         """
-        intermediate_precision = intermediate_precision_object.validate_intermediate_precision
+        intermediate_precision = intermediate_precision_object
+        intermediate_precision.validate_intermediate_precision()
         assert intermediate_precision.is_intermediate_precise is True
 
     def test_validate_intermediate_precision_must_return_false_if_data_is_not_validated(self,
@@ -119,5 +136,7 @@ class TestIntermediatePrecisionValidator:
                             8320, 31231, 3123,
                             765, 342, 356,
                             987, 738, 123]
-        intermediate_precision = intermediate_precision_object(not_precise_data).validate_intermediate_precision
+        intermediate_precision = IntermediatePrecision(analytical_data=not_precise_data, intercept=2, slope=2,
+                                                       alpha=0.05)
+        intermediate_precision.validate_intermediate_precision()
         assert intermediate_precision.is_intermediate_precise is False
