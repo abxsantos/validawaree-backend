@@ -37,8 +37,9 @@ class IntermediatePrecision(object):
         self.slope = slope
         self.alpha = alpha
 
-        self.obtained_concentration = []
+        self.calculated_concentration = []
         self.two_way_anova_result = None
+        self.is_intermediate_precise = False
 
     def calculate_obtained_concentrations(self):
         """
@@ -46,14 +47,29 @@ class IntermediatePrecision(object):
         analytical data.
         :return: Concentration data calculated with the regression coefficients.
         """
-        pass
+        self.calculated_concentration = []
+        if isinstance(self.original_analytical_data, list) is False:
+            raise IncorrectIntermediatePrecisionData()
+        for value in self.original_analytical_data:
+            if value is None:
+                self.calculated_concentration.append(value)
+            elif isinstance(value, float) or isinstance(value, int):
+                self.calculated_concentration.append(value * self.slope + self.intercept)
+            else:
+                raise IncorrectIntermediatePrecisionData()
 
     def two_way_anova(self):
         """
         Creates the two-way ANOVA object containing statistical
         properties of the intermediate precision given data a set.
         """
-        pass
+        data_set_length = len(self.calculated_concentration)
+        data_frame = pandas.DataFrame({"days": numpy.repeat(["day 1", "day 2"], data_set_length // 2),
+                                       "analyst": numpy.tile(
+                                           numpy.repeat(["analyst a", "analyst b"], data_set_length // 4), 2),
+                                       "concentration": self.calculated_concentration})
+        model = ols('concentration ~ C(days) + C(analyst) + C(days):C(analyst)', data=data_frame).fit()
+        self.two_way_anova_result = statsmodels.stats.anova_lm(model, typ=2)
 
     def validate_intermediate_precision(self):
         """
@@ -61,4 +77,8 @@ class IntermediatePrecision(object):
         :return: True if the given data is valid. False otherwise.
         :rtype: bool
         """
-        pass
+        self.calculate_obtained_concentrations()
+        self.two_way_anova()
+        # TODO: Check conditionals for intermediate precision acceptance
+        self.is_intermediate_precise = True
+
