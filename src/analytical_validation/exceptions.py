@@ -107,3 +107,8 @@ class NegativeValue(Exception):
     def __init__(self):
         super().__init__("Negative values are not valid. Check and try again.")
 
+
+class IncorrectIntermediatePrecisionData(Exception):
+    def __init__(self):
+        super().__init__("Incorrect analytical data! Check your values and try again.")
+

@@ -2,6 +2,7 @@ import numpy
 import pandas
 from statsmodels.formula.api import ols
 import statsmodels.api as statsmodels
+from analytical_validation.exceptions import IncorrectIntermediatePrecisionData
 
 
 class IntermediatePrecision(object):
