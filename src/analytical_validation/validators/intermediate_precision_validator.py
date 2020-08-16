@@ -50,3 +50,11 @@ class IntermediatePrecision(object):
         properties of the intermediate precision given data a set.
         """
         pass
+
+    def validate_intermediate_precision(self):
+        """
+        Validates the intermediate precision of given data.
+        :return: True if the given data is valid. False otherwise.
+        :rtype: bool
+        """
+        pass
