@@ -1,3 +1,27 @@
+import pytest
+
+from analytical_validation.validators.intermediate_precision_validator import IntermediatePrecision
+
+
+@pytest.fixture(scope="function")
+def intermediate_precision_object():
+    intermediate_precision = IntermediatePrecision(alpha=0.05,
+                                                   analytical_data=[0.1, 0.11, 0.12,   # Day 1, analyst A
+                                                                    0.1, 0.11, 0.12,   # Day 1, analyst B
+                                                                    0.1, 0.11, 0.12,   # Day 2, analyst A
+                                                                    0.1, 0.11, 0.12],  # Day 2, analyst B
+                                                   intercept=0.0001,
+                                                   slope=20.2,
+                                                   )
+    return intermediate_precision
+
+
+@pytest.fixture(scope="function")
+def two_way_anova_mocked_object(mocker):
+    mock = mocker.Mock(create=True)
+    return mock
+
+
 class TestIntermediatePrecisionValidator:
 
     def test_calculate_obtained_concentrations(self):
