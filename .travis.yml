@@ -22,6 +22,7 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 deploy:
+  skip_cleanup: true
   provider: heroku
   api_key:
     secure: $HEROKU_API_KEY
