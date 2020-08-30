@@ -136,7 +136,7 @@ class TestIntermediatePrecisionValidator:
         not_precise_data = [30192, 321, 123,
                             8320, 31231, 3123,
                             765, 342, 356,
-                            987, 738, 123]
+                            987, 738, 124]
         intermediate_precision = IntermediatePrecision(analytical_data=not_precise_data, intercept=2, slope=2,
                                                        alpha=0.05)
         intermediate_precision.validate_intermediate_precision()
