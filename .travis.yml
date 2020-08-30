@@ -21,6 +21,6 @@ deploy:
   provider: heroku
   api_key:
     secure: bvjSkqw4c8zcYYR3nGjBIxr2z7oxAwosDgi+6lKgaX2VFD0Hvt8+txSStv7eUbImkpQcSciTXTYU7OIzzI1h0TFXz/cYE7gHeQHFCGKb/mEpIYEIWx/+q1G4a8l2+QtxXx0f9TYtf8pMXpSULAekdolksqacpkfgBhvxWI2voxooDxAkC/qgyeLsiJ4CKxAFNQ8dk0bHkOak1OtmZuku/diTqM/Ywj4BzJCcbkP+Q9f0/8AS8VnjmiI5VNywo20KMnjvPJvRP1gIHsZEqfqyOXIBrls8W/B7ADt4HALN63owk8UwO+48/5a2hITgpRSwXYTKjvR5irTOUt1jyqaO5gltde9xQIQEmeLBSEv4UlNSL15EXR8tycXmrgQ9lPvq/uDjme1QoF7DkrKzpFQCJLA3bsJu9TvoT4Nnt3welkvHIkAWOYfgnQG4Imuve77tsuPlp+VtKB6WrAGwt1JSDAkYPYvQTe3Q9eWPBVy467AgPUakcDfBO7YBhpngmV/tuf30vE6sL6HcsADNEz5xmcwW0aZ7fTlq9qSHsRDWNwRfkaD3roL+TRZHMuFwruPU1FgFH0YGaELaGvKnlzfc7QIVVz8G4dT9zuEDJUnKs9aHULPTdIjZpDgfuyBOVIUT3qC/yLpOIEM89Lvh51JU5H8TM+qvAT7RgdwgaLD5O+k=
-  app: validawaree-backend
+  app: agile-temple-75165
   on:
     branch: master
