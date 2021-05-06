@@ -9,7 +9,7 @@ colorama==0.4.3
 coverage==5.2
 decorator==4.4.2
 Flask==1.1.2
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 Flask-RESTful==0.3.8
 flask-swagger-ui==3.25.0
 gunicorn==20.0.4
