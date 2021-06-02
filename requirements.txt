@@ -51,6 +51,6 @@ sklearn==0.0
 statsmodels==0.11.1
 threadpoolctl==2.1.0
 traitlets==4.3.3
-urllib3==1.25.9
+urllib3==1.26.5
 wcwidth==0.2.4
 Werkzeug==1.0.1
